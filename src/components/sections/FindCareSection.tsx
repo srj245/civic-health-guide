@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { MapPin, Stethoscope, Brain, Pill, Heart, DollarSign, Phone, ExternalLink } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const careCategories = [
   {
@@ -35,6 +37,32 @@ const careCategories = [
 ];
 
 const FindCareSection = () => {
+  const [zipCode, setZipCode] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [lowCostOnly, setLowCostOnly] = useState(false);
+  const [includeTelehealth, setIncludeTelehealth] = useState(false);
+  const { toast } = useToast();
+
+  const handleSearch = () => {
+    if (!zipCode.trim()) {
+      toast({
+        title: "Please enter a location",
+        description: "Enter your zip code or city to find care near you.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Searching for care...",
+      description: `Finding ${selectedCategory ? careCategories.find(c => c.id === selectedCategory)?.title : "healthcare resources"} near ${zipCode}`,
+    });
+  };
+
+  const handleCategoryClick = (categoryId: string) => {
+    setSelectedCategory(selectedCategory === categoryId ? null : categoryId);
+  };
+
   return (
     <section id="care" className="py-20 md:py-28 bg-background">
       <div className="container mx-auto px-4">
@@ -67,6 +95,8 @@ const FindCareSection = () => {
                   <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <input
                     type="text"
+                    value={zipCode}
+                    onChange={(e) => setZipCode(e.target.value)}
                     placeholder="Enter your zip code or city"
                     className="w-full pl-10 pr-4 py-3 rounded-xl border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                   />
@@ -81,12 +111,19 @@ const FindCareSection = () => {
                     {careCategories.map((cat) => (
                       <button
                         key={cat.id}
-                        className="flex items-center gap-2 p-3 rounded-xl border border-border bg-background hover:bg-secondary hover:border-primary/30 transition-all text-left group"
+                        onClick={() => handleCategoryClick(cat.id)}
+                        className={`flex items-center gap-2 p-3 rounded-xl border transition-all text-left group ${
+                          selectedCategory === cat.id
+                            ? "border-primary bg-primary/10"
+                            : "border-border bg-background hover:bg-secondary hover:border-primary/30"
+                        }`}
                       >
                         <div className={`w-8 h-8 rounded-lg ${cat.color} flex items-center justify-center flex-shrink-0`}>
                           <cat.icon className="w-4 h-4 text-primary-foreground" />
                         </div>
-                        <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
+                        <span className={`text-sm font-medium transition-colors ${
+                          selectedCategory === cat.id ? "text-primary" : "text-foreground group-hover:text-primary"
+                        }`}>
                           {cat.title}
                         </span>
                       </button>
@@ -97,14 +134,24 @@ const FindCareSection = () => {
                 {/* Additional Options */}
                 <div className="space-y-3 mb-6">
                   <label className="flex items-center gap-3 cursor-pointer">
-                    <input type="checkbox" className="w-4 h-4 rounded border-input accent-primary" />
+                    <input
+                      type="checkbox"
+                      checked={lowCostOnly}
+                      onChange={(e) => setLowCostOnly(e.target.checked)}
+                      className="w-4 h-4 rounded border-input accent-primary"
+                    />
                     <span className="text-sm text-muted-foreground">
                       <DollarSign className="w-4 h-4 inline mr-1" />
                       Show only free/low-cost options
                     </span>
                   </label>
                   <label className="flex items-center gap-3 cursor-pointer">
-                    <input type="checkbox" className="w-4 h-4 rounded border-input accent-primary" />
+                    <input
+                      type="checkbox"
+                      checked={includeTelehealth}
+                      onChange={(e) => setIncludeTelehealth(e.target.checked)}
+                      className="w-4 h-4 rounded border-input accent-primary"
+                    />
                     <span className="text-sm text-muted-foreground">
                       <Phone className="w-4 h-4 inline mr-1" />
                       Include telehealth options
@@ -112,7 +159,7 @@ const FindCareSection = () => {
                   </label>
                 </div>
 
-                <Button variant="default" className="w-full" size="lg">
+                <Button variant="default" className="w-full" size="lg" onClick={handleSearch}>
                   Search for Care
                 </Button>
               </CardContent>
@@ -123,7 +170,10 @@ const FindCareSection = () => {
               {careCategories.map((category, index) => (
                 <Card
                   key={category.id}
-                  className="border-border/50 bg-card shadow-sm hover:shadow-card transition-shadow cursor-pointer group animate-fade-in-up"
+                  onClick={() => handleCategoryClick(category.id)}
+                  className={`border-border/50 bg-card shadow-sm hover:shadow-card transition-shadow cursor-pointer group animate-fade-in-up ${
+                    selectedCategory === category.id ? "ring-2 ring-primary" : ""
+                  }`}
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
                   <CardContent className="p-5">

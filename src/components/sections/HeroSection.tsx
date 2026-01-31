@@ -1,7 +1,29 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Shield, Search, Users } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const HeroSection = () => {
+  const { toast } = useToast();
+
+  const scrollToSection = (href: string) => {
+    const element = document.querySelector(href);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const handleExploreUpdates = () => {
+    scrollToSection("#news");
+  };
+
+  const handleFindCare = () => {
+    scrollToSection("#care");
+    toast({
+      title: "Find Care Near You",
+      description: "Enter your zip code to discover local healthcare resources.",
+    });
+  };
+
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden">
       {/* Background */}
@@ -36,11 +58,11 @@ const HeroSection = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-            <Button variant="hero" size="xl">
+            <Button variant="hero" size="xl" onClick={handleExploreUpdates}>
               Explore Health Updates
               <ArrowRight className="w-5 h-5" />
             </Button>
-            <Button variant="heroOutline" size="xl">
+            <Button variant="heroOutline" size="xl" onClick={handleFindCare}>
               Find Care Near Me
             </Button>
           </div>
@@ -51,7 +73,7 @@ const HeroSection = () => {
               { icon: Search, label: "Plain English Explanations", desc: "No law degree needed" },
               { icon: Users, label: "See Who's Affected", desc: "Students, families, seniors" },
               { icon: Shield, label: "Find Local Resources", desc: "Clinics, services, support" },
-            ].map((item, index) => (
+            ].map((item) => (
               <div
                 key={item.label}
                 className="flex flex-col items-center p-4 rounded-2xl bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/10 hover:bg-primary-foreground/15 transition-colors"
