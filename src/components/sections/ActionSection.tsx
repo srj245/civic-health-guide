@@ -80,10 +80,10 @@ const ActionSection = () => {
           {/* Action Cards */}
           <div className="grid md:grid-cols-3 gap-6 mb-12">
             {actions.map((action, index) => (
-              <div
+              <button
                 key={action.title}
                 onClick={() => handleActionClick(action.title)}
-                className="p-6 rounded-2xl bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/20 hover:bg-primary-foreground/15 transition-all group cursor-pointer animate-fade-in-up"
+                className="p-6 rounded-2xl bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/20 hover:bg-primary-foreground/15 transition-all group cursor-pointer animate-fade-in-up text-left"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <div className={`w-14 h-14 rounded-2xl ${action.color} flex items-center justify-center mb-5 shadow-lg`}>
@@ -99,7 +99,7 @@ const ActionSection = () => {
                   {action.cta}
                   <ArrowRight className="w-4 h-4" />
                 </span>
-              </div>
+              </button>
             ))}
           </div>
 
