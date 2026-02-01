@@ -3,21 +3,21 @@ import { Heart } from "lucide-react";
 const Footer = () => {
   const footerLinks = {
     resources: [
-      { name: "Health News", href: "#news" },
-      { name: "Find Care", href: "#care" },
-      { name: "Policy Explainers", href: "#" },
-      { name: "Community Resources", href: "#" },
+      { name: "Health News", href: "/#news" },
+      { name: "Find Care", href: "/#care" },
+      { name: "Policy Explainers", href: "/#action" },
+      { name: "Community Resources", href: "/#affected" },
     ],
     company: [
-      { name: "About Us", href: "#" },
-      { name: "Our Mission", href: "#" },
-      { name: "Contact", href: "#" },
-      { name: "Careers", href: "#" },
+      { name: "About Us", href: "/#" },
+      { name: "Our Mission", href: "/#" },
+      { name: "Contact", href: "/#action" },
+      { name: "Careers", href: "/#" },
     ],
     legal: [
-      { name: "Privacy Policy", href: "#" },
-      { name: "Terms of Service", href: "#" },
-      { name: "Accessibility", href: "#" },
+      { name: "Privacy Policy", href: "/#" },
+      { name: "Terms of Service", href: "/#" },
+      { name: "Accessibility", href: "/#" },
     ],
   };
 
