@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Clock, ArrowRight, TrendingUp, AlertCircle, CheckCircle } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const newsItems = [
   {
@@ -68,6 +69,15 @@ const getImpactLabel = (impact: string) => {
 };
 
 const NewsSection = () => {
+  const { toast } = useToast();
+
+  const handleReadMore = (title: string) => {
+    toast({
+      title: "Coming Soon",
+      description: `Full article for "${title}" will be available soon.`,
+    });
+  };
+
   return (
     <section id="news" className="py-20 md:py-28 bg-background">
       <div className="container mx-auto px-4">
@@ -133,10 +143,13 @@ const NewsSection = () => {
                       {item.readTime}
                     </span>
                   </div>
-                  <span className="text-xs font-medium text-primary flex items-center gap-1 group-hover:gap-2 transition-all">
+                  <button 
+                    onClick={() => handleReadMore(item.title)}
+                    className="text-xs font-medium text-primary flex items-center gap-1 group-hover:gap-2 transition-all"
+                  >
                     Read more
                     <ArrowRight className="w-3.5 h-3.5" />
-                  </span>
+                  </button>
                 </div>
               </CardContent>
             </Card>
@@ -145,13 +158,13 @@ const NewsSection = () => {
 
         {/* View All Link */}
         <div className="text-center mt-10">
-          <a
-            href="#"
+          <button
+            onClick={() => toast({ title: "Coming Soon", description: "All health updates page will be available soon." })}
             className="inline-flex items-center gap-2 text-primary font-medium hover:gap-3 transition-all"
           >
             View all health updates
             <ArrowRight className="w-4 h-4" />
-          </a>
+          </button>
         </div>
       </div>
     </section>
