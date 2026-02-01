@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { GraduationCap, Users, Briefcase, Heart, ArrowRight } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const audienceGroups = [
   {
@@ -47,6 +48,15 @@ const audienceGroups = [
 ];
 
 const AffectedSection = () => {
+  const { toast } = useToast();
+
+  const handleViewUpdates = (groupName: string) => {
+    toast({
+      title: "Coming Soon",
+      description: `Updates for ${groupName} will be available soon.`,
+    });
+  };
+
   return (
     <section id="affected" className="py-20 md:py-28 bg-secondary/30">
       <div className="container mx-auto px-4">
@@ -106,7 +116,10 @@ const AffectedSection = () => {
                     </div>
 
                     {/* CTA */}
-                    <button className="inline-flex items-center gap-1.5 text-sm font-medium text-primary group-hover:gap-2.5 transition-all">
+                    <button 
+                      onClick={() => handleViewUpdates(group.title)}
+                      className="inline-flex items-center gap-1.5 text-sm font-medium text-primary group-hover:gap-2.5 transition-all"
+                    >
                       View updates for {group.title.split(' ')[0].toLowerCase()}
                       <ArrowRight className="w-4 h-4" />
                     </button>
