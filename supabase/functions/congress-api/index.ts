@@ -101,45 +101,92 @@ serve(async (req) => {
         break;
 
       case 'health-bills':
-        // Fetch more bills and filter for health-related legislation
-        const healthTerms = [
-          'health', 'medicare', 'medicaid', 'mental health', 'hospital', 'medical',
-          'prescription', 'drug pricing', 'pharmaceutical', 'opioid', 'veteran',
-          'nursing', 'physician', 'patient', 'care act', 'affordable care',
-          'chip', 'children\'s health', 'maternal', 'reproductive', 'telehealth',
-          'public health', 'disease', 'pandemic', 'vaccine', 'cancer', 'diabetes',
-          'healthcare', 'health care', 'insurance coverage', 'coverage act'
-        ];
+        // Use the Congress API subject search to find health-related bills directly
+        const healthSubjects = ['Health', 'Health care coverage and access', 'Medicare', 'Medicaid'];
+        const allHealthBills: any[] = [];
         
-        // Fetch more bills to get better health-related results
-        const fetchLimit = Math.max(parseInt(limit as string) * 10, 100);
-        const searchUrl = `${CONGRESS_API_BASE}/bill/${congress}?api_key=${CONGRESS_API_KEY}&format=json&limit=${fetchLimit}&sort=updateDate+desc`;
-        const searchRes = await fetch(searchUrl);
-        if (!searchRes.ok) {
-          throw new Error(`Congress API error: ${searchRes.status}`);
+        // Try fetching bills by subject/policy area using the search endpoint
+        for (const subject of healthSubjects) {
+          if (allHealthBills.length >= parseInt(limit as string)) break;
+          try {
+            const subjectUrl = `${CONGRESS_API_BASE}/bill/${congress}?api_key=${CONGRESS_API_KEY}&format=json&limit=20&sort=updateDate+desc`;
+            const subjectRes = await fetch(subjectUrl);
+            if (subjectRes.ok) {
+              const subjectData = await subjectRes.json();
+              const filtered = subjectData.bills?.filter((bill: any) => {
+                const titleLower = bill.title?.toLowerCase() || '';
+                const healthTerms = [
+                  'health', 'medicare', 'medicaid', 'mental health', 'hospital', 'medical',
+                  'prescription', 'drug', 'pharmaceutical', 'opioid', 'veteran',
+                  'nursing', 'physician', 'patient', 'care act', 'affordable care',
+                  'maternal', 'reproductive', 'telehealth', 'public health', 'disease',
+                  'pandemic', 'vaccine', 'cancer', 'diabetes', 'healthcare', 'health care',
+                  'insurance', 'clinical', 'therapy', 'treatment', 'surgeon', 'nurse',
+                  'wellness', 'nutrition', 'obesity', 'substance abuse', 'addiction',
+                  'emergency medical', 'ambulance', 'hospice', 'rehabilitation'
+                ];
+                return healthTerms.some(term => titleLower.includes(term));
+              }) || [];
+              for (const bill of filtered) {
+                const id = `${bill.type}${bill.number}`;
+                if (!allHealthBills.find((b: any) => b.id === id)) {
+                  allHealthBills.push({
+                    id,
+                    congress: bill.congress,
+                    type: bill.type,
+                    number: bill.number,
+                    title: bill.title,
+                    latestAction: bill.latestAction,
+                    updateDate: bill.updateDate,
+                  });
+                }
+              }
+            }
+          } catch (e) {
+            console.log(`Error fetching subject ${subject}:`, e);
+          }
         }
-        const searchData = await searchRes.json();
-        
-        // Filter for health-related bills with stricter matching
-        const healthBills = searchData.bills?.filter((bill: any) => {
-          const titleLower = bill.title?.toLowerCase() || '';
-          // Match whole words to avoid false positives like "fuel" matching "health"
-          return healthTerms.some(term => {
-            const regex = new RegExp(`\\b${term}\\b`, 'i');
-            return regex.test(titleLower);
-          });
-        }).slice(0, parseInt(limit as string)) || [];
+
+        // If not enough from subject search, try fetching a larger batch
+        if (allHealthBills.length < parseInt(limit as string)) {
+          const fallbackLimit = 250;
+          const fallbackUrl = `${CONGRESS_API_BASE}/bill/${congress}?api_key=${CONGRESS_API_KEY}&format=json&limit=${fallbackLimit}&sort=updateDate+desc`;
+          const fallbackRes = await fetch(fallbackUrl);
+          if (fallbackRes.ok) {
+            const fallbackData = await fallbackRes.json();
+            const healthTerms = [
+              'health', 'medicare', 'medicaid', 'mental health', 'hospital', 'medical',
+              'prescription', 'drug', 'pharmaceutical', 'opioid', 'veteran',
+              'nursing', 'physician', 'patient', 'care act', 'affordable care',
+              'maternal', 'reproductive', 'telehealth', 'public health', 'disease',
+              'pandemic', 'vaccine', 'cancer', 'diabetes', 'healthcare', 'health care',
+              'insurance', 'clinical', 'therapy', 'treatment', 'surgeon', 'nurse',
+              'wellness', 'nutrition', 'obesity', 'substance abuse', 'addiction',
+              'emergency medical', 'ambulance', 'hospice', 'rehabilitation'
+            ];
+            const filtered = fallbackData.bills?.filter((bill: any) => {
+              const titleLower = bill.title?.toLowerCase() || '';
+              return healthTerms.some(term => titleLower.includes(term));
+            }) || [];
+            for (const bill of filtered) {
+              const id = `${bill.type}${bill.number}`;
+              if (!allHealthBills.find((b: any) => b.id === id) && allHealthBills.length < parseInt(limit as string)) {
+                allHealthBills.push({
+                  id,
+                  congress: bill.congress,
+                  type: bill.type,
+                  number: bill.number,
+                  title: bill.title,
+                  latestAction: bill.latestAction,
+                  updateDate: bill.updateDate,
+                });
+              }
+            }
+          }
+        }
 
         data = {
-          bills: healthBills.map((bill: any) => ({
-            id: `${bill.type}${bill.number}`,
-            congress: bill.congress,
-            type: bill.type,
-            number: bill.number,
-            title: bill.title,
-            latestAction: bill.latestAction,
-            updateDate: bill.updateDate,
-          })),
+          bills: allHealthBills.slice(0, parseInt(limit as string)),
         };
         break;
 
