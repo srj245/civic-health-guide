@@ -8,7 +8,7 @@ const Header = () => {
   const { toast } = useToast();
 
   const navLinks = [
-    { name: "News", href: "#news" },
+    { name: "Health News", href: "#news" },
     { name: "Who's Affected", href: "#affected" },
     { name: "Find Care", href: "#care" },
     { name: "Take Action", href: "#action" },
