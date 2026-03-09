@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Heart } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -55,7 +56,8 @@ const Header = () => {
             ))}
           </nav>
 
-          <div className="hidden md:block">
+          <div className="hidden md:flex items-center gap-2">
+            <ThemeToggle />
             <Button variant="default" size="default" onClick={() => handleNav("/news")}>
               Get Started
             </Button>
@@ -82,8 +84,9 @@ const Header = () => {
                   {link.name}
                 </button>
               ))}
-              <div className="pt-2 px-4">
-                <Button variant="default" className="w-full" onClick={() => handleNav("/news")}>
+              <div className="pt-2 px-4 flex items-center gap-2">
+                <ThemeToggle />
+                <Button variant="default" className="flex-1" onClick={() => handleNav("/news")}>
                   Get Started
                 </Button>
               </div>
