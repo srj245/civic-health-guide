@@ -1,9 +1,12 @@
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import HeroSection from "@/components/sections/HeroSection";
+import StatisticsSection from "@/components/sections/StatisticsSection";
+import HowItWorksSection from "@/components/sections/HowItWorksSection";
 import NewsSection from "@/components/sections/NewsSection";
 import AffectedSection from "@/components/sections/AffectedSection";
 import FindCareSection from "@/components/sections/FindCareSection";
+import FaqSection from "@/components/sections/FaqSection";
 import ActionSection from "@/components/sections/ActionSection";
 
 const Index = () => {
@@ -12,9 +15,12 @@ const Index = () => {
       <Header />
       <main>
         <HeroSection />
+        <StatisticsSection />
+        <HowItWorksSection />
         <NewsSection />
         <AffectedSection />
         <FindCareSection />
+        <FaqSection />
         <ActionSection />
       </main>
       <Footer />
