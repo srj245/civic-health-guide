@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Clock, ArrowRight, TrendingUp, FileText } from "lucide-react";
+import { Clock, ArrowRight, FileText } from "lucide-react";
 import { useHealthBills, type Bill } from "@/hooks/useCongressApi";
 import BillDetailModal from "./BillDetailModal";
 
