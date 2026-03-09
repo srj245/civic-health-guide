@@ -162,19 +162,6 @@ const AffectedSection = () => {
   return (
     <section id="affected" className="py-20 md:py-28 bg-secondary/30">
       <div className="container mx-auto px-4">
-        {/* Section Header */}
-        <div className="max-w-3xl mx-auto text-center mb-14">
-          <Badge variant="secondary" className="mb-4 px-4 py-1.5">
-            <Users className="w-3.5 h-3.5 mr-1.5" />
-            Who's Affected
-          </Badge>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Healthcare Updates That Matter to You
-          </h2>
-          <p className="text-lg text-muted-foreground">
-            Select your group to see real legislation from Congress that affects your life stage.
-          </p>
-        </div>
 
         {/* Audience Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">

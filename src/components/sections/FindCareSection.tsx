@@ -67,19 +67,6 @@ const FindCareSection = () => {
     <section id="care" className="py-20 md:py-28 bg-background">
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
-          {/* Section Header */}
-          <div className="max-w-3xl mx-auto text-center mb-14">
-            <Badge variant="secondary" className="mb-4 px-4 py-1.5">
-              <MapPin className="w-3.5 h-3.5 mr-1.5" />
-              Find Care Near You
-            </Badge>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Connect with Healthcare in Your Community
-            </h2>
-            <p className="text-lg text-muted-foreground">
-              We help you find clinics, mental health services, and low-cost care options based on your location and needs.
-            </p>
-          </div>
 
           {/* Main Content */}
           <div className="grid lg:grid-cols-5 gap-8 items-start">
