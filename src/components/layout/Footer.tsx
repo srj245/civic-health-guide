@@ -3,10 +3,10 @@ import { Heart } from "lucide-react";
 const Footer = () => {
   const footerLinks = {
     resources: [
-      { name: "Health News", href: "/#news" },
-      { name: "Find Care", href: "/#care" },
-      { name: "Policy Explainers", href: "/#action" },
-      { name: "Community Resources", href: "/#affected" },
+      { name: "Health News", href: "/news" },
+      { name: "Find Care", href: "/care" },
+      { name: "Who's Affected", href: "/affected" },
+      { name: "Take Action", href: "/#action" },
     ],
     company: [
       { name: "About Us", href: "/#" },
