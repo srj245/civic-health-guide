@@ -56,7 +56,8 @@ const Header = () => {
             ))}
           </nav>
 
-          <div className="hidden md:block">
+          <div className="hidden md:flex items-center gap-2">
+            <ThemeToggle />
             <Button variant="default" size="default" onClick={() => handleNav("/news")}>
               Get Started
             </Button>
