@@ -84,8 +84,9 @@ const Header = () => {
                   {link.name}
                 </button>
               ))}
-              <div className="pt-2 px-4">
-                <Button variant="default" className="w-full" onClick={() => handleNav("/news")}>
+              <div className="pt-2 px-4 flex items-center gap-2">
+                <ThemeToggle />
+                <Button variant="default" className="flex-1" onClick={() => handleNav("/news")}>
                   Get Started
                 </Button>
               </div>
