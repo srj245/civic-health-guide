@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Clock, ArrowRight, TrendingUp, FileText } from "lucide-react";
+import { Clock, ArrowRight, FileText } from "lucide-react";
 import { useHealthBills, type Bill } from "@/hooks/useCongressApi";
 import BillDetailModal from "./BillDetailModal";
 
@@ -43,19 +43,6 @@ const NewsSection = () => {
   return (
     <section id="news" className="py-20 md:py-28 bg-background">
       <div className="container mx-auto px-4">
-        {/* Section Header */}
-        <div className="max-w-3xl mx-auto text-center mb-14">
-          <Badge variant="secondary" className="mb-4 px-4 py-1.5">
-            <TrendingUp className="w-3.5 h-3.5 mr-1.5" />
-            Live from Congress
-          </Badge>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Health Legislation Updates
-          </h2>
-          <p className="text-lg text-muted-foreground">
-            Real-time health-related bills from the 118th Congress. Click any bill to see full details and summaries.
-          </p>
-        </div>
 
         {/* Loading State */}
         {loading && (
