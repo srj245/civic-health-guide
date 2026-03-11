@@ -1,23 +1,13 @@
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
-import PageHero from "@/components/sections/PageHero";
 import NewsSection from "@/components/sections/NewsSection";
-import { TrendingUp } from "lucide-react";
 
 const News = () => {
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main className="pt-20">
-        <PageHero
-          icon={TrendingUp}
-          badge="Live from Congress"
-          title="Health Legislation Updates"
-          subtitle="Track real-time health-related bills from Congress, translated into plain English so you can stay informed."
-        />
-        <NewsSection />
-      </main>
-      <Footer />
+    <div className="bg-background">
+      <div className="px-6 py-8 md:px-10">
+        <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1">Health Legislation Updates</h1>
+        <p className="text-muted-foreground mb-6">Track real-time health-related bills from Congress, in plain English.</p>
+      </div>
+      <NewsSection />
     </div>
   );
 };

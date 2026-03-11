@@ -1,23 +1,13 @@
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
-import PageHero from "@/components/sections/PageHero";
 import FindCareSection from "@/components/sections/FindCareSection";
-import { MapPin } from "lucide-react";
 
 const Care = () => {
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main className="pt-20">
-        <PageHero
-          icon={MapPin}
-          badge="Find Care Near You"
-          title="Connect with Healthcare in Your Community"
-          subtitle="Discover clinics, mental health services, and low-cost care options based on your location and needs."
-        />
-        <FindCareSection />
-      </main>
-      <Footer />
+    <div className="bg-background">
+      <div className="px-6 py-8 md:px-10">
+        <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1">Find Care Near You</h1>
+        <p className="text-muted-foreground mb-6">Discover clinics, mental health services, and low-cost care options.</p>
+      </div>
+      <FindCareSection />
     </div>
   );
 };
