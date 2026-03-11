@@ -162,6 +162,17 @@ const Representatives = () => {
 
                       <div className="flex gap-2 mt-4">
                         <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedRep(rep);
+                            setRepModalOpen(true);
+                          }}
+                        >
+                          <Award className="w-4 h-4 mr-1" />
+                          Health Score
+                        </Button>
+                        <Button
                           variant="default"
                           size="sm"
                           className="flex-1"
@@ -173,13 +184,12 @@ const Representatives = () => {
                           }
                         >
                           <Mail className="w-4 h-4 mr-1" />
-                          Email Template
+                          Email
                         </Button>
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => {
-                            // Extract member ID from API URL and link to public congress.gov page
                             const match = rep.url?.match(/member\/([A-Z]\d+)/);
                             const publicUrl = match
                               ? `https://www.congress.gov/member/${rep.name.toLowerCase().replace(/[^a-z]/g, '-')}/${match[1]}`
