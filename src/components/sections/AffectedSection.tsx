@@ -98,7 +98,19 @@ const AudienceBillsModal = ({ group, open, onOpenChange, bills, loading }: Audie
           )}
 
           {!loading && relevantBills.length === 0 && (
-            <EmptyBillsState groupTitle={group.title} onOpenChange={onOpenChange} />
+            <div className="text-center py-8">
+              <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground">
+                No specific bills found for {group.title} in recent legislation.
+              </p>
+              <p className="text-sm text-muted-foreground mt-2 mb-4">
+                Browse all health bills on the News page for the latest updates.
+              </p>
+              <Button variant="outline" size="sm" onClick={() => { onOpenChange(false); navigate("/news"); }}>
+                Browse Health News
+                <ArrowRight className="w-4 h-4 ml-1" />
+              </Button>
+            </div>
           )}
 
           {!loading && relevantBills.map((bill) => (
