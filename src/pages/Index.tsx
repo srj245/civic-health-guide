@@ -87,6 +87,7 @@ const Index = () => {
 
   return (
     <div className="bg-background animate-fade-in">
+      <OnboardingTour />
       {/* Full-screen Hero */}
       <HeroSection />
 
