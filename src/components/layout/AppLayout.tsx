@@ -3,7 +3,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Search, LogIn, LogOut, User } from "lucide-react";
+import { Search, LogIn, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface AppLayoutProps {
@@ -56,8 +56,6 @@ const AppLayout = ({ children }: AppLayoutProps) => {
           <main id="main-content" className="flex-1 overflow-auto" role="main">
             {children}
           </main>
-        </div>
-      </div>
         </div>
       </div>
     </SidebarProvider>
