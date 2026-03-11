@@ -145,6 +145,13 @@ const DistrictDashboard = () => {
     }
   }, [zip]);
 
+  // Auto-load saved zip on mount
+  useEffect(() => {
+    if (zip && /^\d{5}$/.test(zip) && !searched) {
+      handleLookup();
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const getEmailBody = (repName: string) =>
     encodeURIComponent(
       `Dear ${repName},\n\nAs your constituent, I am writing to express my concerns about healthcare policy.\n\nI urge you to support legislation that protects access to affordable health insurance, expands mental health services, and reduces prescription drug costs.\n\nThank you for your service.\n\nSincerely,\n[Your Name]`
