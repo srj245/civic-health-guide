@@ -11,3 +11,12 @@ verify_jwt = false
 
 [functions.congress-api]
 verify_jwt = false
+
+[functions.impact-calculator]
+verify_jwt = false
+
+[functions.rep-votes]
+verify_jwt = false
+
+[functions.health-chat]
+verify_jwt = false

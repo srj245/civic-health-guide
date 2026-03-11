@@ -185,9 +185,29 @@ const BillDetailModal = ({ bill, open, onOpenChange }: BillDetailModalProps) => 
 
             {/* Actions */}
             <div className="flex gap-2">
+              {bill && (
+                <Button
+                  variant={isTracked(bill.id) ? "default" : "outline"}
+                  className="flex-1"
+                  onClick={async () => {
+                    if (!user) {
+                      toast({ title: "Sign in required", description: "Create an account to track bills." });
+                      return;
+                    }
+                    try {
+                      const tracked = await toggleTrack(bill);
+                      toast({ title: tracked ? "Bill tracked!" : "Bill untracked" });
+                    } catch {
+                      toast({ title: "Error", variant: "destructive" });
+                    }
+                  }}
+                >
+                  <Bookmark className={`w-4 h-4 mr-2 ${isTracked(bill.id) ? "fill-current" : ""}`} />
+                  {isTracked(bill.id) ? "Tracking" : "Track Bill"}
+                </Button>
+              )}
               <Button
                 variant="outline"
-                className="flex-1"
                 onClick={() => window.open(`https://congress.gov/bill/${details.congress}th-congress/${details.type === 'hr' ? 'house-bill' : 'senate-bill'}/${details.number}`, '_blank')}
               >
                 <ExternalLink className="w-4 h-4 mr-2" />

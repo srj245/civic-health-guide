@@ -216,8 +216,19 @@ const Representatives = () => {
           )}
         </div>
       </section>
+
+      {selectedRep && (
+        <RepDetailModal
+          repName={selectedRep.name}
+          repUrl={selectedRep.url}
+          open={repModalOpen}
+          onOpenChange={setRepModalOpen}
+        />
+      )}
     </div>
   );
 };
+
+export default Representatives;
 
 export default Representatives;
