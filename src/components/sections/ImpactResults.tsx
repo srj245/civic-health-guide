@@ -2,7 +2,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, AlertTriangle, TrendingUp, Minus } from "lucide-react";
+import { ArrowLeft, AlertTriangle, TrendingUp, Minus, Share2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import type { ImpactProfile, ImpactResult } from "@/pages/Impact";
 
 interface Props {
