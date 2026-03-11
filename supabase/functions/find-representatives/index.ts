@@ -21,7 +21,7 @@ serve(async (req) => {
 
     // Fetch members from the current congress for the given state
     const stateUpper = state.toUpperCase();
-    const membersUrl = `${CONGRESS_API_BASE}/member?api_key=${CONGRESS_API_KEY}&format=json&limit=100&currentMember=true&stateCode=${stateUpper}`;
+    const membersUrl = `${CONGRESS_API_BASE}/member/${stateUpper}?api_key=${CONGRESS_API_KEY}&format=json&limit=100&currentMember=true`;
     const res = await fetch(membersUrl);
     if (!res.ok) throw new Error(`Congress API error: ${res.status}`);
 
