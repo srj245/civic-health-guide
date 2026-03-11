@@ -1,13 +1,19 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import ThemeToggle from "@/components/ThemeToggle";
-import { Search } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import { Search, LogIn, LogOut, User } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface AppLayoutProps {
   children: React.ReactNode;
 }
 
 const AppLayout = ({ children }: AppLayoutProps) => {
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
@@ -25,7 +31,23 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                 />
               </div>
             </div>
-            <ThemeToggle />
+            <div className="flex items-center gap-2">
+              {user ? (
+                <div className="flex items-center gap-2">
+                  <span className="hidden sm:inline text-sm text-muted-foreground truncate max-w-[150px]">
+                    {user.email}
+                  </span>
+                  <Button variant="ghost" size="sm" onClick={() => signOut()} className="gap-1.5">
+                    <LogOut className="w-4 h-4" /> Sign out
+                  </Button>
+                </div>
+              ) : (
+                <Button variant="outline" size="sm" onClick={() => navigate("/auth")} className="gap-1.5">
+                  <LogIn className="w-4 h-4" /> Sign in
+                </Button>
+              )}
+              <ThemeToggle />
+            </div>
           </header>
           <main className="flex-1 overflow-auto">
             {children}

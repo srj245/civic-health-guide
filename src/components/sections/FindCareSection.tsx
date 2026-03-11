@@ -3,9 +3,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { MapPin, Stethoscope, Brain, Pill, Heart, DollarSign, Phone, ExternalLink, Star, Navigation, AlertCircle, Map, List } from "lucide-react";
+import { MapPin, Stethoscope, Brain, Pill, Heart, DollarSign, Phone, ExternalLink, Star, Navigation, AlertCircle, Map, List, Bookmark } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useCareFinder, CareResult } from "@/hooks/useCareFinder";
+import { useFavorites } from "@/hooks/useFavorites";
+import { useAuth } from "@/hooks/useAuth";
 import CareMap from "@/components/sections/CareMap";
 
 const careCategories = [
@@ -15,7 +17,7 @@ const careCategories = [
   { id: "specialty", icon: Heart, title: "Specialty Care", description: "Specialists with sliding-scale fees and charity programs", color: "bg-accent" },
 ];
 
-function ResultCard({ result }: { result: CareResult }) {
+function ResultCard({ result, isFavorite, onToggleFavorite }: { result: CareResult; isFavorite: boolean; onToggleFavorite: () => void }) {
   const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(result.address)}`;
 
   return (
@@ -23,7 +25,12 @@ function ResultCard({ result }: { result: CareResult }) {
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
-            <h4 className="font-semibold text-foreground truncate">{result.name}</h4>
+            <div className="flex items-center gap-2">
+              <h4 className="font-semibold text-foreground truncate">{result.name}</h4>
+              <button onClick={onToggleFavorite} className="shrink-0 p-1 rounded-full hover:bg-secondary transition-colors" title={isFavorite ? "Remove from favorites" : "Save to favorites"}>
+                <Heart className={`w-4 h-4 transition-colors ${isFavorite ? "fill-destructive text-destructive" : "text-muted-foreground hover:text-destructive"}`} />
+              </button>
+            </div>
             <p className="text-sm text-muted-foreground mt-1">{result.address}</p>
             <div className="flex items-center gap-3 mt-2 flex-wrap">
               {result.rating && (
@@ -39,15 +46,35 @@ function ResultCard({ result }: { result: CareResult }) {
               )}
             </div>
           </div>
-          <a
-            href={directionsUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="shrink-0"
-          >
+          <a href={directionsUrl} target="_blank" rel="noopener noreferrer" className="shrink-0">
             <Button variant="outline" size="sm" className="gap-1.5">
-              <Navigation className="w-3.5 h-3.5" />
-              Directions
+              <Navigation className="w-3.5 h-3.5" /> Directions
+            </Button>
+          </a>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function FavoriteCard({ fav, onRemove }: { fav: any; onRemove: () => void }) {
+  const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(fav.address)}`;
+  return (
+    <Card className="border-border/50 bg-card shadow-sm">
+      <CardContent className="p-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <h4 className="font-semibold text-foreground truncate text-sm">{fav.name}</h4>
+              <button onClick={onRemove} className="shrink-0 p-1 rounded-full hover:bg-secondary transition-colors">
+                <Heart className="w-3.5 h-3.5 fill-destructive text-destructive" />
+              </button>
+            </div>
+            <p className="text-xs text-muted-foreground mt-0.5 truncate">{fav.address}</p>
+          </div>
+          <a href={directionsUrl} target="_blank" rel="noopener noreferrer" className="shrink-0">
+            <Button variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1">
+              <Navigation className="w-3 h-3" /> Go
             </Button>
           </a>
         </div>
@@ -81,6 +108,8 @@ const FindCareSection = () => {
   const [selectedResultId, setSelectedResultId] = useState<string | null>(null);
   const { toast } = useToast();
   const { results, loading, error, searched, search } = useCareFinder();
+  const { user } = useAuth();
+  const { favorites, toggleFavorite, isFavorite } = useFavorites();
 
   const handleSearch = () => {
     if (!zipCode.trim()) {
@@ -100,62 +129,84 @@ const FindCareSection = () => {
         <div className="max-w-6xl mx-auto">
           <div className="grid lg:grid-cols-5 gap-8 items-start">
             {/* Search Card */}
-            <Card className="lg:col-span-2 border-border/50 bg-card shadow-card overflow-hidden">
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-foreground mb-4">Find resources near you</h3>
-                <div className="relative mb-4">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                  <input
-                    type="text"
-                    value={zipCode}
-                    onChange={(e) => setZipCode(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                    placeholder="Enter your zip code or city"
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                  />
-                </div>
-                <div className="mb-6">
-                  <label className="text-sm font-medium text-foreground mb-2 block">What type of care do you need?</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {careCategories.map((cat) => (
-                      <button
-                        key={cat.id}
-                        onClick={() => handleCategoryClick(cat.id)}
-                        className={`flex items-center gap-2 p-3 rounded-xl border transition-all text-left group ${
-                          selectedCategory === cat.id
-                            ? "border-primary bg-primary/10"
-                            : "border-border bg-background hover:bg-secondary hover:border-primary/30"
-                        }`}
-                      >
-                        <div className={`w-8 h-8 rounded-lg ${cat.color} flex items-center justify-center flex-shrink-0`}>
-                          <cat.icon className="w-4 h-4 text-primary-foreground" />
-                        </div>
-                        <span className={`text-sm font-medium transition-colors ${
-                          selectedCategory === cat.id ? "text-primary" : "text-foreground group-hover:text-primary"
-                        }`}>{cat.title}</span>
-                      </button>
-                    ))}
+            <div className="lg:col-span-2 space-y-4">
+              <Card className="border-border/50 bg-card shadow-card overflow-hidden">
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-semibold text-foreground mb-4">Find resources near you</h3>
+                  <div className="relative mb-4">
+                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <input
+                      type="text"
+                      value={zipCode}
+                      onChange={(e) => setZipCode(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                      placeholder="Enter your zip code or city"
+                      className="w-full pl-10 pr-4 py-3 rounded-xl border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                    />
                   </div>
-                </div>
-                <div className="space-y-3 mb-6">
-                  <label className="flex items-center gap-3 cursor-pointer">
-                    <input type="checkbox" checked={lowCostOnly} onChange={(e) => setLowCostOnly(e.target.checked)} className="w-4 h-4 rounded border-input accent-primary" />
-                    <span className="text-sm text-muted-foreground"><DollarSign className="w-4 h-4 inline mr-1" />Show only free/low-cost options</span>
-                  </label>
-                  <label className="flex items-center gap-3 cursor-pointer">
-                    <input type="checkbox" checked={includeTelehealth} onChange={(e) => setIncludeTelehealth(e.target.checked)} className="w-4 h-4 rounded border-input accent-primary" />
-                    <span className="text-sm text-muted-foreground"><Phone className="w-4 h-4 inline mr-1" />Include telehealth options</span>
-                  </label>
-                </div>
-                <Button variant="default" className="w-full" size="lg" onClick={handleSearch} disabled={loading}>
-                  {loading ? "Searching..." : "Search for Care"}
-                </Button>
-              </CardContent>
-            </Card>
+                  <div className="mb-6">
+                    <label className="text-sm font-medium text-foreground mb-2 block">What type of care do you need?</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {careCategories.map((cat) => (
+                        <button
+                          key={cat.id}
+                          onClick={() => handleCategoryClick(cat.id)}
+                          className={`flex items-center gap-2 p-3 rounded-xl border transition-all text-left group ${
+                            selectedCategory === cat.id
+                              ? "border-primary bg-primary/10"
+                              : "border-border bg-background hover:bg-secondary hover:border-primary/30"
+                          }`}
+                        >
+                          <div className={`w-8 h-8 rounded-lg ${cat.color} flex items-center justify-center flex-shrink-0`}>
+                            <cat.icon className="w-4 h-4 text-primary-foreground" />
+                          </div>
+                          <span className={`text-sm font-medium transition-colors ${
+                            selectedCategory === cat.id ? "text-primary" : "text-foreground group-hover:text-primary"
+                          }`}>{cat.title}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="space-y-3 mb-6">
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <input type="checkbox" checked={lowCostOnly} onChange={(e) => setLowCostOnly(e.target.checked)} className="w-4 h-4 rounded border-input accent-primary" />
+                      <span className="text-sm text-muted-foreground"><DollarSign className="w-4 h-4 inline mr-1" />Show only free/low-cost options</span>
+                    </label>
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <input type="checkbox" checked={includeTelehealth} onChange={(e) => setIncludeTelehealth(e.target.checked)} className="w-4 h-4 rounded border-input accent-primary" />
+                      <span className="text-sm text-muted-foreground"><Phone className="w-4 h-4 inline mr-1" />Include telehealth options</span>
+                    </label>
+                  </div>
+                  <Button variant="default" className="w-full" size="lg" onClick={handleSearch} disabled={loading}>
+                    {loading ? "Searching..." : "Search for Care"}
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Saved Favorites */}
+              {user && favorites.length > 0 && (
+                <Card className="border-border/50 bg-card shadow-sm">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Bookmark className="w-4 h-4 text-primary" />
+                      <h4 className="text-sm font-semibold text-foreground">Saved Facilities ({favorites.length})</h4>
+                    </div>
+                    <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                      {favorites.map((fav) => (
+                        <FavoriteCard
+                          key={fav.id}
+                          fav={fav}
+                          onRemove={() => toggleFavorite({ id: fav.place_id, name: fav.name, address: fav.address, rating: fav.rating, totalRatings: 0, isOpen: null, lat: fav.lat ?? 0, lng: fav.lng ?? 0, types: [] })}
+                        />
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
 
             {/* Results / Categories */}
             <div className="lg:col-span-3 space-y-4">
-              {/* Show results when searched */}
               {loading && <ResultsSkeleton />}
 
               {!loading && searched && error && (
@@ -202,12 +253,11 @@ const FindCareSection = () => {
                   )}
 
                   {results.map((result) => (
-                    <ResultCard key={result.id} result={result} />
+                    <ResultCard key={result.id} result={result} isFavorite={isFavorite(result.id)} onToggleFavorite={() => toggleFavorite(result)} />
                   ))}
                 </div>
               )}
 
-              {/* Show categories when not searched */}
               {!searched && !loading && careCategories.map((category, index) => (
                 <Card
                   key={category.id}
@@ -232,7 +282,7 @@ const FindCareSection = () => {
                 </Card>
               ))}
 
-              {/* Emergency Callout - always visible */}
+              {/* Emergency Callout */}
               <div className="p-5 rounded-2xl bg-destructive/10 border border-destructive/20">
                 <div className="flex items-start gap-3">
                   <div className="w-10 h-10 rounded-xl bg-destructive flex items-center justify-center flex-shrink-0">
