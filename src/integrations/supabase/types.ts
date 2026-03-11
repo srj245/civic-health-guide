@@ -20,6 +20,7 @@ export type Database = {
           content: string
           created_at: string
           id: string
+          parent_id: string | null
           updated_at: string
           user_email: string
           user_id: string
@@ -29,6 +30,7 @@ export type Database = {
           content: string
           created_at?: string
           id?: string
+          parent_id?: string | null
           updated_at?: string
           user_email: string
           user_id: string
@@ -38,11 +40,20 @@ export type Database = {
           content?: string
           created_at?: string
           id?: string
+          parent_id?: string | null
           updated_at?: string
           user_email?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "bill_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "bill_comments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       comment_votes: {
         Row: {
