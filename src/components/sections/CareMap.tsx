@@ -37,19 +37,20 @@ function loadGoogleMaps(): Promise<void> {
 
 export default function CareMap({ results, selectedId, onSelect }: CareMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstance = useRef<google.maps.Map | null>(null);
-  const markersRef = useRef<google.maps.Marker[]>([]);
+  const mapInstance = useRef<any>(null);
+  const markersRef = useRef<any[]>([]);
 
   const initMap = useCallback(async () => {
     await loadGoogleMaps();
-    if (!mapRef.current) return;
+    if (!mapRef.current || !(window as any).google) return;
 
+    const gmaps = (window as any).google.maps;
     const center = results.length > 0
       ? { lat: results[0].lat, lng: results[0].lng }
-      : { lat: 39.8283, lng: -98.5795 }; // US center
+      : { lat: 39.8283, lng: -98.5795 };
 
     if (!mapInstance.current) {
-      mapInstance.current = new google.maps.Map(mapRef.current, {
+      mapInstance.current = new gmaps.Map(mapRef.current, {
         center,
         zoom: results.length > 0 ? 12 : 4,
         disableDefaultUI: false,
@@ -64,25 +65,25 @@ export default function CareMap({ results, selectedId, onSelect }: CareMapProps)
     }
 
     // Clear old markers
-    markersRef.current.forEach((m) => m.setMap(null));
+    markersRef.current.forEach((m: any) => m.setMap(null));
     markersRef.current = [];
 
-    const bounds = new google.maps.LatLngBounds();
+    const bounds = new gmaps.LatLngBounds();
 
     results.forEach((result) => {
-      const marker = new google.maps.Marker({
+      const marker = new gmaps.Marker({
         position: { lat: result.lat, lng: result.lng },
-        map: mapInstance.current!,
+        map: mapInstance.current,
         title: result.name,
-        animation: selectedId === result.id ? google.maps.Animation.BOUNCE : undefined,
+        animation: selectedId === result.id ? gmaps.Animation.BOUNCE : undefined,
       });
 
-      const infoWindow = new google.maps.InfoWindow({
+      const infoWindow = new gmaps.InfoWindow({
         content: `<div style="max-width:200px;font-family:system-ui"><strong>${result.name}</strong><br/><span style="font-size:12px;color:#666">${result.address}</span>${result.rating ? `<br/><span style="font-size:12px">⭐ ${result.rating}</span>` : ""}</div>`,
       });
 
       marker.addListener("click", () => {
-        infoWindow.open(mapInstance.current!, marker);
+        infoWindow.open(mapInstance.current, marker);
         onSelect?.(result.id);
       });
 
