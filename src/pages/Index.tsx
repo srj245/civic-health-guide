@@ -7,6 +7,7 @@ import DistrictDashboard from "@/components/sections/DistrictDashboard";
 import HowItWorksSection from "@/components/sections/HowItWorksSection";
 import FaqSection from "@/components/sections/FaqSection";
 import ActionSection from "@/components/sections/ActionSection";
+import MostDiscussedSection from "@/components/sections/MostDiscussedSection";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useTilt } from "@/hooks/useTilt";
 import { useRef } from "react";
@@ -107,6 +108,7 @@ const Index = () => {
       </section>
 
       <StatisticsSection />
+      <MostDiscussedSection />
       <DistrictDashboard />
       <HowItWorksSection />
       <ActionSection />
