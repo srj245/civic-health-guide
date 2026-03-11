@@ -8,6 +8,8 @@ import HowItWorksSection from "@/components/sections/HowItWorksSection";
 import FaqSection from "@/components/sections/FaqSection";
 import ActionSection from "@/components/sections/ActionSection";
 import MostDiscussedSection from "@/components/sections/MostDiscussedSection";
+import EngagementBanner from "@/components/sections/EngagementBanner";
+import OnboardingTour from "@/components/sections/OnboardingTour";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useTilt } from "@/hooks/useTilt";
 import { useRef } from "react";
