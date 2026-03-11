@@ -124,6 +124,7 @@ const DistrictDashboard = () => {
     setLoading(true);
     setError(null);
     setSearched(true);
+    localStorage.setItem(STORAGE_KEY, cleaned);
 
     try {
       // Fetch reps and health bills in parallel
