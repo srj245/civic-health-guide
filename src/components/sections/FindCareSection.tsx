@@ -179,7 +179,28 @@ const FindCareSection = () => {
 
               {!loading && results.length > 0 && (
                 <div className="space-y-3">
-                  <p className="text-sm text-muted-foreground">{results.length} results found</p>
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-muted-foreground">{results.length} results found</p>
+                    <div className="flex items-center gap-1 bg-secondary rounded-lg p-1">
+                      <button
+                        onClick={() => setViewMode("list")}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${viewMode === "list" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                      >
+                        <List className="w-4 h-4" /> List
+                      </button>
+                      <button
+                        onClick={() => setViewMode("map")}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${viewMode === "map" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                      >
+                        <Map className="w-4 h-4" /> Map
+                      </button>
+                    </div>
+                  </div>
+
+                  {viewMode === "map" && (
+                    <CareMap results={results} selectedId={selectedResultId} onSelect={setSelectedResultId} />
+                  )}
+
                   {results.map((result) => (
                     <ResultCard key={result.id} result={result} />
                   ))}
