@@ -97,15 +97,7 @@ const AudienceBillsModal = ({ group, open, onOpenChange, bills, loading }: Audie
           )}
 
           {!loading && relevantBills.length === 0 && (
-            <div className="text-center py-8">
-              <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">
-                No specific bills found for {group.title} in recent legislation.
-              </p>
-              <p className="text-sm text-muted-foreground mt-2">
-                Try checking Congress.gov for more comprehensive results.
-              </p>
-            </div>
+            <EmptyBillsState groupTitle={group.title} onOpenChange={onOpenChange} />
           )}
 
           {!loading && relevantBills.map((bill) => (

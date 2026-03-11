@@ -329,9 +329,12 @@ const DistrictDashboard = () => {
               )}
 
               {reps.length === 0 && bills.length === 0 && (
-                <div className="text-center py-8 text-muted-foreground">
+                <div className="text-center py-8 text-muted-foreground" aria-live="polite">
                   <MapPin className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                  <p>No results found. Try a different zip code.</p>
+                  <p className="mb-3">No results found for that zip code.</p>
+                  <Button variant="outline" size="sm" onClick={() => { setZip(""); setSearched(false); localStorage.removeItem(STORAGE_KEY); }}>
+                    Try a different zip code
+                  </Button>
                 </div>
               )}
             </div>

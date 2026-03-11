@@ -6,6 +6,7 @@ import DistrictDashboard from "@/components/sections/DistrictDashboard";
 import HowItWorksSection from "@/components/sections/HowItWorksSection";
 import FaqSection from "@/components/sections/FaqSection";
 import ActionSection from "@/components/sections/ActionSection";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const quickActions = [
   {
@@ -40,18 +41,18 @@ const quickActions = [
 
 const Index = () => {
   const navigate = useNavigate();
+  usePageTitle("", "CivicCare makes healthcare policy accessible. Track health bills, find care, and contact your representatives.");
 
   const handleClick = (href: string) => {
     if (href.startsWith("/#")) {
       document.querySelector(href.slice(1))?.scrollIntoView({ behavior: "smooth" });
     } else {
       navigate(href);
-      window.scrollTo(0, 0);
     }
   };
 
   return (
-    <div className="bg-background">
+    <div className="bg-background animate-fade-in">
       {/* Dashboard Hero */}
       <section className="px-6 py-10 md:px-10 md:py-14">
         <div className="max-w-5xl">
@@ -63,11 +64,14 @@ const Index = () => {
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {quickActions.map((action) => (
+            {quickActions.map((action, index) => (
               <Card
                 key={action.title}
-                className="cursor-pointer hover:shadow-card-hover transition-all duration-200 group border-border hover:border-primary/30"
+                className="cursor-pointer hover:shadow-card-hover transition-all duration-200 group border-border hover:border-primary/30 animate-fade-in-up focus-visible:ring-2 focus-visible:ring-primary"
+                style={{ animationDelay: `${index * 0.08}s` }}
                 onClick={() => handleClick(action.href)}
+                tabIndex={0}
+                onKeyDown={(e) => e.key === "Enter" && handleClick(action.href)}
               >
                 <CardContent className="p-5">
                   <div className={`w-10 h-10 rounded-lg ${action.color} flex items-center justify-center mb-3`}>
