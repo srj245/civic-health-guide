@@ -3,9 +3,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { MapPin, Stethoscope, Brain, Pill, Heart, DollarSign, Phone, ExternalLink, Star, Navigation, AlertCircle } from "lucide-react";
+import { MapPin, Stethoscope, Brain, Pill, Heart, DollarSign, Phone, ExternalLink, Star, Navigation, AlertCircle, Map, List } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useCareFinder, CareResult } from "@/hooks/useCareFinder";
+import CareMap from "@/components/sections/CareMap";
 
 const careCategories = [
   { id: "primary", icon: Stethoscope, title: "Primary Care", description: "Community health centers and clinics for checkups and general care", color: "bg-primary" },
@@ -76,6 +77,8 @@ const FindCareSection = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [lowCostOnly, setLowCostOnly] = useState(false);
   const [includeTelehealth, setIncludeTelehealth] = useState(false);
+  const [viewMode, setViewMode] = useState<"list" | "map">("list");
+  const [selectedResultId, setSelectedResultId] = useState<string | null>(null);
   const { toast } = useToast();
   const { results, loading, error, searched, search } = useCareFinder();
 
@@ -176,7 +179,28 @@ const FindCareSection = () => {
 
               {!loading && results.length > 0 && (
                 <div className="space-y-3">
-                  <p className="text-sm text-muted-foreground">{results.length} results found</p>
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-muted-foreground">{results.length} results found</p>
+                    <div className="flex items-center gap-1 bg-secondary rounded-lg p-1">
+                      <button
+                        onClick={() => setViewMode("list")}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${viewMode === "list" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                      >
+                        <List className="w-4 h-4" /> List
+                      </button>
+                      <button
+                        onClick={() => setViewMode("map")}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${viewMode === "map" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                      >
+                        <Map className="w-4 h-4" /> Map
+                      </button>
+                    </div>
+                  </div>
+
+                  {viewMode === "map" && (
+                    <CareMap results={results} selectedId={selectedResultId} onSelect={setSelectedResultId} />
+                  )}
+
                   {results.map((result) => (
                     <ResultCard key={result.id} result={result} />
                   ))}
