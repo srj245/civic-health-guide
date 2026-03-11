@@ -28,6 +28,8 @@ function stripHtml(html: string): string {
 const BillDetailModal = ({ bill, open, onOpenChange }: BillDetailModalProps) => {
   const { bill: details, loading, error } = useBillDetails(bill?.id || null);
   const { summary: aiSummary, loading: aiLoading, error: aiError, summarize } = useBillSummary();
+  const { toggleTrack, isTracked } = useTrackedBills();
+  const { user } = useAuth();
   const { toast } = useToast();
 
   // Auto-generate AI summary when details load
