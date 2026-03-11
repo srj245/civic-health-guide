@@ -172,15 +172,20 @@ const Representatives = () => {
                           <Mail className="w-4 h-4 mr-1" />
                           Email Template
                         </Button>
-                        {rep.url && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => window.open(rep.url, '_blank')}
-                          >
-                            <ExternalLink className="w-4 h-4" />
-                          </Button>
-                        )}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            // Extract member ID from API URL and link to public congress.gov page
+                            const match = rep.url?.match(/member\/([A-Z]\d+)/);
+                            const publicUrl = match
+                              ? `https://www.congress.gov/member/${rep.name.toLowerCase().replace(/[^a-z]/g, '-')}/${match[1]}`
+                              : `https://www.congress.gov/search?q=${encodeURIComponent(rep.name)}`;
+                            window.open(publicUrl, '_blank');
+                          }}
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
