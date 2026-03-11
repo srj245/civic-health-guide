@@ -86,6 +86,7 @@ const Index = () => {
       </section>
 
       <StatisticsSection />
+      <DistrictDashboard />
       <HowItWorksSection />
       <ActionSection />
       <FaqSection />
