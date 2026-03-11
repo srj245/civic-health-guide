@@ -10,7 +10,7 @@ import { useBillDetails, type Bill } from "@/hooks/useCongressApi";
 import { useBillSummary } from "@/hooks/useBillSummary";
 import { useTrackedBills } from "@/hooks/useTrackedBills";
 import { useAuth } from "@/hooks/useAuth";
-import { Calendar, FileText, Users, ExternalLink, Sparkles, Share2, Bookmark } from "lucide-react";
+import { Calendar, FileText, Users, ExternalLink, Sparkles, Share2, Bookmark, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
