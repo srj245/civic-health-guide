@@ -253,7 +253,7 @@ const DistrictDashboard = () => {
                             <div className="min-w-0">
                               <p className="font-semibold text-foreground text-sm truncate">{rep.name}</p>
                               <div className="flex gap-1 mt-0.5">
-                                <Badge variant="outline" className={`text-xs ${getPartyColor(rep.party)}`}>
+                                <Badge variant="outline" className={`text-xs ${getPartyColor(rep.party)} animate-bounce-in`} style={{ animationDelay: `${idx * 0.05 + 0.1}s` }}>
                                   {rep.party}
                                 </Badge>
                                 <Badge variant="secondary" className="text-xs">
