@@ -14,6 +14,7 @@ import { Calendar, FileText, Users, ExternalLink, Sparkles, Share2, Bookmark } f
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
+import BillDiscussion from "./BillDiscussion";
 
 interface BillDetailModalProps {
   bill: Bill | null;
