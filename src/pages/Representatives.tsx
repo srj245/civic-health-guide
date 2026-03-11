@@ -4,9 +4,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Mail, ExternalLink, Users, Search } from "lucide-react";
+import { Mail, ExternalLink, Users, Search, Award } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import PageHero from "@/components/sections/PageHero";
+import RepDetailModal from "@/components/sections/RepDetailModal";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 const US_STATES = [
