@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { MessageSquare, Send, Trash2, LogIn } from "lucide-react";
+import { MessageSquare, Send, Trash2, LogIn, ChevronUp, ChevronDown } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useBillComments } from "@/hooks/useBillComments";
 import { useToast } from "@/hooks/use-toast";
@@ -31,7 +31,7 @@ interface Props {
 
 const BillDiscussion = ({ billId }: Props) => {
   const { user } = useAuth();
-  const { comments, loading, submitting, addComment, deleteComment, commentCount } = useBillComments(billId);
+  const { comments, loading, submitting, addComment, deleteComment, vote, commentCount } = useBillComments(billId);
   const [newComment, setNewComment] = useState("");
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -54,6 +54,14 @@ const BillDiscussion = ({ billId }: Props) => {
     } catch {
       toast({ title: "Failed to delete", variant: "destructive" });
     }
+  };
+
+  const handleVote = (commentId: string, direction: 1 | -1) => {
+    if (!user) {
+      toast({ title: "Sign in to vote", description: "Create an account to upvote or downvote comments." });
+      return;
+    }
+    vote(commentId, direction);
   };
 
   return (
@@ -118,9 +126,43 @@ const BillDiscussion = ({ billId }: Props) => {
         <div className="space-y-3 max-h-64 overflow-y-auto">
           {comments.map((comment) => (
             <div key={comment.id} className="flex gap-2 group">
-              <div className="w-8 h-8 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center text-xs font-bold shrink-0">
+              {/* Vote buttons */}
+              <div className="flex flex-col items-center gap-0 shrink-0 pt-1">
+                <button
+                  onClick={() => handleVote(comment.id, 1)}
+                  className={`p-0.5 rounded transition-colors ${
+                    comment.userVote === 1
+                      ? "text-primary"
+                      : "text-muted-foreground/50 hover:text-primary"
+                  }`}
+                  aria-label="Upvote"
+                >
+                  <ChevronUp className="w-4 h-4" />
+                </button>
+                <span className={`text-xs font-semibold tabular-nums leading-none ${
+                  comment.score > 0 ? "text-primary" : comment.score < 0 ? "text-destructive" : "text-muted-foreground"
+                }`}>
+                  {comment.score}
+                </span>
+                <button
+                  onClick={() => handleVote(comment.id, -1)}
+                  className={`p-0.5 rounded transition-colors ${
+                    comment.userVote === -1
+                      ? "text-destructive"
+                      : "text-muted-foreground/50 hover:text-destructive"
+                  }`}
+                  aria-label="Downvote"
+                >
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Avatar */}
+              <div className="w-7 h-7 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">
                 {getInitials(comment.user_email)}
               </div>
+
+              {/* Content */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-medium text-foreground truncate">
