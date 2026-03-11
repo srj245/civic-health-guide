@@ -225,6 +225,7 @@ const BillDetailModal = ({ bill, open, onOpenChange }: BillDetailModalProps) => 
               <BillDiscussion billId={bill?.id || null} />
             </div>
           </div>
+        )}
       </DialogContent>
     </Dialog>
   );
