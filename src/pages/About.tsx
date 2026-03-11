@@ -90,6 +90,17 @@ const About = () => {
               CivicCare empowers people to understand the policies that shape their health, take meaningful action by contacting their representatives, and find the care they need — regardless of their background or political knowledge. We believe informed citizens build healthier communities.
             </p>
           </div>
+
+          {/* Congressional App Challenge */}
+          <div className="rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/5 to-accent/5 p-8 text-center space-y-4">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold">
+              🏆 Congressional App Challenge
+            </div>
+            <h2 className="text-2xl font-bold text-foreground">Built for the Congressional App Challenge</h2>
+            <p className="text-muted-foreground leading-relaxed max-w-2xl mx-auto">
+              CivicCare was designed and developed as a submission for the Congressional App Challenge — the most prestigious student software competition in the United States. Our goal is to demonstrate how technology can make civic engagement in healthcare more accessible, inclusive, and impactful for every American.
+            </p>
+          </div>
         </div>
       </section>
     </div>
