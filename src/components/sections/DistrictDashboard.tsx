@@ -177,17 +177,36 @@ const DistrictDashboard = () => {
 
           {/* Zip Input */}
           <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto mb-10">
-            <Input
-              type="text"
-              inputMode="numeric"
-              maxLength={5}
-              value={zip}
-              onChange={(e) => setZip(e.target.value.replace(/\D/g, ""))}
-              onKeyDown={(e) => e.key === "Enter" && handleLookup()}
-              placeholder="Enter your zip code"
-              aria-label="Zip code"
-              className="text-center text-lg tracking-widest"
-            />
+            <div className="relative flex-1">
+              <Input
+                type="text"
+                inputMode="numeric"
+                maxLength={5}
+                value={zip}
+                onChange={(e) => setZip(e.target.value.replace(/\D/g, ""))}
+                onKeyDown={(e) => e.key === "Enter" && handleLookup()}
+                placeholder="Enter your zip code"
+                aria-label="Zip code"
+                className="text-center text-lg tracking-widest pr-9"
+              />
+              {zip && (
+                <button
+                  onClick={() => {
+                    setZip("");
+                    setState(null);
+                    setReps([]);
+                    setBills([]);
+                    setSearched(false);
+                    setError(null);
+                    localStorage.removeItem(STORAGE_KEY);
+                  }}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+                  aria-label="Clear zip code"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
             <Button onClick={handleLookup} disabled={loading || zip.length < 5}>
               <Search className="w-4 h-4 mr-2" />
               Look Up
