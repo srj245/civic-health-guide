@@ -139,7 +139,7 @@ const ActionSection = () => {
           </div>
 
           {/* Newsletter Signup */}
-          <div className="p-8 rounded-3xl bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/20">
+          <div className="p-8 rounded-3xl glassmorphism-card hover:shadow-[inset_0_1px_2px_rgba(255,255,255,0.15),0_24px_48px_-12px_rgba(0,0,0,0.25)]">
             <div className="max-w-2xl mx-auto text-center">
               <h3 className="text-2xl font-bold text-primary-foreground mb-3">
                 Stay Informed, Stay Empowered

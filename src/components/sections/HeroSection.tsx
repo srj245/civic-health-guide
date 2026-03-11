@@ -1,28 +1,34 @@
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Shield, Search, Users } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+
+const fullText = "Understand How Government Decisions Affect Your Health";
 
 const HeroSection = () => {
-  const { toast } = useToast();
+  const navigate = useNavigate();
+  const [displayedText, setDisplayedText] = useState("");
+  const [showCursor, setShowCursor] = useState(true);
+  const [typingDone, setTypingDone] = useState(false);
 
-  const scrollToSection = (href: string) => {
-    const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
-  };
+  useEffect(() => {
+    let i = 0;
+    const interval = setInterval(() => {
+      i++;
+      setDisplayedText(fullText.slice(0, i));
+      if (i >= fullText.length) {
+        clearInterval(interval);
+        setTypingDone(true);
+      }
+    }, 35);
+    return () => clearInterval(interval);
+  }, []);
 
-  const handleExploreUpdates = () => {
-    scrollToSection("#news");
-  };
-
-  const handleFindCare = () => {
-    scrollToSection("#care");
-    toast({
-      title: "Find Care Near You",
-      description: "Enter your zip code to discover local healthcare resources.",
-    });
-  };
+  useEffect(() => {
+    if (!typingDone) return;
+    const blink = setInterval(() => setShowCursor((c) => !c), 530);
+    return () => clearInterval(blink);
+  }, [typingDone]);
 
   const features = [
     { icon: Search, label: "Plain English Explanations", desc: "No law degree needed" },
@@ -32,14 +38,27 @@ const HeroSection = () => {
 
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden">
-      {/* Background */}
+      {/* Gradient base */}
       <div className="absolute inset-0 bg-gradient-hero" />
+
+      {/* Animated mesh orbs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute w-[500px] h-[500px] rounded-full bg-primary/30 blur-[120px] animate-orb-1 top-[-10%] left-[-5%]" />
+        <div className="absolute w-[400px] h-[400px] rounded-full bg-accent/20 blur-[100px] animate-orb-2 bottom-[5%] right-[-5%]" />
+        <div className="absolute w-[300px] h-[300px] rounded-full bg-primary-foreground/10 blur-[80px] animate-orb-3 top-[40%] left-[50%]" />
+      </div>
+
+      {/* Radial overlays */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.15)_0%,_transparent_50%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(0,0,0,0.1)_0%,_transparent_50%)]" />
-      
-      {/* Decorative elements */}
-      <div className="absolute top-1/4 right-1/4 w-64 h-64 bg-primary-foreground/5 rounded-full blur-3xl animate-pulse-soft" />
-      <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-primary-foreground/5 rounded-full blur-3xl animate-pulse-soft" style={{ animationDelay: '1s' }} />
+
+      {/* Parallax decorative shapes */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute w-24 h-24 border-2 border-primary-foreground/10 rounded-full top-[15%] right-[10%] animate-float" />
+        <div className="absolute w-16 h-16 border border-primary-foreground/10 rounded-lg top-[60%] left-[8%] animate-float" style={{ animationDelay: "1.5s" }} />
+        <div className="absolute w-10 h-10 bg-accent/20 rounded-full top-[25%] left-[20%] animate-float" style={{ animationDelay: "0.8s" }} />
+        <div className="absolute w-6 h-6 bg-primary-foreground/10 rounded-full bottom-[30%] right-[25%] animate-float" style={{ animationDelay: "2s" }} />
+      </div>
 
       <div className="container mx-auto px-4 pt-24 pb-16 relative z-10">
         <div className="max-w-4xl mx-auto text-center">
@@ -49,26 +68,26 @@ const HeroSection = () => {
             <span className="text-sm font-medium text-primary-foreground">Nonpartisan • Accessible • For Everyone</span>
           </div>
 
-          {/* Headline */}
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground leading-tight mb-6 animate-fade-in-up">
-            Understand How Government Decisions
-            <span className="block mt-2 text-primary-foreground/90">
-              Affect Your Health
-            </span>
+          {/* Typewriter Headline */}
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6 min-h-[3.5em] md:min-h-[2.5em]">
+            <span className="gradient-text-animated">{displayedText}</span>
+            <span
+              className={`inline-block w-[3px] h-[1em] bg-accent ml-1 align-middle transition-opacity duration-100 ${showCursor ? "opacity-100" : "opacity-0"}`}
+            />
           </h1>
 
           {/* Subheadline */}
-          <p className="text-lg md:text-xl text-primary-foreground/80 max-w-2xl mx-auto mb-10 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+          <p className="text-lg md:text-xl text-primary-foreground/80 max-w-2xl mx-auto mb-10 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
             CivicCare translates complex healthcare policies and news into plain English—and connects you to real care in your community.
           </p>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-            <Button variant="hero" size="xl" onClick={handleExploreUpdates} className="shimmer-hover">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
+            <Button variant="hero" size="xl" onClick={() => navigate("/news")} className="shimmer-hover group">
               Explore Health Updates
               <ArrowRight className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-1" />
             </Button>
-            <Button variant="heroOutline" size="xl" onClick={handleFindCare} className="shimmer-hover">
+            <Button variant="heroOutline" size="xl" onClick={() => navigate("/care")} className="shimmer-hover">
               Find Care Near Me
             </Button>
           </div>
@@ -78,7 +97,7 @@ const HeroSection = () => {
             {features.map((item, i) => (
               <div
                 key={item.label}
-                className="flex flex-col items-center p-4 rounded-2xl bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/10 hover:bg-primary-foreground/15 transition-all duration-300 hover:-translate-y-1 stagger-child"
+                className="flex flex-col items-center p-4 rounded-2xl glassmorphism-card hover:-translate-y-1 transition-all duration-300 stagger-child"
                 style={{ '--stagger-i': i + 4 } as React.CSSProperties}
               >
                 <div className="w-12 h-12 rounded-xl bg-primary-foreground/20 flex items-center justify-center mb-3 animate-float" style={{ animationDelay: `${i * 0.5}s` }}>
