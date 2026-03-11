@@ -15,6 +15,8 @@ const Care = lazy(() => import("./pages/Care"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Representatives = lazy(() => import("./pages/Representatives"));
 const About = lazy(() => import("./pages/About"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Impact = lazy(() => import("./pages/Impact"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -43,6 +45,8 @@ const App = () => (
                 <Route path="/representatives" element={<Representatives />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/impact" element={<Impact />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>

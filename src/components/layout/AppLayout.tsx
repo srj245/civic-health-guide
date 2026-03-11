@@ -59,6 +59,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
           </main>
         </div>
       </div>
+      <ChatWidget />
     </SidebarProvider>
   );
 };
