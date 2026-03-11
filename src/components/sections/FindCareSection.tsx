@@ -283,10 +283,10 @@ const FindCareSection = () => {
               ))}
 
               {/* Emergency Callout */}
-              <div className="p-5 rounded-2xl bg-destructive/10 border border-destructive/20">
+              <div className="p-5 rounded-2xl bg-destructive/10 border border-destructive/20 hover-wiggle">
                 <div className="flex items-start gap-3">
                   <div className="w-10 h-10 rounded-xl bg-destructive flex items-center justify-center flex-shrink-0">
-                    <Phone className="w-5 h-5 text-destructive-foreground" />
+                    <Phone className="w-5 h-5 text-destructive-foreground wiggle-target" />
                   </div>
                   <div>
                     <h4 className="font-semibold text-foreground mb-1">Need immediate help?</h4>

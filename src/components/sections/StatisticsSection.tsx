@@ -1,5 +1,5 @@
 import { TrendingUp, Users, FileText, MapPin } from "lucide-react";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface StatConfig {
   icon: typeof FileText;
@@ -31,7 +31,6 @@ function useCountUp(end: number, duration: number, start: boolean) {
     const step = (timestamp: number) => {
       if (!startTime) startTime = timestamp;
       const progress = Math.min((timestamp - startTime) / duration, 1);
-      // ease-out cubic
       const eased = 1 - Math.pow(1 - progress, 3);
       setValue(Math.round(eased * end));
       if (progress < 1) raf = requestAnimationFrame(step);
@@ -44,7 +43,7 @@ function useCountUp(end: number, duration: number, start: boolean) {
   return value;
 }
 
-function AnimatedStat({ stat }: { stat: StatConfig }) {
+function AnimatedStat({ stat, index }: { stat: StatConfig; index: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
 
@@ -65,10 +64,20 @@ function AnimatedStat({ stat }: { stat: StatConfig }) {
     <div
       ref={ref}
       className="text-center p-6 rounded-2xl bg-card border border-border shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105"
-      style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(20px)', transition: 'opacity 0.5s ease-out, transform 0.5s ease-out, box-shadow 0.3s' }}
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0)' : 'translateY(20px)',
+        transition: `opacity 0.5s ease-out ${index * 0.1}s, transform 0.5s ease-out ${index * 0.1}s, box-shadow 0.3s`,
+        animation: visible ? `glow-border 1s ease-out ${index * 0.1}s` : 'none',
+      }}
     >
       <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
-        <stat.icon className="w-6 h-6 text-primary" />
+        <stat.icon
+          className="w-6 h-6 text-primary"
+          style={{
+            animation: visible ? `bounce-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) ${0.1 + index * 0.1}s both` : 'none',
+          }}
+        />
       </div>
       <p className="text-3xl md:text-4xl font-bold text-foreground tabular-nums">
         {stat.duration === 0 ? stat.suffix : `${count}${stat.suffix}`}
@@ -90,8 +99,8 @@ const StatisticsSection = () => {
           </h2>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
-          {stats.map((stat) => (
-            <AnimatedStat key={stat.label} stat={stat} />
+          {stats.map((stat, i) => (
+            <AnimatedStat key={stat.label} stat={stat} index={i} />
           ))}
         </div>
       </div>

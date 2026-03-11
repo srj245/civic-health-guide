@@ -76,13 +76,13 @@ const NewsSection = () => {
             {bills.map((bill, index) => (
               <Card
                 key={bill.id}
-                className="group cursor-pointer border-border/50 bg-card shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1 animate-fade-in-up"
-                style={{ animationDelay: `${index * 0.1}s` }}
+                className="group cursor-pointer border-border/50 bg-card shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1 stagger-child"
+                style={{ '--stagger-i': index } as React.CSSProperties}
                 onClick={() => handleReadMore(bill)}
               >
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between mb-3">
-                    <Badge variant="outline" className="text-xs font-medium">
+                    <Badge variant="outline" className="text-xs font-medium animate-bounce-in" style={{ animationDelay: `${index * 0.05 + 0.2}s` }}>
                       {getBillCategory(bill.title)}
                     </Badge>
                     <span className="text-xs text-muted-foreground font-mono">
@@ -110,10 +110,10 @@ const NewsSection = () => {
                       </span>
                     </div>
                     <button 
-                      className="text-xs font-medium text-primary flex items-center gap-1 group-hover:gap-2 transition-all"
+                      className="text-xs font-medium text-primary flex items-center gap-1 group-hover:gap-2 transition-all duration-300"
                     >
                       View details
-                      <ArrowRight className="w-3.5 h-3.5" />
+                      <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" />
                     </button>
                   </div>
                 </CardContent>
@@ -128,7 +128,7 @@ const NewsSection = () => {
             href="https://congress.gov/search?q=%7B%22congress%22%3A%22118%22%2C%22source%22%3A%22legislation%22%2C%22subject%22%3A%22Health%22%7D"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-primary font-medium hover:gap-3 transition-all"
+            className="inline-flex items-center gap-2 text-primary font-medium hover:gap-3 transition-all duration-300 animate-underline"
           >
             View all health legislation on Congress.gov
             <ArrowRight className="w-4 h-4" />

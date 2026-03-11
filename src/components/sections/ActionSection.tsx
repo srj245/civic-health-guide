@@ -117,12 +117,12 @@ const ActionSection = () => {
               <button
                 key={action.title}
                 onClick={() => handleActionClick(action)}
-                className="p-6 rounded-2xl bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/20 hover:bg-primary-foreground/15 transition-all group cursor-pointer animate-fade-in-up text-left"
-                style={{ animationDelay: `${index * 0.1}s` }}
+                className="p-6 rounded-2xl bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/20 hover:bg-primary-foreground/15 transition-all duration-300 group cursor-pointer hover:-translate-y-1 hover-wiggle text-left stagger-child"
+                style={{ '--stagger-i': index } as React.CSSProperties}
                 aria-label={action.title}
               >
-                <div className={`w-14 h-14 rounded-2xl ${action.color} flex items-center justify-center mb-5 shadow-lg`}>
-                  <action.icon className="w-7 h-7 text-primary-foreground" />
+                <div className={`w-14 h-14 rounded-2xl ${action.color} flex items-center justify-center mb-5 shadow-lg transition-transform duration-300 group-hover:scale-110`}>
+                  <action.icon className="w-7 h-7 text-primary-foreground wiggle-target" />
                 </div>
                 <h3 className="text-lg font-semibold text-primary-foreground mb-2">
                   {action.title}
@@ -130,9 +130,9 @@ const ActionSection = () => {
                 <p className="text-primary-foreground/70 text-sm mb-5 leading-relaxed">
                   {action.description}
                 </p>
-                <span className="inline-flex items-center gap-1.5 text-sm font-medium text-primary-foreground group-hover:gap-2.5 transition-all">
+                <span className="inline-flex items-center gap-1.5 text-sm font-medium text-primary-foreground group-hover:gap-2.5 transition-all duration-300">
                   {action.cta}
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
                 </span>
               </button>
             ))}
@@ -154,9 +154,9 @@ const ActionSection = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
                   aria-label="Email address for newsletter"
-                  className="flex-1 px-4 py-3 rounded-xl bg-primary-foreground/20 border border-primary-foreground/30 text-primary-foreground placeholder:text-primary-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary-foreground/50"
+                  className="flex-1 px-4 py-3 rounded-xl bg-primary-foreground/20 border border-primary-foreground/30 text-primary-foreground placeholder:text-primary-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary-foreground/50 focus-ring-animate transition-all duration-200"
                 />
-                <Button variant="hero" size="lg" className="whitespace-nowrap" onClick={handleSubscribe}>
+                <Button variant="hero" size="lg" className="whitespace-nowrap shimmer-hover" onClick={handleSubscribe}>
                   Subscribe
                   <ArrowRight className="w-4 h-4" />
                 </Button>

@@ -133,3 +133,90 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* ===== Micro-animation utilities ===== */
+
+@layer utilities {
+  /* Animated underline for nav links */
+  .animate-underline {
+    @apply relative;
+  }
+  .animate-underline::after {
+    content: "";
+    @apply absolute bottom-0 left-0 w-full h-0.5 bg-primary rounded-full;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .animate-underline:hover::after,
+  .animate-underline.active::after {
+    transform: scaleX(1);
+  }
+
+  /* Group hover lift - child moves up on parent hover */
+  .group-hover-lift {
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .group:hover .group-hover-lift {
+    transform: translateY(-3px);
+  }
+
+  /* Shimmer sweep for buttons */
+  .shimmer-hover {
+    position: relative;
+    overflow: hidden;
+  }
+  .shimmer-hover::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      transparent 40%,
+      rgba(255, 255, 255, 0.2) 50%,
+      transparent 60%
+    );
+    background-size: 200% 100%;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .shimmer-hover:hover::before {
+    opacity: 1;
+    animation: shimmer 1.2s ease-in-out;
+  }
+
+  /* Stagger children - use with [style*="--stagger-i"] */
+  .stagger-child {
+    animation: slide-up-fade 0.4s ease-out both;
+    animation-delay: calc(var(--stagger-i, 0) * 80ms);
+  }
+
+  /* Icon wiggle on hover */
+  .hover-wiggle:hover .wiggle-target,
+  .hover-wiggle:hover > svg {
+    animation: wiggle 0.6s ease-in-out;
+  }
+
+  /* Smooth icon tilt on hover */
+  .hover-tilt:hover > svg,
+  .hover-tilt:hover .tilt-target {
+    transform: rotate(-12deg);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Focus ring expand animation */
+  .focus-ring-animate:focus-visible {
+    animation: ring-expand 0.4s ease-out;
+  }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

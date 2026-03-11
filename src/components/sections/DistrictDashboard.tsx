@@ -266,7 +266,7 @@ const DistrictDashboard = () => {
                             <Button
                               variant="default"
                               size="sm"
-                              className="flex-1 text-xs"
+                              className="flex-1 text-xs hover-tilt"
                               onClick={() =>
                                 window.open(
                                   `mailto:?subject=${encodeURIComponent("Health Policy Concerns")}&body=${getEmailBody(rep.name)}`,
