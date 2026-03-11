@@ -47,6 +47,8 @@ const Representatives = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searched, setSearched] = useState(false);
+  const [selectedRep, setSelectedRep] = useState<Representative | null>(null);
+  const [repModalOpen, setRepModalOpen] = useState(false);
 
   const handleSearch = async () => {
     if (!state) return;
