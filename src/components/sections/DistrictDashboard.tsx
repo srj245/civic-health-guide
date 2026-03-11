@@ -240,7 +240,7 @@ const DistrictDashboard = () => {
                   </p>
                   <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {reps.slice(0, 6).map((rep, idx) => (
-                      <Card key={idx} className="border-border hover:shadow-card-hover transition-shadow">
+                      <Card key={idx} className="border-border hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1 stagger-child" style={{ '--stagger-i': idx } as React.CSSProperties}>
                         <CardContent className="p-4">
                           <div className="flex items-center gap-3 mb-3">
                             {rep.depiction ? (
