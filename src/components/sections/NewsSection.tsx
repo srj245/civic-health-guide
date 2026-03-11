@@ -44,6 +44,8 @@ const NewsSection = () => {
   const handleReadMore = (bill: Bill) => {
     setSelectedBill(bill);
     setModalOpen(true);
+  };
+
   const handleTrack = async (e: React.MouseEvent, bill: Bill) => {
     e.stopPropagation();
     if (!user) {
