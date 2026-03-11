@@ -38,8 +38,8 @@ const Header = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 md:h-20">
           <a href="/" className="flex items-center gap-2 group" onClick={(e) => { e.preventDefault(); navigate("/"); window.scrollTo(0, 0); }}>
-            <div className="w-9 h-9 rounded-xl bg-gradient-hero flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow">
-              <Heart className="w-5 h-5 text-primary-foreground" />
+            <div className="w-9 h-9 rounded-xl bg-gradient-hero flex items-center justify-center shadow-md group-hover:shadow-lg transition-all duration-300 group-hover:scale-110">
+              <Heart className="w-5 h-5 text-primary-foreground transition-transform duration-300 group-hover:scale-110" />
             </div>
             <span className="text-xl font-bold text-foreground">CivicCare</span>
           </a>
@@ -49,7 +49,7 @@ const Header = () => {
               <button
                 key={link.name}
                 onClick={() => handleNav(link.href)}
-                className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-secondary"
+                className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-secondary animate-underline"
               >
                 {link.name}
               </button>
@@ -58,35 +58,38 @@ const Header = () => {
 
           <div className="hidden md:flex items-center gap-2">
             <ThemeToggle />
-            <Button variant="default" size="default" onClick={() => handleNav("/news")}>
+            <Button variant="default" size="default" onClick={() => handleNav("/news")} className="shimmer-hover">
               Get Started
             </Button>
           </div>
 
           <button
-            className="md:hidden p-2 text-foreground"
+            className="md:hidden p-2 text-foreground transition-transform duration-200 active:scale-90"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label="Toggle menu"
           >
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            <div className="transition-transform duration-300" style={{ transform: isMenuOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}>
+              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </div>
           </button>
         </div>
 
         {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-border animate-fade-in">
+          <div className="md:hidden py-4 border-t border-border">
             <nav className="flex flex-col gap-2">
-              {navLinks.map((link) => (
+              {navLinks.map((link, i) => (
                 <button
                   key={link.name}
                   onClick={() => handleNav(link.href)}
-                  className="px-4 py-3 text-base font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-lg transition-colors text-left"
+                  className="px-4 py-3 text-base font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-lg transition-colors text-left stagger-child"
+                  style={{ '--stagger-i': i } as React.CSSProperties}
                 >
                   {link.name}
                 </button>
               ))}
-              <div className="pt-2 px-4 flex items-center gap-2">
+              <div className="pt-2 px-4 flex items-center gap-2 stagger-child" style={{ '--stagger-i': navLinks.length } as React.CSSProperties}>
                 <ThemeToggle />
-                <Button variant="default" className="flex-1" onClick={() => handleNav("/news")}>
+                <Button variant="default" className="flex-1 shimmer-hover" onClick={() => handleNav("/news")}>
                   Get Started
                 </Button>
               </div>

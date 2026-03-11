@@ -24,6 +24,12 @@ const HeroSection = () => {
     });
   };
 
+  const features = [
+    { icon: Search, label: "Plain English Explanations", desc: "No law degree needed" },
+    { icon: Users, label: "See Who's Affected", desc: "Students, families, seniors" },
+    { icon: Shield, label: "Find Local Resources", desc: "Clinics, services, support" },
+  ];
+
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden">
       {/* Background */}
@@ -38,7 +44,7 @@ const HeroSection = () => {
       <div className="container mx-auto px-4 pt-24 pb-16 relative z-10">
         <div className="max-w-4xl mx-auto text-center">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/20 mb-8 animate-fade-in">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/20 mb-8 animate-bounce-in">
             <Shield className="w-4 h-4 text-primary-foreground" />
             <span className="text-sm font-medium text-primary-foreground">Nonpartisan • Accessible • For Everyone</span>
           </div>
@@ -58,27 +64,24 @@ const HeroSection = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-            <Button variant="hero" size="xl" onClick={handleExploreUpdates}>
+            <Button variant="hero" size="xl" onClick={handleExploreUpdates} className="shimmer-hover">
               Explore Health Updates
-              <ArrowRight className="w-5 h-5" />
+              <ArrowRight className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-1" />
             </Button>
-            <Button variant="heroOutline" size="xl" onClick={handleFindCare}>
+            <Button variant="heroOutline" size="xl" onClick={handleFindCare} className="shimmer-hover">
               Find Care Near Me
             </Button>
           </div>
 
           {/* Feature highlights */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-            {[
-              { icon: Search, label: "Plain English Explanations", desc: "No law degree needed" },
-              { icon: Users, label: "See Who's Affected", desc: "Students, families, seniors" },
-              { icon: Shield, label: "Find Local Resources", desc: "Clinics, services, support" },
-            ].map((item) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
+            {features.map((item, i) => (
               <div
                 key={item.label}
-                className="flex flex-col items-center p-4 rounded-2xl bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/10 hover:bg-primary-foreground/15 transition-colors"
+                className="flex flex-col items-center p-4 rounded-2xl bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/10 hover:bg-primary-foreground/15 transition-all duration-300 hover:-translate-y-1 stagger-child"
+                style={{ '--stagger-i': i + 4 } as React.CSSProperties}
               >
-                <div className="w-12 h-12 rounded-xl bg-primary-foreground/20 flex items-center justify-center mb-3">
+                <div className="w-12 h-12 rounded-xl bg-primary-foreground/20 flex items-center justify-center mb-3 animate-float" style={{ animationDelay: `${i * 0.5}s` }}>
                   <item.icon className="w-6 h-6 text-primary-foreground" />
                 </div>
                 <h3 className="font-semibold text-primary-foreground mb-1">{item.label}</h3>

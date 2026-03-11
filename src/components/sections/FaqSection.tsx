@@ -5,6 +5,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { HelpCircle } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 const faqs = [
   {
@@ -30,6 +31,20 @@ const faqs = [
 ];
 
 const FaqSection = () => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.disconnect(); } },
+      { threshold: 0.15 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <section id="faq" className="py-14 md:py-20 bg-secondary/30">
       <div className="container mx-auto px-4">
@@ -43,14 +58,19 @@ const FaqSection = () => {
               Common Questions
             </h2>
           </div>
-          <Accordion type="single" collapsible className="space-y-3">
+          <Accordion ref={ref} type="single" collapsible className="space-y-3">
             {faqs.map((faq, i) => (
               <AccordionItem
                 key={i}
                 value={`faq-${i}`}
-                className="bg-card border border-border rounded-xl px-5 data-[state=open]:shadow-sm transition-shadow"
+                className="bg-card border border-border rounded-xl px-5 data-[state=open]:shadow-sm transition-all duration-300"
+                style={{
+                  opacity: visible ? 1 : 0,
+                  transform: visible ? 'translateY(0)' : 'translateY(12px)',
+                  transition: `opacity 0.4s ease-out ${i * 0.08}s, transform 0.4s ease-out ${i * 0.08}s, box-shadow 0.3s`,
+                }}
               >
-                <AccordionTrigger className="text-left font-medium text-foreground hover:no-underline">
+                <AccordionTrigger className="text-left font-medium text-foreground hover:no-underline [&[data-state=open]>svg]:rotate-180 [&>svg]:transition-transform [&>svg]:duration-300">
                   {faq.q}
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground leading-relaxed">

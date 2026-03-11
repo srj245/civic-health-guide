@@ -240,7 +240,7 @@ const DistrictDashboard = () => {
                   </p>
                   <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {reps.slice(0, 6).map((rep, idx) => (
-                      <Card key={idx} className="border-border hover:shadow-card-hover transition-shadow">
+                      <Card key={idx} className="border-border hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1 stagger-child" style={{ '--stagger-i': idx } as React.CSSProperties}>
                         <CardContent className="p-4">
                           <div className="flex items-center gap-3 mb-3">
                             {rep.depiction ? (
@@ -253,7 +253,7 @@ const DistrictDashboard = () => {
                             <div className="min-w-0">
                               <p className="font-semibold text-foreground text-sm truncate">{rep.name}</p>
                               <div className="flex gap-1 mt-0.5">
-                                <Badge variant="outline" className={`text-xs ${getPartyColor(rep.party)}`}>
+                                <Badge variant="outline" className={`text-xs ${getPartyColor(rep.party)} animate-bounce-in`} style={{ animationDelay: `${idx * 0.05 + 0.1}s` }}>
                                   {rep.party}
                                 </Badge>
                                 <Badge variant="secondary" className="text-xs">
@@ -266,7 +266,7 @@ const DistrictDashboard = () => {
                             <Button
                               variant="default"
                               size="sm"
-                              className="flex-1 text-xs"
+                              className="flex-1 text-xs hover-tilt"
                               onClick={() =>
                                 window.open(
                                   `mailto:?subject=${encodeURIComponent("Health Policy Concerns")}&body=${getEmailBody(rep.name)}`,

@@ -67,21 +67,21 @@ const Index = () => {
             {quickActions.map((action, index) => (
               <Card
                 key={action.title}
-                className="cursor-pointer hover:shadow-card-hover transition-all duration-200 group border-border hover:border-primary/30 animate-fade-in-up focus-visible:ring-2 focus-visible:ring-primary"
-                style={{ animationDelay: `${index * 0.08}s` }}
+                className="cursor-pointer hover:shadow-card-hover transition-all duration-300 group border-border hover:border-primary/30 hover:-translate-y-1 stagger-child focus-visible:ring-2 focus-visible:ring-primary"
+                style={{ '--stagger-i': index } as React.CSSProperties}
                 onClick={() => handleClick(action.href)}
                 tabIndex={0}
                 onKeyDown={(e) => e.key === "Enter" && handleClick(action.href)}
               >
                 <CardContent className="p-5">
-                  <div className={`w-10 h-10 rounded-lg ${action.color} flex items-center justify-center mb-3`}>
-                    <action.icon className="w-5 h-5" />
+                  <div className={`w-10 h-10 rounded-lg ${action.color} flex items-center justify-center mb-3 transition-transform duration-300 group-hover:scale-110`}>
+                    <action.icon className="w-5 h-5 group-hover-lift" />
                   </div>
                   <h3 className="font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">
                     {action.title}
                   </h3>
                   <p className="text-sm text-muted-foreground">{action.description}</p>
-                  <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary mt-3 transition-colors" />
+                  <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary mt-3 transition-all duration-300 group-hover:translate-x-1" />
                 </CardContent>
               </Card>
             ))}
