@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      bill_comments: {
+        Row: {
+          bill_id: string
+          content: string
+          created_at: string
+          id: string
+          updated_at: string
+          user_email: string
+          user_id: string
+        }
+        Insert: {
+          bill_id: string
+          content: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_email: string
+          user_id: string
+        }
+        Update: {
+          bill_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_email?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       favorite_facilities: {
         Row: {
           address: string

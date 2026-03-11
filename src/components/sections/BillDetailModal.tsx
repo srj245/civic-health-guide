@@ -14,6 +14,7 @@ import { Calendar, FileText, Users, ExternalLink, Sparkles, Share2, Bookmark } f
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
+import BillDiscussion from "./BillDiscussion";
 
 interface BillDetailModalProps {
   bill: Bill | null;
@@ -217,6 +218,11 @@ const BillDetailModal = ({ bill, open, onOpenChange }: BillDetailModalProps) => 
                 <Share2 className="w-4 h-4 mr-2" />
                 Share
               </Button>
+            </div>
+
+            {/* Community Discussion */}
+            <div className="pt-2 border-t border-border">
+              <BillDiscussion billId={bill?.id || null} />
             </div>
           </div>
         )}
