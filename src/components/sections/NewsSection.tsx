@@ -37,6 +37,9 @@ const NewsSection = () => {
   const { bills, loading, error } = useHealthBills(8);
   const [selectedBill, setSelectedBill] = useState<Bill | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const { user } = useAuth();
+  const { toggleTrack, isTracked } = useTrackedBills();
+  const { toast } = useToast();
 
   const handleReadMore = (bill: Bill) => {
     setSelectedBill(bill);
