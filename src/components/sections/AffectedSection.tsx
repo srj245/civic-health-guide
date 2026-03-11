@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { GraduationCap, Users, Briefcase, Heart, ArrowRight, FileText, ExternalLink } from "lucide-react";
-import { useRecentBills, type Bill } from "@/hooks/useCongressApi";
+import { useHealthBills, type Bill } from "@/hooks/useCongressApi";
 
 const audienceGroups = [
   {
@@ -150,7 +150,7 @@ const AudienceBillsModal = ({ group, open, onOpenChange, bills, loading }: Audie
 };
 
 const AffectedSection = () => {
-  const { bills, loading } = useRecentBills(50);
+  const { bills, loading } = useHealthBills(50);
   const [selectedGroup, setSelectedGroup] = useState<typeof audienceGroups[0] | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
