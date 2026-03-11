@@ -77,6 +77,8 @@ const FindCareSection = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [lowCostOnly, setLowCostOnly] = useState(false);
   const [includeTelehealth, setIncludeTelehealth] = useState(false);
+  const [viewMode, setViewMode] = useState<"list" | "map">("list");
+  const [selectedResultId, setSelectedResultId] = useState<string | null>(null);
   const { toast } = useToast();
   const { results, loading, error, searched, search } = useCareFinder();
 
