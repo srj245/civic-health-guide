@@ -64,6 +64,7 @@ interface AudienceBillsModalProps {
 }
 
 const AudienceBillsModal = ({ group, open, onOpenChange, bills, loading }: AudienceBillsModalProps) => {
+  const navigate = useNavigate();
   if (!group) return null;
 
   // Filter bills relevant to this group
