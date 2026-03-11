@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { GraduationCap, Users, Briefcase, Heart, ArrowRight, FileText, ExternalLink } from "lucide-react";
-import { useRecentBills, type Bill } from "@/hooks/useCongressApi";
+import { useHealthBills, type Bill } from "@/hooks/useCongressApi";
 
 const audienceGroups = [
   {
