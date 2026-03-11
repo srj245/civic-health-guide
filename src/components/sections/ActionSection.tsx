@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Megaphone, Mail, Vote, Share2, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const actions = [
   {
@@ -58,7 +59,7 @@ const ActionSection = () => {
     }
   };
 
-  const handleSubscribe = () => {
+  const handleSubscribe = async () => {
     if (!email.trim() || !email.includes("@")) {
       toast({
         title: "Please enter a valid email",
@@ -68,11 +69,24 @@ const ActionSection = () => {
       return;
     }
 
-    toast({
-      title: "You're subscribed!",
-      description: "You'll receive weekly health policy digests.",
-    });
-    setEmail("");
+    try {
+      const { error: dbError } = await supabase
+        .from("newsletter_subscribers")
+        .insert({ email: email.trim().toLowerCase() });
+
+      if (dbError) {
+        if (dbError.code === "23505") {
+          toast({ title: "Already subscribed!", description: "This email is already on our list." });
+        } else {
+          throw dbError;
+        }
+      } else {
+        toast({ title: "You're subscribed!", description: "You'll receive weekly health policy digests." });
+      }
+      setEmail("");
+    } catch {
+      toast({ title: "Something went wrong", description: "Please try again later.", variant: "destructive" });
+    }
   };
 
   return (

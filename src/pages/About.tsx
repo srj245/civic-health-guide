@@ -1,10 +1,12 @@
 import { Heart, Target, Lightbulb, Code, Users } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import PageHero from "@/components/sections/PageHero";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const About = () => {
+  usePageTitle("About", "Learn about CivicCare's mission to make healthcare policy accessible to everyone.");
   return (
-    <div className="bg-background">
+    <div className="bg-background animate-fade-in">
       <PageHero
         icon={Heart}
         badge="Our Mission"

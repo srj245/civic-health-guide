@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Mail, ExternalLink, Users, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import PageHero from "@/components/sections/PageHero";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const US_STATES = [
   "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA",
@@ -39,6 +40,7 @@ interface Representative {
 }
 
 const Representatives = () => {
+  usePageTitle("Find Your Representatives", "Look up your congressional representatives and send them a message about health policy.");
   const [state, setState] = useState("");
   const [members, setMembers] = useState<Representative[]>([]);
   const [loading, setLoading] = useState(false);

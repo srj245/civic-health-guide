@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -63,6 +64,7 @@ interface AudienceBillsModalProps {
 }
 
 const AudienceBillsModal = ({ group, open, onOpenChange, bills, loading }: AudienceBillsModalProps) => {
+  const navigate = useNavigate();
   if (!group) return null;
 
   // Filter bills relevant to this group
@@ -101,9 +103,13 @@ const AudienceBillsModal = ({ group, open, onOpenChange, bills, loading }: Audie
               <p className="text-muted-foreground">
                 No specific bills found for {group.title} in recent legislation.
               </p>
-              <p className="text-sm text-muted-foreground mt-2">
-                Try checking Congress.gov for more comprehensive results.
+              <p className="text-sm text-muted-foreground mt-2 mb-4">
+                Browse all health bills on the News page for the latest updates.
               </p>
+              <Button variant="outline" size="sm" onClick={() => { onOpenChange(false); navigate("/news"); }}>
+                Browse Health News
+                <ArrowRight className="w-4 h-4 ml-1" />
+              </Button>
             </div>
           )}
 
