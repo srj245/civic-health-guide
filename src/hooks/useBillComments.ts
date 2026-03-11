@@ -10,8 +10,10 @@ export interface BillComment {
   user_email: string;
   created_at: string;
   updated_at: string;
+  parent_id: string | null;
   score: number;
-  userVote: number; // -1, 0, or 1
+  userVote: number;
+  replies: BillComment[];
 }
 
 interface CommentVote {
@@ -31,7 +33,6 @@ export function useBillComments(billId: string | null) {
     if (!billId) { setComments([]); return; }
     setLoading(true);
     try {
-      // Fetch comments
       const { data: commentsData, error: commentsError } = await supabase
         .from("bill_comments")
         .select("*")
@@ -42,7 +43,7 @@ export function useBillComments(billId: string | null) {
       const rawComments = (commentsData || []) as any[];
       if (rawComments.length === 0) { setComments([]); setLoading(false); return; }
 
-      // Fetch all votes for these comments
+      // Fetch all votes
       const commentIds = rawComments.map((c) => c.id);
       const { data: votesData } = await supabase
         .from("comment_votes")
@@ -50,8 +51,6 @@ export function useBillComments(billId: string | null) {
         .in("comment_id", commentIds);
 
       const votes = (votesData || []) as CommentVote[];
-
-      // Aggregate votes per comment
       const scoreMap = new Map<string, number>();
       const userVoteMap = new Map<string, number>();
       for (const v of votes) {
@@ -61,16 +60,31 @@ export function useBillComments(billId: string | null) {
         }
       }
 
+      // Enrich with scores
       const enriched: BillComment[] = rawComments.map((c) => ({
         ...c,
         score: scoreMap.get(c.id) || 0,
         userVote: userVoteMap.get(c.id) || 0,
+        replies: [],
       }));
 
-      // Sort by score descending, then by date
-      enriched.sort((a, b) => b.score - a.score || new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      // Build tree: separate root comments and replies
+      const byId = new Map<string, BillComment>();
+      enriched.forEach((c) => byId.set(c.id, c));
 
-      setComments(enriched);
+      const roots: BillComment[] = [];
+      for (const c of enriched) {
+        if (c.parent_id && byId.has(c.parent_id)) {
+          byId.get(c.parent_id)!.replies.push(c);
+        } else {
+          roots.push(c);
+        }
+      }
+
+      // Sort roots by score desc, replies by date asc (already ordered)
+      roots.sort((a, b) => b.score - a.score || new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+      setComments(roots);
     } catch (err) {
       console.error("Failed to fetch comments:", err);
     } finally {
@@ -78,35 +92,29 @@ export function useBillComments(billId: string | null) {
     }
   }, [billId, user]);
 
-  useEffect(() => {
-    fetchComments();
-  }, [fetchComments]);
+  useEffect(() => { fetchComments(); }, [fetchComments]);
 
-  // Realtime subscription
   useEffect(() => {
     if (!billId) return;
     const channel = supabase
       .channel(`bill-comments-${billId}`)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "bill_comments", filter: `bill_id=eq.${billId}` },
-        () => { fetchComments(); }
-      )
+      .on("postgres_changes", { event: "*", schema: "public", table: "bill_comments", filter: `bill_id=eq.${billId}` }, () => { fetchComments(); })
       .subscribe();
-
     return () => { supabase.removeChannel(channel); };
   }, [billId, fetchComments]);
 
-  const addComment = useCallback(async (content: string) => {
+  const addComment = useCallback(async (content: string, parentId?: string) => {
     if (!user || !billId || !content.trim()) return;
     setSubmitting(true);
     try {
-      const { error } = await supabase.from("bill_comments").insert({
+      const row: any = {
         user_id: user.id,
         bill_id: billId,
         content: content.trim(),
         user_email: user.email || "Anonymous",
-      });
+      };
+      if (parentId) row.parent_id = parentId;
+      const { error } = await supabase.from("bill_comments").insert(row);
       if (error) throw error;
     } catch (err) {
       console.error("Failed to add comment:", err);
@@ -117,45 +125,46 @@ export function useBillComments(billId: string | null) {
   }, [user, billId]);
 
   const deleteComment = useCallback(async (commentId: string) => {
-    try {
-      const { error } = await supabase.from("bill_comments").delete().eq("id", commentId);
-      if (error) throw error;
-    } catch (err) {
-      console.error("Failed to delete comment:", err);
-      throw err;
-    }
+    const { error } = await supabase.from("bill_comments").delete().eq("id", commentId);
+    if (error) throw error;
   }, []);
+
+  // Flatten all comments to find for vote
+  const allComments = useCallback((): BillComment[] => {
+    const flat: BillComment[] = [];
+    const walk = (list: BillComment[]) => { for (const c of list) { flat.push(c); walk(c.replies); } };
+    walk(comments);
+    return flat;
+  }, [comments]);
 
   const vote = useCallback(async (commentId: string, direction: 1 | -1) => {
     if (!user) return;
-    const comment = comments.find((c) => c.id === commentId);
+    const all = allComments();
+    const comment = all.find((c) => c.id === commentId);
     if (!comment) return;
 
     try {
       if (comment.userVote === direction) {
-        // Remove vote (toggle off)
         await supabase.from("comment_votes").delete().eq("user_id", user.id).eq("comment_id", commentId);
       } else if (comment.userVote !== 0) {
-        // Change vote direction
         await supabase.from("comment_votes").update({ vote: direction }).eq("user_id", user.id).eq("comment_id", commentId);
       } else {
-        // New vote
         await supabase.from("comment_votes").insert({ user_id: user.id, comment_id: commentId, vote: direction });
       }
-      // Optimistic update
-      setComments((prev) =>
-        prev.map((c) => {
-          if (c.id !== commentId) return c;
-          const oldVote = c.userVote;
-          const newVote = oldVote === direction ? 0 : direction;
-          return { ...c, userVote: newVote, score: c.score - oldVote + newVote };
-        }).sort((a, b) => b.score - a.score || new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-      );
+      fetchComments();
     } catch (err) {
       console.error("Failed to vote:", err);
-      fetchComments(); // revert on error
+      fetchComments();
     }
-  }, [user, comments, fetchComments]);
+  }, [user, allComments, fetchComments]);
 
-  return { comments, loading, submitting, addComment, deleteComment, vote, commentCount: comments.length };
+  // Count all comments including replies
+  const totalCount = useCallback(() => {
+    let count = 0;
+    const walk = (list: BillComment[]) => { for (const c of list) { count++; walk(c.replies); } };
+    walk(comments);
+    return count;
+  }, [comments]);
+
+  return { comments, loading, submitting, addComment, deleteComment, vote, commentCount: totalCount() };
 }
