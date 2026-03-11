@@ -10,6 +10,8 @@ import News from "./pages/News";
 import Affected from "./pages/Affected";
 import Care from "./pages/Care";
 import Auth from "./pages/Auth";
+import Representatives from "./pages/Representatives";
+import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +29,8 @@ const App = () => (
               <Route path="/news" element={<News />} />
               <Route path="/affected" element={<Affected />} />
               <Route path="/care" element={<Care />} />
+              <Route path="/representatives" element={<Representatives />} />
+              <Route path="/about" element={<About />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

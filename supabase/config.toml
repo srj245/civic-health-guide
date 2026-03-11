@@ -2,3 +2,12 @@ project_id = "qxkqhksonwvkyiphkwln"
 
 [functions.find-care]
 verify_jwt = false
+
+[functions.summarize-bill]
+verify_jwt = false
+
+[functions.find-representatives]
+verify_jwt = false
+
+[functions.congress-api]
+verify_jwt = false

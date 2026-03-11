@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Megaphone, Mail, Vote, Share2, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -7,9 +8,10 @@ const actions = [
   {
     icon: Mail,
     title: "Contact Your Representatives",
-    description: "Send a pre-written message about health issues that matter to you",
+    description: "Find your reps by state and send a pre-written message about health issues",
     cta: "Find Your Rep",
     color: "bg-primary",
+    href: "/representatives",
   },
   {
     icon: Vote,
@@ -17,6 +19,8 @@ const actions = [
     description: "Make sure you're registered and ready to vote on health-related measures",
     cta: "Check Status",
     color: "bg-success",
+    href: "https://www.vote.org/am-i-registered-to-vote/",
+    external: true,
   },
   {
     icon: Share2,
@@ -24,18 +28,34 @@ const actions = [
     description: "Help friends and family understand important health policy changes",
     cta: "Share CivicCare",
     color: "bg-info",
+    action: "share",
   },
 ];
 
 const ActionSection = () => {
   const [email, setEmail] = useState("");
   const { toast } = useToast();
+  const navigate = useNavigate();
 
-  const handleActionClick = (actionTitle: string) => {
-    toast({
-      title: "Coming Soon!",
-      description: `${actionTitle} feature will be available soon.`,
-    });
+  const handleActionClick = async (action: typeof actions[0]) => {
+    if (action.action === "share") {
+      const shareData = {
+        title: "CivicCare",
+        text: "Understand how government decisions affect your health. Plain English, real resources.",
+        url: window.location.origin,
+      };
+      if (navigator.share) {
+        try { await navigator.share(shareData); } catch {}
+      } else {
+        await navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`);
+        toast({ title: "Link copied!", description: "Share it with friends and family." });
+      }
+    } else if (action.external) {
+      window.open(action.href, '_blank');
+    } else if (action.href) {
+      navigate(action.href);
+      window.scrollTo(0, 0);
+    }
   };
 
   const handleSubscribe = () => {
@@ -82,9 +102,10 @@ const ActionSection = () => {
             {actions.map((action, index) => (
               <button
                 key={action.title}
-                onClick={() => handleActionClick(action.title)}
+                onClick={() => handleActionClick(action)}
                 className="p-6 rounded-2xl bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/20 hover:bg-primary-foreground/15 transition-all group cursor-pointer animate-fade-in-up text-left"
                 style={{ animationDelay: `${index * 0.1}s` }}
+                aria-label={action.title}
               >
                 <div className={`w-14 h-14 rounded-2xl ${action.color} flex items-center justify-center mb-5 shadow-lg`}>
                   <action.icon className="w-7 h-7 text-primary-foreground" />
@@ -118,6 +139,7 @@ const ActionSection = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
+                  aria-label="Email address for newsletter"
                   className="flex-1 px-4 py-3 rounded-xl bg-primary-foreground/20 border border-primary-foreground/30 text-primary-foreground placeholder:text-primary-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary-foreground/50"
                 />
                 <Button variant="hero" size="lg" className="whitespace-nowrap" onClick={handleSubscribe}>

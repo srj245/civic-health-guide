@@ -1,4 +1,4 @@
-import { Home, TrendingUp, Users, MapPin, Megaphone, Heart } from "lucide-react";
+import { Home, TrendingUp, Users, MapPin, Megaphone, Heart, Info } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import {
@@ -19,6 +19,8 @@ const navItems = [
   { title: "Health News", url: "/news", icon: TrendingUp },
   { title: "Who's Affected", url: "/affected", icon: Users },
   { title: "Find Care", url: "/care", icon: MapPin },
+  { title: "Your Reps", url: "/representatives", icon: Megaphone },
+  { title: "About", url: "/about", icon: Info },
 ];
 
 export function AppSidebar() {

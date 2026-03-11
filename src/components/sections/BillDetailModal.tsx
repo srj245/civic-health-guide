@@ -7,8 +7,11 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useBillDetails, type Bill } from "@/hooks/useCongressApi";
-import { Calendar, FileText, Users, ExternalLink } from "lucide-react";
+import { useBillSummary } from "@/hooks/useBillSummary";
+import { Calendar, FileText, Users, ExternalLink, Sparkles, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useEffect } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 interface BillDetailModalProps {
   bill: Bill | null;
@@ -22,6 +25,36 @@ function stripHtml(html: string): string {
 
 const BillDetailModal = ({ bill, open, onOpenChange }: BillDetailModalProps) => {
   const { bill: details, loading, error } = useBillDetails(bill?.id || null);
+  const { summary: aiSummary, loading: aiLoading, error: aiError, summarize } = useBillSummary();
+  const { toast } = useToast();
+
+  // Auto-generate AI summary when details load
+  useEffect(() => {
+    if (details && open) {
+      summarize(
+        details.title || bill?.title || '',
+        details.summary ? stripHtml(details.summary) : undefined,
+        details.latestAction?.text
+      );
+    }
+  }, [details, open]);
+
+  const handleShare = async () => {
+    const title = bill?.title || 'Health Bill';
+    const text = aiSummary?.plainEnglish || `Check out this health bill: ${title}`;
+    const url = `https://congress.gov/bill/${details?.congress || 118}th-congress/${details?.type === 'hr' ? 'house-bill' : 'senate-bill'}/${details?.number}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title, text, url });
+      } catch (e) {
+        // User cancelled
+      }
+    } else {
+      await navigator.clipboard.writeText(`${text}\n${url}`);
+      toast({ title: "Copied to clipboard!", description: "Share link copied." });
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -64,12 +97,38 @@ const BillDetailModal = ({ bill, open, onOpenChange }: BillDetailModalProps) => 
               )}
             </div>
 
-            {/* Summary */}
+            {/* AI Plain English Summary */}
+            <div className="space-y-2 rounded-xl border border-primary/20 bg-primary/5 p-4">
+              <h3 className="font-semibold flex items-center gap-2 text-primary">
+                <Sparkles className="w-4 h-4" />
+                Plain English Summary
+              </h3>
+              {aiLoading && (
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-3/4" />
+                </div>
+              )}
+              {aiError && (
+                <p className="text-sm text-muted-foreground">Unable to generate summary. {aiError}</p>
+              )}
+              {aiSummary && (
+                <>
+                  <p className="text-sm text-foreground leading-relaxed">{aiSummary.plainEnglish}</p>
+                  <div className="mt-3 pt-3 border-t border-primary/10">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">How does this affect you?</p>
+                    <p className="text-sm text-foreground leading-relaxed">{aiSummary.impact}</p>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Official Summary */}
             {details.summary && (
               <div className="space-y-2">
                 <h3 className="font-semibold flex items-center gap-2">
                   <FileText className="w-4 h-4" />
-                  Summary
+                  Official Summary
                 </h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">
                   {stripHtml(details.summary)}
@@ -120,17 +179,21 @@ const BillDetailModal = ({ bill, open, onOpenChange }: BillDetailModalProps) => 
               </div>
             )}
 
-            {/* External Link */}
-            {details.url && (
+            {/* Actions */}
+            <div className="flex gap-2">
               <Button
                 variant="outline"
-                className="w-full"
+                className="flex-1"
                 onClick={() => window.open(`https://congress.gov/bill/${details.congress}th-congress/${details.type === 'hr' ? 'house-bill' : 'senate-bill'}/${details.number}`, '_blank')}
               >
                 <ExternalLink className="w-4 h-4 mr-2" />
-                View on Congress.gov
+                Congress.gov
               </Button>
-            )}
+              <Button variant="outline" onClick={handleShare}>
+                <Share2 className="w-4 h-4 mr-2" />
+                Share
+              </Button>
+            </div>
           </div>
         )}
       </DialogContent>
