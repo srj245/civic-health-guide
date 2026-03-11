@@ -68,6 +68,45 @@ export type Database = {
         }
         Relationships: []
       }
+      tracked_bills: {
+        Row: {
+          bill_id: string
+          bill_number: number
+          bill_title: string
+          bill_type: string
+          congress: number
+          created_at: string
+          id: string
+          latest_action_date: string | null
+          latest_action_text: string | null
+          user_id: string
+        }
+        Insert: {
+          bill_id: string
+          bill_number: number
+          bill_title: string
+          bill_type: string
+          congress?: number
+          created_at?: string
+          id?: string
+          latest_action_date?: string | null
+          latest_action_text?: string | null
+          user_id: string
+        }
+        Update: {
+          bill_id?: string
+          bill_number?: number
+          bill_title?: string
+          bill_type?: string
+          congress?: number
+          created_at?: string
+          id?: string
+          latest_action_date?: string | null
+          latest_action_text?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
