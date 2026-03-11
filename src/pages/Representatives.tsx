@@ -40,6 +40,7 @@ interface Representative {
 }
 
 const Representatives = () => {
+  usePageTitle("Find Your Representatives", "Look up your congressional representatives and send them a message about health policy.");
   const [state, setState] = useState("");
   const [members, setMembers] = useState<Representative[]>([]);
   const [loading, setLoading] = useState(false);
