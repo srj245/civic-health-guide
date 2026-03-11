@@ -230,5 +230,3 @@ const Representatives = () => {
 };
 
 export default Representatives;
-
-export default Representatives;
