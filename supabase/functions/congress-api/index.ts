@@ -32,7 +32,7 @@ serve(async (req) => {
     const url = new URL(req.url);
     const action = params.action || url.searchParams.get('action') || 'recent-bills';
     const billId = params.billId || url.searchParams.get('billId');
-    const congress = params.congress || url.searchParams.get('congress') || '118';
+    const congress = params.congress || url.searchParams.get('congress') || '119';
     const limit = params.limit || url.searchParams.get('limit') || '10';
 
     let data: any;
