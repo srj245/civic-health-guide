@@ -95,8 +95,10 @@ const getPartyColor = (party: string) => {
   return "bg-muted text-muted-foreground";
 };
 
+const STORAGE_KEY = "civiccare_zip";
+
 const DistrictDashboard = () => {
-  const [zip, setZip] = useState("");
+  const [zip, setZip] = useState(() => localStorage.getItem(STORAGE_KEY) || "");
   const [state, setState] = useState<string | null>(null);
   const [reps, setReps] = useState<Representative[]>([]);
   const [bills, setBills] = useState<any[]>([]);
