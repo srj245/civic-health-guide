@@ -117,7 +117,7 @@ const ActionSection = () => {
               <button
                 key={action.title}
                 onClick={() => handleActionClick(action)}
-                className="p-6 rounded-2xl bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/20 hover:bg-primary-foreground/15 transition-all duration-300 group cursor-pointer hover:-translate-y-1 hover-wiggle text-left stagger-child"
+                className="p-6 rounded-2xl glassmorphism-card hover:bg-primary-foreground/20 transition-all duration-300 group cursor-pointer hover:-translate-y-2 hover-wiggle text-left stagger-child hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_20px_40px_-12px_rgba(0,0,0,0.3)]"
                 style={{ '--stagger-i': index } as React.CSSProperties}
                 aria-label={action.title}
               >
@@ -139,7 +139,7 @@ const ActionSection = () => {
           </div>
 
           {/* Newsletter Signup */}
-          <div className="p-8 rounded-3xl bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/20">
+          <div className="p-8 rounded-3xl glassmorphism-card hover:shadow-[inset_0_1px_2px_rgba(255,255,255,0.15),0_24px_48px_-12px_rgba(0,0,0,0.25)]">
             <div className="max-w-2xl mx-auto text-center">
               <h3 className="text-2xl font-bold text-primary-foreground mb-3">
                 Stay Informed, Stay Empowered
