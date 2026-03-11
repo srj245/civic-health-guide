@@ -128,12 +128,21 @@ const NewsSection = () => {
                         2 min read
                       </span>
                     </div>
-                    <button 
-                      className="text-xs font-medium text-primary flex items-center gap-1 group-hover:gap-2 transition-all duration-300"
-                    >
-                      View details
-                      <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" />
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button 
+                        className="text-xs font-medium text-primary flex items-center gap-1 group-hover:gap-2 transition-all duration-300"
+                      >
+                        View details
+                        <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" />
+                      </button>
+                      <button
+                        onClick={(e) => handleTrack(e, bill)}
+                        className="p-1 rounded-md hover:bg-secondary transition-colors"
+                        aria-label={isTracked(bill.id) ? "Untrack bill" : "Track bill"}
+                      >
+                        <Bookmark className={`w-4 h-4 ${isTracked(bill.id) ? "fill-primary text-primary" : "text-muted-foreground"}`} />
+                      </button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
