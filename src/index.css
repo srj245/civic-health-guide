@@ -208,6 +208,37 @@
   .focus-ring-animate:focus-visible {
     animation: ring-expand 0.4s ease-out;
   }
+
+  /* Animated gradient text */
+  .gradient-text-animated {
+    background: linear-gradient(
+      270deg,
+      hsl(var(--primary-foreground)),
+      hsl(var(--accent)),
+      hsl(var(--primary-foreground)),
+      hsl(var(--accent))
+    );
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradient-shift 6s ease-in-out infinite;
+  }
+
+  /* Glassmorphism card */
+  .glassmorphism-card {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
+  .glassmorphism-card:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  }
 }
 
 /* Respect reduced motion */
