@@ -83,7 +83,7 @@ const Representatives = () => {
         icon={Users}
         badge="Contact Your Reps"
         title="Find Your Representatives"
-        description="Look up your congressional representatives and send them a message about health policy."
+        subtitle="Look up your congressional representatives and send them a message about health policy."
       />
 
       <section className="px-6 py-8 md:px-10">

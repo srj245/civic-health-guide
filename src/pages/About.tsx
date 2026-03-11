@@ -9,7 +9,7 @@ const About = () => {
         icon={Heart}
         badge="Our Mission"
         title="About CivicCare"
-        description="Bridging the gap between government health policy and the people it affects."
+        subtitle="Bridging the gap between government health policy and the people it affects."
       />
 
       <section className="px-6 py-12 md:px-10">
