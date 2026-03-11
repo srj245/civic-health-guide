@@ -1,6 +1,7 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import ThemeToggle from "@/components/ThemeToggle";
+import ChatWidget from "@/components/ChatWidget";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Search, LogIn, LogOut } from "lucide-react";
@@ -58,6 +59,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
           </main>
         </div>
       </div>
+      <ChatWidget />
     </SidebarProvider>
   );
 };

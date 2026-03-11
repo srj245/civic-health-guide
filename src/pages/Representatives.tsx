@@ -4,9 +4,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Mail, ExternalLink, Users, Search } from "lucide-react";
+import { Mail, ExternalLink, Users, Search, Award } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import PageHero from "@/components/sections/PageHero";
+import RepDetailModal from "@/components/sections/RepDetailModal";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 const US_STATES = [
@@ -46,6 +47,8 @@ const Representatives = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searched, setSearched] = useState(false);
+  const [selectedRep, setSelectedRep] = useState<Representative | null>(null);
+  const [repModalOpen, setRepModalOpen] = useState(false);
 
   const handleSearch = async () => {
     if (!state) return;
@@ -159,6 +162,17 @@ const Representatives = () => {
 
                       <div className="flex gap-2 mt-4">
                         <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedRep(rep);
+                            setRepModalOpen(true);
+                          }}
+                        >
+                          <Award className="w-4 h-4 mr-1" />
+                          Health Score
+                        </Button>
+                        <Button
                           variant="default"
                           size="sm"
                           className="flex-1"
@@ -170,13 +184,12 @@ const Representatives = () => {
                           }
                         >
                           <Mail className="w-4 h-4 mr-1" />
-                          Email Template
+                          Email
                         </Button>
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => {
-                            // Extract member ID from API URL and link to public congress.gov page
                             const match = rep.url?.match(/member\/([A-Z]\d+)/);
                             const publicUrl = match
                               ? `https://www.congress.gov/member/${rep.name.toLowerCase().replace(/[^a-z]/g, '-')}/${match[1]}`
@@ -203,6 +216,15 @@ const Representatives = () => {
           )}
         </div>
       </section>
+
+      {selectedRep && (
+        <RepDetailModal
+          repName={selectedRep.name}
+          repUrl={selectedRep.url}
+          open={repModalOpen}
+          onOpenChange={setRepModalOpen}
+        />
+      )}
     </div>
   );
 };

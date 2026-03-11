@@ -8,7 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useBillDetails, type Bill } from "@/hooks/useCongressApi";
 import { useBillSummary } from "@/hooks/useBillSummary";
-import { Calendar, FileText, Users, ExternalLink, Sparkles, Share2 } from "lucide-react";
+import { useTrackedBills } from "@/hooks/useTrackedBills";
+import { useAuth } from "@/hooks/useAuth";
+import { Calendar, FileText, Users, ExternalLink, Sparkles, Share2, Bookmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -26,6 +28,8 @@ function stripHtml(html: string): string {
 const BillDetailModal = ({ bill, open, onOpenChange }: BillDetailModalProps) => {
   const { bill: details, loading, error } = useBillDetails(bill?.id || null);
   const { summary: aiSummary, loading: aiLoading, error: aiError, summarize } = useBillSummary();
+  const { toggleTrack, isTracked } = useTrackedBills();
+  const { user } = useAuth();
   const { toast } = useToast();
 
   // Auto-generate AI summary when details load
@@ -181,9 +185,29 @@ const BillDetailModal = ({ bill, open, onOpenChange }: BillDetailModalProps) => 
 
             {/* Actions */}
             <div className="flex gap-2">
+              {bill && (
+                <Button
+                  variant={isTracked(bill.id) ? "default" : "outline"}
+                  className="flex-1"
+                  onClick={async () => {
+                    if (!user) {
+                      toast({ title: "Sign in required", description: "Create an account to track bills." });
+                      return;
+                    }
+                    try {
+                      const tracked = await toggleTrack(bill);
+                      toast({ title: tracked ? "Bill tracked!" : "Bill untracked" });
+                    } catch {
+                      toast({ title: "Error", variant: "destructive" });
+                    }
+                  }}
+                >
+                  <Bookmark className={`w-4 h-4 mr-2 ${isTracked(bill.id) ? "fill-current" : ""}`} />
+                  {isTracked(bill.id) ? "Tracking" : "Track Bill"}
+                </Button>
+              )}
               <Button
                 variant="outline"
-                className="flex-1"
                 onClick={() => window.open(`https://congress.gov/bill/${details.congress}th-congress/${details.type === 'hr' ? 'house-bill' : 'senate-bill'}/${details.number}`, '_blank')}
               >
                 <ExternalLink className="w-4 h-4 mr-2" />

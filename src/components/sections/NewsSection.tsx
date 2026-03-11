@@ -2,8 +2,11 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Clock, ArrowRight, FileText } from "lucide-react";
+import { Clock, ArrowRight, FileText, Bookmark } from "lucide-react";
 import { useHealthBills, type Bill } from "@/hooks/useCongressApi";
+import { useTrackedBills } from "@/hooks/useTrackedBills";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 import BillDetailModal from "./BillDetailModal";
 
 function formatTimeAgo(dateString: string): string {
@@ -34,11 +37,29 @@ const NewsSection = () => {
   const { bills, loading, error } = useHealthBills(8);
   const [selectedBill, setSelectedBill] = useState<Bill | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const { user } = useAuth();
+  const { toggleTrack, isTracked } = useTrackedBills();
+  const { toast } = useToast();
 
   const handleReadMore = (bill: Bill) => {
     setSelectedBill(bill);
     setModalOpen(true);
   };
+
+  const handleTrack = async (e: React.MouseEvent, bill: Bill) => {
+    e.stopPropagation();
+    if (!user) {
+      toast({ title: "Sign in required", description: "Create an account to track bills." });
+      return;
+    }
+    try {
+      const tracked = await toggleTrack(bill);
+      toast({ title: tracked ? "Bill tracked!" : "Bill untracked", description: bill.title });
+    } catch {
+      toast({ title: "Error", description: "Failed to update tracking.", variant: "destructive" });
+    }
+  };
+
 
   return (
     <section id="news" className="py-20 md:py-28 bg-background">
@@ -109,12 +130,21 @@ const NewsSection = () => {
                         2 min read
                       </span>
                     </div>
-                    <button 
-                      className="text-xs font-medium text-primary flex items-center gap-1 group-hover:gap-2 transition-all duration-300"
-                    >
-                      View details
-                      <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" />
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button 
+                        className="text-xs font-medium text-primary flex items-center gap-1 group-hover:gap-2 transition-all duration-300"
+                      >
+                        View details
+                        <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" />
+                      </button>
+                      <button
+                        onClick={(e) => handleTrack(e, bill)}
+                        className="p-1 rounded-md hover:bg-secondary transition-colors"
+                        aria-label={isTracked(bill.id) ? "Untrack bill" : "Track bill"}
+                      >
+                        <Bookmark className={`w-4 h-4 ${isTracked(bill.id) ? "fill-primary text-primary" : "text-muted-foreground"}`} />
+                      </button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
