@@ -2,8 +2,11 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Clock, ArrowRight, FileText } from "lucide-react";
+import { Clock, ArrowRight, FileText, Bookmark } from "lucide-react";
 import { useHealthBills, type Bill } from "@/hooks/useCongressApi";
+import { useTrackedBills } from "@/hooks/useTrackedBills";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 import BillDetailModal from "./BillDetailModal";
 
 function formatTimeAgo(dateString: string): string {
