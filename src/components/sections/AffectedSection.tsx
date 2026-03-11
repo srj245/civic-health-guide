@@ -150,7 +150,7 @@ const AudienceBillsModal = ({ group, open, onOpenChange, bills, loading }: Audie
 };
 
 const AffectedSection = () => {
-  const { bills, loading } = useRecentBills(50);
+  const { bills, loading } = useHealthBills(50);
   const [selectedGroup, setSelectedGroup] = useState<typeof audienceGroups[0] | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
