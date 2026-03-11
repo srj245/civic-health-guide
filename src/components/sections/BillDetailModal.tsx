@@ -219,8 +219,12 @@ const BillDetailModal = ({ bill, open, onOpenChange }: BillDetailModalProps) => 
                 Share
               </Button>
             </div>
+
+            {/* Community Discussion */}
+            <div className="pt-2 border-t border-border">
+              <BillDiscussion billId={bill?.id || null} />
+            </div>
           </div>
-        )}
       </DialogContent>
     </Dialog>
   );
