@@ -1,1 +1,4 @@
 project_id = "qxkqhksonwvkyiphkwln"
+
+[functions.find-care]
+verify_jwt = false
