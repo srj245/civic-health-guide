@@ -44,7 +44,20 @@ const NewsSection = () => {
   const handleReadMore = (bill: Bill) => {
     setSelectedBill(bill);
     setModalOpen(true);
+  const handleTrack = async (e: React.MouseEvent, bill: Bill) => {
+    e.stopPropagation();
+    if (!user) {
+      toast({ title: "Sign in required", description: "Create an account to track bills." });
+      return;
+    }
+    try {
+      const tracked = await toggleTrack(bill);
+      toast({ title: tracked ? "Bill tracked!" : "Bill untracked", description: bill.title });
+    } catch {
+      toast({ title: "Error", description: "Failed to update tracking.", variant: "destructive" });
+    }
   };
+
 
   return (
     <section id="news" className="py-20 md:py-28 bg-background">
