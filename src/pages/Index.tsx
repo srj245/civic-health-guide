@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { TrendingUp, Users, MapPin, Megaphone, ArrowRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import StatisticsSection from "@/components/sections/StatisticsSection";
+import DistrictDashboard from "@/components/sections/DistrictDashboard";
 import HowItWorksSection from "@/components/sections/HowItWorksSection";
 import FaqSection from "@/components/sections/FaqSection";
 import ActionSection from "@/components/sections/ActionSection";
