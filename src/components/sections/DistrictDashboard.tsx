@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -95,8 +95,10 @@ const getPartyColor = (party: string) => {
   return "bg-muted text-muted-foreground";
 };
 
+const STORAGE_KEY = "civiccare_zip";
+
 const DistrictDashboard = () => {
-  const [zip, setZip] = useState("");
+  const [zip, setZip] = useState(() => localStorage.getItem(STORAGE_KEY) || "");
   const [state, setState] = useState<string | null>(null);
   const [reps, setReps] = useState<Representative[]>([]);
   const [bills, setBills] = useState<any[]>([]);
@@ -122,6 +124,7 @@ const DistrictDashboard = () => {
     setLoading(true);
     setError(null);
     setSearched(true);
+    localStorage.setItem(STORAGE_KEY, cleaned);
 
     try {
       // Fetch reps and health bills in parallel
@@ -141,6 +144,13 @@ const DistrictDashboard = () => {
       setLoading(false);
     }
   }, [zip]);
+
+  // Auto-load saved zip on mount
+  useEffect(() => {
+    if (zip && /^\d{5}$/.test(zip) && !searched) {
+      handleLookup();
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const getEmailBody = (repName: string) =>
     encodeURIComponent(
