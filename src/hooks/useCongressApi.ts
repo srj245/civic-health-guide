@@ -97,7 +97,7 @@ export function useHealthBills(limit = 10) {
   return { bills, loading, error };
 }
 
-export function useBillDetails(billId: string | null, congress = '118') {
+export function useBillDetails(billId: string | null, congress = '119') {
   const [bill, setBill] = useState<BillDetail | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

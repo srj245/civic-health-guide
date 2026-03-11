@@ -20,15 +20,14 @@ serve(async (req) => {
     if (!state) throw new Error('State is required');
 
     // Fetch members from the current congress for the given state
-    const membersUrl = `${CONGRESS_API_BASE}/member?api_key=${CONGRESS_API_KEY}&format=json&limit=50&currentMember=true`;
+    const stateUpper = state.toUpperCase();
+    const membersUrl = `${CONGRESS_API_BASE}/member/${stateUpper}?api_key=${CONGRESS_API_KEY}&format=json&limit=100&currentMember=true`;
     const res = await fetch(membersUrl);
     if (!res.ok) throw new Error(`Congress API error: ${res.status}`);
 
     const data = await res.json();
-    const stateUpper = state.toUpperCase();
 
     const members = (data.members || [])
-      .filter((m: any) => m.state === stateUpper)
       .map((m: any) => ({
         name: m.name,
         party: m.partyName,
