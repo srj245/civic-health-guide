@@ -262,21 +262,21 @@ const FindCareSection = () => {
                 <Card
                   key={category.id}
                   onClick={() => handleCategoryClick(category.id)}
-                  className={`border-border/50 bg-card shadow-sm hover:shadow-card transition-shadow cursor-pointer group animate-fade-in-up ${
+                  className={`border-border/50 bg-card shadow-sm hover:shadow-card-hover transition-all duration-300 cursor-pointer group hover:-translate-y-1 stagger-child ${
                     selectedCategory === category.id ? "ring-2 ring-primary" : ""
                   }`}
-                  style={{ animationDelay: `${index * 0.1}s` }}
+                  style={{ '--stagger-i': index } as React.CSSProperties}
                 >
                   <CardContent className="p-5">
                     <div className="flex items-center gap-4">
-                      <div className={`w-12 h-12 rounded-xl ${category.color} flex items-center justify-center flex-shrink-0 shadow-md`}>
+                      <div className={`w-12 h-12 rounded-xl ${category.color} flex items-center justify-center flex-shrink-0 shadow-md transition-transform duration-300 group-hover:scale-110`}>
                         <category.icon className="w-6 h-6 text-primary-foreground" />
                       </div>
                       <div className="flex-1">
                         <h4 className="font-semibold text-foreground group-hover:text-primary transition-colors">{category.title}</h4>
                         <p className="text-sm text-muted-foreground">{category.description}</p>
                       </div>
-                      <ExternalLink className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                      <ExternalLink className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-all duration-300 group-hover:translate-x-1" />
                     </div>
                   </CardContent>
                 </Card>
