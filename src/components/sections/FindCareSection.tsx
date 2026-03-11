@@ -3,9 +3,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { MapPin, Stethoscope, Brain, Pill, Heart, DollarSign, Phone, ExternalLink, Star, Navigation, AlertCircle } from "lucide-react";
+import { MapPin, Stethoscope, Brain, Pill, Heart, DollarSign, Phone, ExternalLink, Star, Navigation, AlertCircle, Map, List } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useCareFinder, CareResult } from "@/hooks/useCareFinder";
+import CareMap from "@/components/sections/CareMap";
 
 const careCategories = [
   { id: "primary", icon: Stethoscope, title: "Primary Care", description: "Community health centers and clinics for checkups and general care", color: "bg-primary" },
