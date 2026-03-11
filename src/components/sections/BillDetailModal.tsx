@@ -245,6 +245,9 @@ const BillDetailModal = ({ bill, open, onOpenChange }: BillDetailModalProps) => 
                 <Share2 className="w-4 h-4 mr-2" />
                 Share
               </Button>
+              <Button variant="outline" onClick={handlePrint} title="Print summary">
+                <Printer className="w-4 h-4" />
+              </Button>
             </div>
 
             {/* Community Discussion */}

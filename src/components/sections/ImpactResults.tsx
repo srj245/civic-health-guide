@@ -21,6 +21,19 @@ const relevanceConfig = {
 };
 
 const ImpactResults = ({ profile, results, loading, error, onReset }: Props) => {
+  const { toast } = useToast();
+
+  const handleShare = async () => {
+    const text = results.map((r) => `• ${r.billTitle} (${r.relevance} impact): ${r.impact}`).join("\n");
+    const full = `My CivicCare Impact Report\n${profile.ageRange} · ${profile.insuranceType} · ${profile.state}\n\n${text}\n\nGenerated at civiccare.app`;
+    if (navigator.share) {
+      try { await navigator.share({ title: "My CivicCare Impact Report", text: full }); } catch {}
+    } else {
+      await navigator.clipboard.writeText(full);
+      toast({ title: "Copied to clipboard!", description: "Share your impact report with others." });
+    }
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -30,9 +43,16 @@ const ImpactResults = ({ profile, results, loading, error, onReset }: Props) => 
             {profile.ageRange} · {profile.insuranceType} · {profile.state}
           </p>
         </div>
-        <Button variant="ghost" onClick={onReset}>
-          <ArrowLeft className="w-4 h-4 mr-2" /> Start Over
-        </Button>
+        <div className="flex gap-2">
+          {!loading && !error && results.length > 0 && (
+            <Button variant="outline" onClick={handleShare}>
+              <Share2 className="w-4 h-4 mr-2" /> Share
+            </Button>
+          )}
+          <Button variant="ghost" onClick={onReset}>
+            <ArrowLeft className="w-4 h-4 mr-2" /> Start Over
+          </Button>
+        </div>
       </div>
 
       {loading && (

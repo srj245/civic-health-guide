@@ -110,6 +110,7 @@ const Index = () => {
         </div>
       </section>
 
+      <EngagementBanner />
       <StatisticsSection />
       <MostDiscussedSection />
       <DistrictDashboard />
