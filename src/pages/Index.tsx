@@ -51,7 +51,7 @@ const TiltCard = ({ action, index, onClick }: { action: typeof quickActions[0]; 
   return (
     <Card
       ref={ref}
-      className="cursor-pointer hover:shadow-card-hover transition-all duration-300 group border-border hover:border-primary/30 stagger-child focus-visible:ring-2 focus-visible:ring-primary will-change-transform"
+      className="cursor-pointer transition-all duration-300 group border-border hover:border-primary/30 stagger-child focus-visible:ring-2 focus-visible:ring-primary will-change-transform card-glow"
       style={{ '--stagger-i': index, transition: 'transform 0.15s ease-out, box-shadow 0.3s' } as React.CSSProperties}
       onClick={onClick}
       onMouseMove={handleMouseMove}
