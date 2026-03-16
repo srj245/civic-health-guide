@@ -26,18 +26,16 @@ serve(async (req) => {
     const API_KEY = Deno.env.get("CONGRESS_API_KEY");
     if (!API_KEY) throw new Error("CONGRESS_API_KEY is not configured");
 
-    // Fetch sponsored bills
-    const sponsoredRes = await fetch(
-      `https://api.congress.gov/v3/member/${bioguideId}/sponsored-legislation?format=json&limit=100&api_key=${API_KEY}`
-    );
-    const sponsoredData = sponsoredRes.ok ? await sponsoredRes.json() : { sponsoredLegislation: [] };
+    // Fetch sponsored and cosponsored bills in parallel
+    const [sponsoredRes, cosponsoredRes] = await Promise.all([
+      fetch(`https://api.congress.gov/v3/member/${bioguideId}/sponsored-legislation?format=json&limit=50&api_key=${API_KEY}`),
+      fetch(`https://api.congress.gov/v3/member/${bioguideId}/cosponsored-legislation?format=json&limit=50&api_key=${API_KEY}`),
+    ]);
+    const [sponsoredData, cosponsoredData] = await Promise.all([
+      sponsoredRes.ok ? sponsoredRes.json() : { sponsoredLegislation: [] },
+      cosponsoredRes.ok ? cosponsoredRes.json() : { cosponsoredLegislation: [] },
+    ]);
     const sponsored = sponsoredData.sponsoredLegislation || [];
-
-    // Fetch cosponsored bills
-    const cosponsoredRes = await fetch(
-      `https://api.congress.gov/v3/member/${bioguideId}/cosponsored-legislation?format=json&limit=100&api_key=${API_KEY}`
-    );
-    const cosponsoredData = cosponsoredRes.ok ? await cosponsoredRes.json() : { cosponsoredLegislation: [] };
     const cosponsored = cosponsoredData.cosponsoredLegislation || [];
 
     // Filter for health-related
