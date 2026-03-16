@@ -16,7 +16,6 @@ export interface TrackedBill {
 }
 
 interface TrackedBillsState {
-  trackedIds: Set<string>;
   trackedBills: TrackedBill[];
   trackedIds: Set<string>;
   loading: boolean;
