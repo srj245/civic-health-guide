@@ -87,7 +87,7 @@ const HeroSection = () => {
               Explore Health Updates
               <ArrowRight className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-1" />
             </Button>
-            <Button variant="accent" size="xl" onClick={() => navigate("/care")} className="shimmer-hover group shadow-xl hover:shadow-2xl">
+            <Button variant="hero" size="xl" onClick={() => navigate("/care")} className="shimmer-hover group shadow-xl hover:shadow-2xl">
               Find Care Near Me
               <Search className="w-5 h-5 transition-transform duration-200 group-hover:scale-110" />
             </Button>
