@@ -113,7 +113,7 @@ export function TrackedBillsProvider({ children }: { children: ReactNode }) {
   );
 
   return (
-    <TrackedBillsContext.Provider value={{ trackedBills, loading, toggleTrack, isTracked, count: trackedBills.length, refetch: fetchTracked }}>
+    <TrackedBillsContext.Provider value={{ trackedBills, trackedIds, loading, toggleTrack, isTracked, count: trackedBills.length, refetch: fetchTracked }}>
       {children}
     </TrackedBillsContext.Provider>
   );
