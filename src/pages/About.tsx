@@ -46,10 +46,10 @@ const About = () => {
 
             <div className="grid sm:grid-cols-2 gap-4 mt-6">
               {[
-                { title: "AI Bill Summaries", desc: "Every bill explained in 2-3 sentences a high schooler can understand" },
-                { title: "Live Congress Data", desc: "Real-time bills from the Congress.gov API, filtered for health policy" },
-                { title: "Find Your Rep", desc: "Look up representatives by state and send them a pre-written message" },
-                { title: "Care Finder", desc: "Google Maps-powered search for clinics, mental health services, and pharmacies near you" },
+                { title: "AI Bill Summaries", desc: "Short plain-English overviews of bills, with a link to the official text to double-check" },
+                { title: "Live Congress Data", desc: "Recent bills from the Congress.gov API, filtered for health policy" },
+                { title: "Find Your Rep", desc: "Look up representatives by state and draft a message to them" },
+                { title: "Care Finder", desc: "Search for clinics, mental health services, and pharmacies near a ZIP code or city (sign-in required)" },
               ].map((item) => (
                 <Card key={item.title} className="border-border">
                   <CardContent className="p-5">
@@ -70,7 +70,7 @@ const About = () => {
               <h2 className="text-2xl font-bold text-foreground">Tech Stack</h2>
             </div>
             <div className="flex flex-wrap gap-2">
-              {["React", "TypeScript", "Tailwind CSS", "Supabase", "Congress.gov API", "Google Maps API", "Lovable AI (Gemini)", "Vite"].map((tech) => (
+              {["React", "TypeScript", "Tailwind CSS", "Lovable Cloud", "Congress.gov API", "Google Maps Platform", "Lovable AI", "Vite"].map((tech) => (
                 <span key={tech} className="px-3 py-1.5 rounded-full text-sm bg-secondary text-secondary-foreground font-medium">
                   {tech}
                 </span>
@@ -98,7 +98,7 @@ const About = () => {
             </div>
             <h2 className="text-2xl font-bold text-foreground">Built for the Congressional App Challenge</h2>
             <p className="text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-              CivicCare was designed and developed as a submission for the Congressional App Challenge — the most prestigious student software competition in the United States. Our goal is to demonstrate how technology can make civic engagement in healthcare more accessible, inclusive, and impactful for every American.
+              CivicCare was designed and developed as a submission for the Congressional App Challenge. Our goal is to show how technology can make civic engagement in healthcare more accessible and understandable for every American.
             </p>
           </div>
         </div>

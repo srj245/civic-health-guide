@@ -9,17 +9,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import BillDetailModal from "./BillDetailModal";
 
-function formatTimeAgo(dateString: string): string {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  
-  if (diffDays === 0) return "Today";
-  if (diffDays === 1) return "1 day ago";
-  if (diffDays < 7) return `${diffDays} days ago`;
-  if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
-  return `${Math.floor(diffDays / 30)} months ago`;
+function formatActionDate(dateString?: string): string | null {
+  if (!dateString) return null;
+  const d = new Date(`${dateString.slice(0, 10)}T12:00:00`);
+  if (isNaN(d.getTime())) return null;
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
 function getBillCategory(title: string): string {
@@ -27,8 +21,8 @@ function getBillCategory(title: string): string {
   if (titleLower.includes('medicare')) return 'Medicare';
   if (titleLower.includes('medicaid')) return 'Medicaid';
   if (titleLower.includes('mental health')) return 'Mental Health';
-  if (titleLower.includes('drug') || titleLower.includes('prescription')) return 'Prescription Drugs';
-  if (titleLower.includes('insurance')) return 'Health Insurance';
+  if (titleLower.includes('prescription') || titleLower.includes('drug pricing') || titleLower.includes('insulin')) return 'Prescription Drugs';
+  if (titleLower.includes('health insurance') || titleLower.includes('health coverage')) return 'Health Insurance';
   if (titleLower.includes('veteran')) return 'Veterans Health';
   return 'Health Policy';
 }
@@ -123,11 +117,10 @@ const NewsSection = () => {
 
                   {/* Footer */}
                   <div className="flex items-center justify-between pt-3 border-t border-border/50">
-                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                      <span>{formatTimeAgo(bill.updateDate)}</span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5" />
-                        2 min read
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <Clock className="w-3.5 h-3.5" />
+                      <span>
+                        Latest action: {formatActionDate(bill.latestAction?.actionDate || bill.updateDate) ?? "—"}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
@@ -155,7 +148,7 @@ const NewsSection = () => {
         {/* View All Link */}
         <div className="text-center mt-10">
           <a
-            href="https://congress.gov/search?q=%7B%22congress%22%3A%22118%22%2C%22source%22%3A%22legislation%22%2C%22subject%22%3A%22Health%22%7D"
+            href="https://www.congress.gov/search?q=%7B%22congress%22%3A%22119%22%2C%22source%22%3A%22legislation%22%2C%22subject%22%3A%22Health%22%7D"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 text-primary font-medium hover:gap-3 transition-all duration-300 animate-underline"
