@@ -130,7 +130,7 @@ serve(async (req) => {
         for (const bill of fallbackData.bills || []) {
           if (allHealthBills.length >= max) break;
           if (!isHealth(bill.title || '')) continue;
-          const id = `${bill.type}${bill.number}`.toLowerCase();
+          const id = `${bill.type}${bill.number}`;
           if (allHealthBills.find((b: any) => b.id === id)) continue;
           allHealthBills.push({
             id,
