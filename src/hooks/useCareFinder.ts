@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { FunctionsHttpError } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
 export interface CareResult {
@@ -13,47 +14,45 @@ export interface CareResult {
   types: string[];
 }
 
-interface UseCareFinderReturn {
-  results: CareResult[];
-  loading: boolean;
-  error: string | null;
-  searched: boolean;
-  search: (params: {
-    zipCode: string;
-    category: string | null;
-    lowCostOnly: boolean;
-    includeTelehealth: boolean;
-  }) => Promise<void>;
+interface SearchParams {
+  zipCode: string;
+  category: string | null;
+  lowCostOnly: boolean;
+  includeTelehealth: boolean;
 }
 
-export function useCareFinder(): UseCareFinderReturn {
+const FRIENDLY_ERROR = "We couldn't load care results right now. Please try again in a moment.";
+
+export function useCareFinder() {
   const [results, setResults] = useState<CareResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searched, setSearched] = useState(false);
 
-  const search = async (params: {
-    zipCode: string;
-    category: string | null;
-    lowCostOnly: boolean;
-    includeTelehealth: boolean;
-  }) => {
+  const search = async (params: SearchParams) => {
     setLoading(true);
     setError(null);
     setSearched(true);
 
     try {
-      const { data, error: fnError } = await supabase.functions.invoke("find-care", {
-        body: params,
-      });
+      const { data, error: fnError } = await supabase.functions.invoke("find-care", { body: params });
 
-      if (fnError) throw fnError;
+      if (fnError) {
+        let message = FRIENDLY_ERROR;
+        if (fnError instanceof FunctionsHttpError) {
+          try {
+            const body = await fnError.context.json();
+            if (body?.error) message = body.error;
+          } catch { /* keep friendly default */ }
+        }
+        console.error("find-care failed:", fnError);
+        throw new Error(message);
+      }
       if (data?.error) throw new Error(data.error);
 
       setResults(data.results || []);
     } catch (err: any) {
-      console.error("Care search error:", err);
-      setError(err.message || "Failed to search for care facilities");
+      setError(err?.message || FRIENDLY_ERROR);
       setResults([]);
     } finally {
       setLoading(false);

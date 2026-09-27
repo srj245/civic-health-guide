@@ -71,10 +71,17 @@ const BillDetailModal = ({ bill, open, onOpenChange }: BillDetailModalProps) => 
     }
   };
 
+  const billTypeSlug: Record<string, string> = {
+    hr: "house-bill", s: "senate-bill", hres: "house-resolution", sres: "senate-resolution",
+    hjres: "house-joint-resolution", sjres: "senate-joint-resolution",
+    hconres: "house-concurrent-resolution", sconres: "senate-concurrent-resolution",
+  };
+  const congressUrl = `https://www.congress.gov/bill/${details?.congress || 119}th-congress/${billTypeSlug[(details?.type || bill?.type || "hr").toLowerCase()] || "house-bill"}/${details?.number || bill?.number || ""}/text`;
+
   const handleShare = async () => {
     const title = bill?.title || 'Health Bill';
     const text = aiSummary?.plainEnglish || `Check out this health bill: ${title}`;
-    const url = `https://congress.gov/bill/${details?.congress || 118}th-congress/${details?.type === 'hr' ? 'house-bill' : 'senate-bill'}/${details?.number}`;
+    const url = congressUrl;
 
     if (navigator.share) {
       try {
@@ -151,6 +158,18 @@ const BillDetailModal = ({ bill, open, onOpenChange }: BillDetailModalProps) => 
                     <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">How does this affect you?</p>
                     <p className="text-sm text-foreground leading-relaxed">{aiSummary.impact}</p>
                   </div>
+                  <p className="mt-3 text-xs text-muted-foreground italic">
+                    AI-generated summary — check the{" "}
+                    <a
+                      href={congressUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline text-primary not-italic"
+                    >
+                      official bill text on Congress.gov
+                    </a>
+                    .
+                  </p>
                 </>
               )}
             </div>
@@ -236,7 +255,7 @@ const BillDetailModal = ({ bill, open, onOpenChange }: BillDetailModalProps) => 
               )}
               <Button
                 variant="outline"
-                onClick={() => window.open(`https://congress.gov/bill/${details.congress}th-congress/${details.type === 'hr' ? 'house-bill' : 'senate-bill'}/${details.number}`, '_blank')}
+                onClick={() => window.open(congressUrl, '_blank')}
               >
                 <ExternalLink className="w-4 h-4 mr-2" />
                 Congress.gov

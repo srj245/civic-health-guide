@@ -100,95 +100,51 @@ serve(async (req) => {
         };
         break;
 
-      case 'health-bills':
-        // Use the Congress API subject search to find health-related bills directly
-        const healthSubjects = ['Health', 'Health care coverage and access', 'Medicare', 'Medicaid'];
-        const allHealthBills: any[] = [];
-        
-        // Try fetching bills by subject/policy area using the search endpoint
-        for (const subject of healthSubjects) {
-          if (allHealthBills.length >= parseInt(limit as string)) break;
-          try {
-            const subjectUrl = `${CONGRESS_API_BASE}/bill/${congress}?api_key=${CONGRESS_API_KEY}&format=json&limit=20&sort=updateDate+desc`;
-            const subjectRes = await fetch(subjectUrl);
-            if (subjectRes.ok) {
-              const subjectData = await subjectRes.json();
-              const filtered = subjectData.bills?.filter((bill: any) => {
-                const titleLower = bill.title?.toLowerCase() || '';
-                const healthTerms = [
-                  'health', 'medicare', 'medicaid', 'mental health', 'hospital', 'medical',
-                  'prescription', 'drug', 'pharmaceutical', 'opioid', 'veteran',
-                  'nursing', 'physician', 'patient', 'care act', 'affordable care',
-                  'maternal', 'reproductive', 'telehealth', 'public health', 'disease',
-                  'pandemic', 'vaccine', 'cancer', 'diabetes', 'healthcare', 'health care',
-                  'insurance', 'clinical', 'therapy', 'treatment', 'surgeon', 'nurse',
-                  'wellness', 'nutrition', 'obesity', 'substance abuse', 'addiction',
-                  'emergency medical', 'ambulance', 'hospice', 'rehabilitation'
-                ];
-                return healthTerms.some(term => titleLower.includes(term));
-              }) || [];
-              for (const bill of filtered) {
-                const id = `${bill.type}${bill.number}`;
-                if (!allHealthBills.find((b: any) => b.id === id)) {
-                  allHealthBills.push({
-                    id,
-                    congress: bill.congress,
-                    type: bill.type,
-                    number: bill.number,
-                    title: bill.title,
-                    latestAction: bill.latestAction,
-                    updateDate: bill.updateDate,
-                  });
-                }
-              }
-            }
-          } catch (e) {
-            console.log(`Error fetching subject ${subject}:`, e);
-          }
-        }
-
-        // If not enough from subject search, try fetching a larger batch
-        if (allHealthBills.length < parseInt(limit as string)) {
-          const fallbackLimit = 250;
-          const fallbackUrl = `${CONGRESS_API_BASE}/bill/${congress}?api_key=${CONGRESS_API_KEY}&format=json&limit=${fallbackLimit}&sort=updateDate+desc`;
-          const fallbackRes = await fetch(fallbackUrl);
-          if (fallbackRes.ok) {
-            const fallbackData = await fallbackRes.json();
-            const healthTerms = [
-              'health', 'medicare', 'medicaid', 'mental health', 'hospital', 'medical',
-              'prescription', 'drug', 'pharmaceutical', 'opioid', 'veteran',
-              'nursing', 'physician', 'patient', 'care act', 'affordable care',
-              'maternal', 'reproductive', 'telehealth', 'public health', 'disease',
-              'pandemic', 'vaccine', 'cancer', 'diabetes', 'healthcare', 'health care',
-              'insurance', 'clinical', 'therapy', 'treatment', 'surgeon', 'nurse',
-              'wellness', 'nutrition', 'obesity', 'substance abuse', 'addiction',
-              'emergency medical', 'ambulance', 'hospice', 'rehabilitation'
-            ];
-            const filtered = fallbackData.bills?.filter((bill: any) => {
-              const titleLower = bill.title?.toLowerCase() || '';
-              return healthTerms.some(term => titleLower.includes(term));
-            }) || [];
-            for (const bill of filtered) {
-              const id = `${bill.type}${bill.number}`;
-              if (!allHealthBills.find((b: any) => b.id === id) && allHealthBills.length < parseInt(limit as string)) {
-                allHealthBills.push({
-                  id,
-                  congress: bill.congress,
-                  type: bill.type,
-                  number: bill.number,
-                  title: bill.title,
-                  latestAction: bill.latestAction,
-                  updateDate: bill.updateDate,
-                });
-              }
-            }
-          }
-        }
-
-        data = {
-          bills: allHealthBills.slice(0, parseInt(limit as string)),
+      case 'health-bills': {
+        const max = parseInt(limit as string);
+        const healthTerms = [
+          'health', 'healthcare', 'medicare', 'medicaid', 'hospital', 'medical',
+          'prescription drug', 'pharmacy', 'pharmaceutical', 'opioid', 'fentanyl',
+          'nursing', 'physician', 'patient', 'affordable care', 'maternal',
+          'reproductive', 'telehealth', 'disease', 'pandemic', 'vaccine', 'cancer',
+          'diabetes', 'clinical', 'nurse', 'substance use', 'substance abuse',
+          'addiction', 'emergency medical', 'hospice', 'mental', 'suicide',
+          'drug pricing', 'insulin', 'dental', 'organ', 'alzheimer', 'autism',
+        ];
+        const excludeTerms = [
+          'terrorism', 'terrorist', 'property and casualty', 'casualty insurance',
+          'flood insurance', 'crop insurance', 'deposit insurance', 'title insurance',
+          'reinsurance', 'firearm', 'tax-exempt bond',
+        ];
+        const isHealth = (title: string) => {
+          const t = title.toLowerCase();
+          if (excludeTerms.some((x) => t.includes(x))) return false;
+          return healthTerms.some((term) => t.includes(term));
         };
+
+        const allHealthBills: any[] = [];
+        const fallbackUrl = `${CONGRESS_API_BASE}/bill/${congress}?api_key=${CONGRESS_API_KEY}&format=json&limit=250&sort=updateDate+desc`;
+        const fallbackRes = await fetch(fallbackUrl);
+        if (!fallbackRes.ok) throw new Error(`Congress API error: ${fallbackRes.status}`);
+        const fallbackData = await fallbackRes.json();
+        for (const bill of fallbackData.bills || []) {
+          if (allHealthBills.length >= max) break;
+          if (!isHealth(bill.title || '')) continue;
+          const id = `${bill.type}${bill.number}`;
+          if (allHealthBills.find((b: any) => b.id === id)) continue;
+          allHealthBills.push({
+            id,
+            congress: bill.congress,
+            type: bill.type,
+            number: bill.number,
+            title: bill.title,
+            latestAction: bill.latestAction,
+            updateDate: bill.updateDate,
+          });
+        }
+        data = { bills: allHealthBills };
         break;
+      }
 
       case 'subjects':
         // Fetch policy area subjects
