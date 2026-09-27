@@ -1,7 +1,8 @@
 import { useEffect, useRef, useCallback } from "react";
 import { CareResult } from "@/hooks/useCareFinder";
 
-const GOOGLE_MAPS_API_KEY = "AIzaSyD2BOWaKp7Bl72egN5Bf_HQWsI-Uz38X1Y";
+const BROWSER_KEY = import.meta.env["VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY"];
+const TRACKING_ID = import.meta.env["VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID"];
 
 interface CareMapProps {
   results: CareResult[];
@@ -16,21 +17,18 @@ const loadCallbacks: (() => void)[] = [];
 function loadGoogleMaps(): Promise<void> {
   if (mapsScriptLoaded) return Promise.resolve();
   return new Promise((resolve) => {
-    if (mapsScriptLoading) {
-      loadCallbacks.push(resolve);
-      return;
-    }
+    loadCallbacks.push(resolve);
+    if (mapsScriptLoading) return;
     mapsScriptLoading = true;
-    const script = document.createElement("script");
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}`;
-    script.async = true;
-    script.onload = () => {
+    (window as any)["__civicCareInitMap"] = () => {
       mapsScriptLoaded = true;
       mapsScriptLoading = false;
-      resolve();
       loadCallbacks.forEach((cb) => cb());
       loadCallbacks.length = 0;
     };
+    const script = document.createElement("script");
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${BROWSER_KEY}&loading=async&callback=__civicCareInitMap&channel=${TRACKING_ID}`;
+    script.async = true;
     document.head.appendChild(script);
   });
 }
@@ -58,6 +56,7 @@ export default function CareMap({ results, selectedId, onSelect }: CareMapProps)
         streetViewControl: false,
         mapTypeControl: false,
         fullscreenControl: true,
+        clickableIcons: false,
       });
     } else {
       mapInstance.current.setCenter(center);

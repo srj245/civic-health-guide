@@ -1,82 +1,88 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "npm:@supabase/supabase-js@2";
+import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_maps";
 
 const categoryQueries: Record<string, string> = {
   primary: "primary care clinic community health center",
-  mental: "mental health counseling therapy",
-  pharmacy: "pharmacy low cost prescription",
-  specialty: "specialist doctor sliding scale",
+  mental: "mental health counseling clinic",
+  pharmacy: "pharmacy",
+  specialty: "specialist medical clinic",
 };
 
-serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+const json = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
-    const apiKey = Deno.env.get("GOOGLE_MAPS_API_KEY");
-    if (!apiKey) {
-      throw new Error("GOOGLE_MAPS_API_KEY not configured");
+    // Require a signed-in user (keeps the paid Maps search from being an open public proxy)
+    const authHeader = req.headers.get("Authorization") ?? "";
+    const token = authHeader.replace("Bearer ", "");
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+    );
+    const { data: userData } = await supabase.auth.getUser(token);
+    if (!userData?.user) {
+      return json({ error: "Please sign in to search for care near you.", code: "auth_required" }, 401);
     }
 
-    const { zipCode, category, lowCostOnly, includeTelehealth } = await req.json();
-
-    if (!zipCode || typeof zipCode !== "string" || zipCode.trim().length === 0) {
-      return new Response(
-        JSON.stringify({ error: "Zip code is required" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    const GOOGLE_MAPS_API_KEY = Deno.env.get("GOOGLE_MAPS_API_KEY");
+    if (!LOVABLE_API_KEY || !GOOGLE_MAPS_API_KEY) {
+      console.error("Missing Google Maps connector credentials");
+      return json({ error: "Care search is temporarily unavailable." }, 500);
     }
 
-    // Build search query
-    let query = category && categoryQueries[category]
-      ? categoryQueries[category]
-      : "healthcare clinic";
+    const body = await req.json().catch(() => ({}));
+    const zipCode = typeof body.zipCode === "string" ? body.zipCode.trim().slice(0, 100) : "";
+    const { category, lowCostOnly, includeTelehealth } = body;
+    if (!zipCode) return json({ error: "Please enter a ZIP code or city." }, 400);
 
-    if (lowCostOnly) query += " free low cost";
-    if (includeTelehealth) query += " telehealth virtual";
-    query += ` near ${zipCode.trim()}`;
+    let query = category && categoryQueries[category] ? categoryQueries[category] : "health clinic";
+    if (lowCostOnly) query += " free low cost sliding scale";
+    if (includeTelehealth) query += " telehealth";
+    query += ` near ${zipCode}`;
 
-    // Call Google Places Text Search API
-    const url = new URL("https://maps.googleapis.com/maps/api/place/textsearch/json");
-    url.searchParams.set("query", query);
-    url.searchParams.set("type", "health");
-    url.searchParams.set("key", apiKey);
+    const response = await fetch(`${GATEWAY_URL}/places/v1/places:searchText`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "X-Connection-Api-Key": GOOGLE_MAPS_API_KEY,
+        "Content-Type": "application/json",
+        "X-Goog-FieldMask":
+          "places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount,places.currentOpeningHours.openNow,places.types",
+      },
+      body: JSON.stringify({ textQuery: query, pageSize: 10 }),
+    });
 
-    const response = await fetch(url.toString());
+    if (!response.ok) {
+      const details = await response.text();
+      console.error(`Places request failed [${response.status}]: ${details}`);
+      return json({ error: "We couldn't reach the care search service right now. Please try again shortly." }, 502);
+    }
+
     const data = await response.json();
-
-    if (data.status !== "OK" && data.status !== "ZERO_RESULTS") {
-      console.error("Places API error:", data.status, data.error_message);
-      throw new Error(`Places API error: ${data.status}`);
-    }
-
-    const results = (data.results || []).slice(0, 10).map((place: any) => ({
-      id: place.place_id,
-      name: place.name,
-      address: place.formatted_address,
-      rating: place.rating || null,
-      totalRatings: place.user_ratings_total || 0,
-      isOpen: place.opening_hours?.open_now ?? null,
-      lat: place.geometry?.location?.lat,
-      lng: place.geometry?.location?.lng,
-      types: place.types || [],
+    const results = (data.places || []).map((p: any) => ({
+      id: p.id,
+      name: p.displayName?.text ?? "Unnamed location",
+      address: p.formattedAddress ?? "",
+      rating: p.rating ?? null,
+      totalRatings: p.userRatingCount ?? 0,
+      isOpen: p.currentOpeningHours?.openNow ?? null,
+      lat: p.location?.latitude,
+      lng: p.location?.longitude,
+      types: p.types || [],
     }));
 
-    return new Response(
-      JSON.stringify({ results, query }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return json({ results, query });
   } catch (error) {
     console.error("find-care error:", error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return json({ error: "Something went wrong while searching. Please try again." }, 500);
   }
 });
