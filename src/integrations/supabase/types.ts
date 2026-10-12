@@ -185,7 +185,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_comment_scores: {
+        Args: { _comment_ids: string[] }
+        Returns: {
+          comment_id: string
+          score: number
+        }[]
+      }
+      get_subscriber_count: { Args: never; Returns: number }
     }
     Enums: {
       [_ in never]: never
