@@ -43,21 +43,22 @@ export function useBillComments(billId: string | null) {
       const rawComments = (commentsData || []) as any[];
       if (rawComments.length === 0) { setComments([]); setLoading(false); return; }
 
-      // Fetch all votes
+      // Fetch vote totals and the current user's own votes
       const commentIds = rawComments.map((c) => c.id);
-      const { data: votesData } = await supabase
-        .from("comment_votes")
-        .select("*")
-        .in("comment_id", commentIds);
+      const [{ data: scoresData }, { data: myVotes }] = await Promise.all([
+        (supabase.rpc as any)("get_comment_scores", { _comment_ids: commentIds }),
+        user
+          ? supabase.from("comment_votes").select("*").eq("user_id", user.id).in("comment_id", commentIds)
+          : Promise.resolve({ data: [] as CommentVote[] }),
+      ]);
 
-      const votes = (votesData || []) as CommentVote[];
       const scoreMap = new Map<string, number>();
       const userVoteMap = new Map<string, number>();
-      for (const v of votes) {
-        scoreMap.set(v.comment_id, (scoreMap.get(v.comment_id) || 0) + v.vote);
-        if (user && v.user_id === user.id) {
-          userVoteMap.set(v.comment_id, v.vote);
-        }
+      for (const s of (scoresData || []) as { comment_id: string; score: number }[]) {
+        scoreMap.set(s.comment_id, Number(s.score));
+      }
+      for (const v of (myVotes || []) as CommentVote[]) {
+        userVoteMap.set(v.comment_id, v.vote);
       }
 
       // Enrich with scores
@@ -111,7 +112,7 @@ export function useBillComments(billId: string | null) {
         user_id: user.id,
         bill_id: billId,
         content: content.trim(),
-        user_email: user.email || "Anonymous",
+        user_email: (user.email || "Anonymous").split("@")[0] || "Anonymous",
       };
       if (parentId) row.parent_id = parentId;
       const { error } = await supabase.from("bill_comments").insert(row);

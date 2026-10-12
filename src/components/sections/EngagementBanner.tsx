@@ -16,7 +16,7 @@ const EngagementBanner = () => {
       const [commentsRes, trackedRes, subsRes] = await Promise.all([
         supabase.from("bill_comments").select("id", { count: "exact", head: true }),
         supabase.from("tracked_bills").select("id", { count: "exact", head: true }),
-        supabase.from("newsletter_subscribers").select("id", { count: "exact", head: true }),
+        (supabase.rpc as any)("get_subscriber_count").then((r: any) => ({ count: Number(r.data ?? 0) })),
       ]);
       setStats({
         comments: commentsRes.count ?? 0,
