@@ -1,43 +1,36 @@
 import { useState, useEffect } from "react";
 import { Moon, Sun } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
+const STORAGE_KEY = "theme";
+
+/** Dark is the default. The `light` class on <html> switches palettes. */
 const ThemeToggle = () => {
-  const [isDark, setIsDark] = useState(() => {
-    if (typeof window !== "undefined") {
-      return document.documentElement.classList.contains("dark");
+  const [light, setLight] = useState(() => {
+    try {
+      return localStorage.getItem(STORAGE_KEY) === "light";
+    } catch {
+      return false;
     }
-    return false;
   });
 
   useEffect(() => {
-    const root = document.documentElement;
-    if (isDark) {
-      root.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-    } else {
-      root.classList.remove("dark");
-      localStorage.setItem("theme", "light");
+    document.documentElement.classList.toggle("light", light);
+    try {
+      localStorage.setItem(STORAGE_KEY, light ? "light" : "dark");
+    } catch {
+      /* storage unavailable */
     }
-  }, [isDark]);
-
-  useEffect(() => {
-    const saved = localStorage.getItem("theme");
-    if (saved === "dark" || (!saved && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
-      setIsDark(true);
-    }
-  }, []);
+  }, [light]);
 
   return (
-    <Button
-      variant="ghost"
-      size="icon"
-      onClick={() => setIsDark(!isDark)}
-      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-      className="w-9 h-9"
+    <button
+      type="button"
+      onClick={() => setLight((v) => !v)}
+      aria-label={light ? "Switch to dark mode" : "Switch to light mode"}
+      className="inline-flex h-9 w-9 items-center justify-center rounded text-muted-foreground hover:text-foreground"
     >
-      {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-    </Button>
+      {light ? <Moon className="h-4 w-4" aria-hidden="true" /> : <Sun className="h-4 w-4" aria-hidden="true" />}
+    </button>
   );
 };
 

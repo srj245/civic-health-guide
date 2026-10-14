@@ -70,7 +70,7 @@ const RepDetailModal = ({ repName, repUrl, open, onOpenChange }: Props) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">{repName}</DialogTitle>
+          <DialogTitle className="text-xl font-medium">{repName}</DialogTitle>
         </DialogHeader>
 
         {loading && (
@@ -88,11 +88,11 @@ const RepDetailModal = ({ repName, repUrl, open, onOpenChange }: Props) => {
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <div className="rounded-xl border border-border p-4 text-center">
-                <p className="text-2xl font-bold text-foreground">{data.sponsoredHealthBills}</p>
+                <p className="text-2xl font-medium text-foreground">{data.sponsoredHealthBills}</p>
                 <p className="text-xs text-muted-foreground">Health bills sponsored this Congress</p>
               </div>
               <div className="rounded-xl border border-border p-4 text-center">
-                <p className="text-2xl font-bold text-foreground">{data.cosponsoredHealthBills}</p>
+                <p className="text-2xl font-medium text-foreground">{data.cosponsoredHealthBills}</p>
                 <p className="text-xs text-muted-foreground">Cosponsored</p>
               </div>
             </div>
@@ -105,7 +105,7 @@ const RepDetailModal = ({ repName, repUrl, open, onOpenChange }: Props) => {
 
             {data.sample.length > 0 ? (
               <div>
-                <h3 className="font-semibold flex items-center gap-2 mb-3">
+                <h3 className="font-medium flex items-center gap-2 mb-3">
                   <FileText className="w-4 h-4" />
                   Health bills ({data.sample.length}
                   {data.sponsoredHealthBills + data.cosponsoredHealthBills > data.sample.length

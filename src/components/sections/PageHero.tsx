@@ -10,13 +10,11 @@ interface PageHeroProps {
 /** Consistent page header used by every top-level page. */
 const PageHero = ({ badge, title, subtitle }: PageHeroProps) => {
   return (
-    <header className="border-b border-border px-6 py-8 md:px-10 md:py-10">
-      <div className="mx-auto max-w-6xl">
-        {badge && (
-          <p className="mb-2 text-sm font-medium uppercase tracking-wide text-primary">{badge}</p>
-        )}
-        <h1 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">{title}</h1>
-        <p className="mt-2 max-w-2xl text-base text-muted-foreground md:text-lg">{subtitle}</p>
+    <header className="px-6 pb-10 pt-14 text-center md:px-10 md:pb-14 md:pt-20">
+      <div className="mx-auto max-w-3xl">
+        {badge && <p className="mb-4 text-sm uppercase tracking-wide text-muted-foreground">{badge}</p>}
+        <h1 className="page-h1 text-foreground">{title}</h1>
+        <p className="hero-sub mx-auto">{subtitle}</p>
       </div>
     </header>
   );

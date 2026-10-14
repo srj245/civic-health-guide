@@ -54,7 +54,7 @@ const ActionSection = () => {
   return (
     <section id="action" className="border-t border-border bg-secondary/40 px-6 py-14 md:px-10 md:py-20" aria-labelledby="action-heading">
       <div className="mx-auto max-w-6xl">
-        <h2 id="action-heading" className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+        <h2 id="action-heading" className="text-2xl font-medium tracking-tight text-foreground md:text-3xl">
           Take action
         </h2>
         <p className="mt-2 max-w-2xl text-muted-foreground">
@@ -67,7 +67,7 @@ const ActionSection = () => {
             className="group rounded-lg border border-border bg-card p-5 transition-colors hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <Mail className="h-5 w-5 text-primary" aria-hidden="true" />
-            <h3 className="mt-4 font-semibold text-foreground">Message your representative</h3>
+            <h3 className="mt-4 font-medium text-foreground">Message your representative</h3>
             <p className="mt-1 text-sm text-muted-foreground">
               Look up your reps, copy a ready-to-paste message, and send it through their contact page.
             </p>
@@ -84,7 +84,7 @@ const ActionSection = () => {
             className="group rounded-lg border border-border bg-card p-5 transition-colors hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <Vote className="h-5 w-5 text-primary" aria-hidden="true" />
-            <h3 className="mt-4 font-semibold text-foreground">Check your voter registration</h3>
+            <h3 className="mt-4 font-medium text-foreground">Check your voter registration</h3>
             <p className="mt-1 text-sm text-muted-foreground">
               Confirm you are registered before the next election. Opens vote.org.
             </p>
@@ -100,7 +100,7 @@ const ActionSection = () => {
             className="group rounded-lg border border-border bg-card p-5 text-left transition-colors hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <Share2 className="h-5 w-5 text-primary" aria-hidden="true" />
-            <h3 className="mt-4 font-semibold text-foreground">Share CivicCare</h3>
+            <h3 className="mt-4 font-medium text-foreground">Share CivicCare</h3>
             <p className="mt-1 text-sm text-muted-foreground">
               Send it to someone who is trying to make sense of a health bill.
             </p>

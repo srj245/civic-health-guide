@@ -102,7 +102,7 @@ const BillDetailModal = ({ bill, open, onOpenChange }: BillDetailModalProps) => 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold pr-8">
+          <DialogTitle className="text-xl font-medium pr-8">
             {bill?.title || "Bill Details"}
           </DialogTitle>
         </DialogHeader>
@@ -141,7 +141,7 @@ const BillDetailModal = ({ bill, open, onOpenChange }: BillDetailModalProps) => 
 
             {/* AI Plain English Summary */}
             <div className="space-y-2 rounded-xl border border-primary/20 bg-primary/5 p-4">
-              <h3 className="font-semibold flex items-center gap-2 text-primary">
+              <h3 className="font-medium flex items-center gap-2 text-primary">
                 <Sparkles className="w-4 h-4" />
                 Plain English Summary
               </h3>
@@ -180,7 +180,7 @@ const BillDetailModal = ({ bill, open, onOpenChange }: BillDetailModalProps) => 
             {/* Official Summary */}
             {details.summary && (
               <div className="space-y-2">
-                <h3 className="font-semibold flex items-center gap-2">
+                <h3 className="font-medium flex items-center gap-2">
                   <FileText className="w-4 h-4" />
                   Official Summary
                 </h3>
@@ -193,7 +193,7 @@ const BillDetailModal = ({ bill, open, onOpenChange }: BillDetailModalProps) => 
             {/* Latest Action */}
             {details.latestAction && (
               <div className="space-y-2">
-                <h3 className="font-semibold flex items-center gap-2">
+                <h3 className="font-medium flex items-center gap-2">
                   <Calendar className="w-4 h-4" />
                   Latest Action
                 </h3>
@@ -211,7 +211,7 @@ const BillDetailModal = ({ bill, open, onOpenChange }: BillDetailModalProps) => 
             {/* Sponsors */}
             {details.sponsors && details.sponsors.length > 0 && (
               <div className="space-y-2">
-                <h3 className="font-semibold flex items-center gap-2">
+                <h3 className="font-medium flex items-center gap-2">
                   <Users className="w-4 h-4" />
                   Sponsors
                 </h3>

@@ -77,7 +77,7 @@ const AudienceBillsModal = ({ group, open, onOpenChange, bills, loading }: Audie
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold flex items-center gap-3">
+          <DialogTitle className="text-xl font-medium flex items-center gap-3">
             <div className={`w-10 h-10 rounded-lg ${group.iconBg} flex items-center justify-center`} aria-hidden="true">
               <group.icon className="w-5 h-5 text-primary-foreground" />
             </div>
@@ -196,7 +196,7 @@ const AffectedSection = () => {
                   {/* Content */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
+                      <h3 className="text-lg font-medium text-foreground group-hover:text-primary transition-colors">
                         {group.title}
                       </h3>
                       <span className="text-xs text-muted-foreground">

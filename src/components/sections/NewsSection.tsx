@@ -93,7 +93,7 @@ const NewsSection = () => {
         {loading && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
             {[...Array(4)].map((_, i) => (
-              <Card key={i} className="border-border/50 bg-card">
+              <Card key={i} className="border-border bg-card">
                 <CardHeader className="pb-3">
                   <Skeleton className="h-5 w-24 mb-3" />
                   <Skeleton className="h-6 w-full" />
@@ -140,7 +140,7 @@ const NewsSection = () => {
                       {bill.type.toUpperCase()}{bill.number}
                     </span>
                   </div>
-                  <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors leading-snug line-clamp-2">
+                  <h3 className="text-lg font-medium text-foreground group-hover:text-primary transition-colors leading-snug line-clamp-2">
                     {bill.title}
                   </h3>
                 </CardHeader>
@@ -152,7 +152,7 @@ const NewsSection = () => {
                   )}
 
                   {/* Footer */}
-                  <div className="flex items-center justify-between pt-3 border-t border-border/50">
+                  <div className="flex items-center justify-between pt-3 border-t border-border">
                     <div className="flex items-center gap-1 text-xs text-muted-foreground">
                       <Clock className="w-3.5 h-3.5" />
                       <span>

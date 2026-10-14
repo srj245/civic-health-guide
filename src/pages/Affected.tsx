@@ -1,3 +1,4 @@
+import PageHero from "@/components/sections/PageHero";
 import AffectedSection from "@/components/sections/AffectedSection";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
@@ -6,10 +7,7 @@ const Affected = () => {
 
   return (
     <div className="bg-background">
-      <div className="px-6 py-8 md:px-10">
-        <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1">Who's Affected</h1>
-        <p className="text-muted-foreground mb-6">See how healthcare legislation impacts different groups in your community.</p>
-      </div>
+      <PageHero badge="Who it touches" title="Who's affected" subtitle="How health legislation lands on students, families, seniors, workers, and veterans." />
       <AffectedSection />
     </div>
   );

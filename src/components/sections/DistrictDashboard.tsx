@@ -94,7 +94,7 @@ const DistrictDashboard = () => {
     <section className="border-t border-border px-6 py-14 md:px-10 md:py-20" aria-labelledby="district-heading">
       <div className="mx-auto max-w-6xl">
         <div className="max-w-2xl">
-          <h2 id="district-heading" className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+          <h2 id="district-heading" className="text-2xl font-medium tracking-tight text-foreground md:text-3xl">
             Who represents you
           </h2>
           <p className="mt-2 text-muted-foreground">
@@ -165,7 +165,7 @@ const DistrictDashboard = () => {
             {location && (
               <div>
                 <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                  <h3 className="text-lg font-semibold text-foreground">
+                  <h3 className="text-lg font-medium text-foreground">
                     {unresolved ? `${placeLabel}` : `District ${location.districtLabel}`}
                   </h3>
                   {!unresolved && <span className="text-sm text-muted-foreground">{placeLabel}</span>}
@@ -189,7 +189,7 @@ const DistrictDashboard = () => {
 
             {bills.length > 0 && (
               <div>
-                <h3 className="text-lg font-semibold text-foreground">Health bills they are voting on</h3>
+                <h3 className="text-lg font-medium text-foreground">Health bills they are voting on</h3>
                 <ul className="mt-4 divide-y divide-border border-y border-border">
                   {bills.map((bill) => (
                     <li key={bill.id}>

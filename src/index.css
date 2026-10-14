@@ -2,8 +2,62 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+  Design tokens.
+  Dark is the default (sky #01061a). The `.light` class on <html> switches to the light palette.
+  Hero-scale unit --u: reference frame 1280x800, 1px at that size.
+*/
 @layer base {
   :root {
+    --u: min(calc(100vh / 800), max(calc(100vw / 1280), min(calc(100vw / 640), 0.75px)));
+
+    --background: 228 93% 5%;
+    --foreground: 0 0% 100%;
+
+    --card: 227 60% 8%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 227 60% 8%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 0 0% 100%;
+    --primary-foreground: 0 0% 4%;
+
+    --secondary: 227 50% 11%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 227 45% 13%;
+    --muted-foreground: 224 60% 84%;
+
+    --accent: 206 100% 92%;
+    --accent-foreground: 0 0% 4%;
+
+    --destructive: 0 72% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 152 55% 55%;
+    --success-foreground: 0 0% 4%;
+
+    --warning: 38 92% 62%;
+    --warning-foreground: 0 0% 4%;
+
+    --info: 206 100% 80%;
+    --info-foreground: 0 0% 4%;
+
+    --border: 0 0% 100% / 0.19;
+    --input: 0 0% 100% / 0.19;
+    --ring: 200 100% 75%;
+
+    --radius: 0.3rem;
+
+    --nav: 228 89% 97% / 0.9;
+    --subhead: 224 100% 94% / 0.74;
+    --link: 206 100% 92% / 0.77;
+
+    --sky: linear-gradient(90deg, #00061a 0%, #01071b 22%, #01071a 45%, #010718 62%, #010614 80%, #020511 100%);
+  }
+
+  .light {
     --background: 210 20% 99%;
     --foreground: 215 25% 12%;
 
@@ -13,17 +67,17 @@
     --popover: 0 0% 100%;
     --popover-foreground: 215 25% 12%;
 
-    --primary: 217 72% 24%;
+    --primary: 215 25% 10%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 214 15% 95%;
-    --secondary-foreground: 217 55% 20%;
+    --secondary-foreground: 215 25% 12%;
 
     --muted: 214 12% 93%;
-    --muted-foreground: 215 12% 45%;
+    --muted-foreground: 215 12% 40%;
 
-    --accent: 192 75% 48%;
-    --accent-foreground: 215 25% 12%;
+    --accent: 217 72% 24%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
@@ -37,90 +91,15 @@
     --info: 217 72% 24%;
     --info-foreground: 0 0% 100%;
 
-    --border: 214 15% 90%;
-    --input: 214 15% 90%;
-    --ring: 217 72% 24%;
+    --border: 215 25% 12% / 0.14;
+    --input: 215 25% 12% / 0.2;
+    --ring: 217 72% 40%;
 
-    --radius: 0.5rem;
+    --nav: 215 25% 12% / 0.9;
+    --subhead: 215 25% 12% / 0.74;
+    --link: 217 72% 24% / 0.85;
 
-    --sidebar-background: 217 68% 20%;
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 0 0% 100%;
-    --sidebar-primary-foreground: 217 68% 20%;
-    --sidebar-accent: 217 60% 28%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 217 55% 16%;
-    --sidebar-ring: 192 75% 48%;
-
-    --gradient-hero: linear-gradient(145deg, hsl(217 72% 20%) 0%, hsl(217 65% 30%) 50%, hsl(217 58% 38%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(214 15% 97%) 100%);
-    --gradient-accent: linear-gradient(135deg, hsl(217 72% 24%) 0%, hsl(217 60% 36%) 100%);
-
-    --shadow-sm: 0 1px 2px 0 hsl(215 25% 12% / 0.05);
-    --shadow-md: 0 4px 6px -1px hsl(215 25% 12% / 0.08), 0 2px 4px -2px hsl(215 25% 12% / 0.04);
-    --shadow-lg: 0 10px 15px -3px hsl(215 25% 12% / 0.08), 0 4px 6px -4px hsl(215 25% 12% / 0.04);
-    --shadow-xl: 0 20px 25px -5px hsl(215 25% 12% / 0.1), 0 8px 10px -6px hsl(215 25% 12% / 0.05);
-    --shadow-card: 0 1px 3px hsl(215 25% 12% / 0.05), 0 6px 16px hsl(215 25% 12% / 0.05);
-    --shadow-card-hover: 0 4px 12px hsl(217 72% 24% / 0.1), 0 12px 28px hsl(217 72% 24% / 0.07);
-  }
-
-  .dark {
-    --background: 217 30% 7%;
-    --foreground: 214 15% 92%;
-
-    --card: 217 28% 11%;
-    --card-foreground: 214 15% 92%;
-
-    --popover: 217 28% 11%;
-    --popover-foreground: 214 15% 92%;
-
-    --primary: 217 60% 50%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 217 22% 16%;
-    --secondary-foreground: 214 15% 85%;
-
-    --muted: 217 18% 16%;
-    --muted-foreground: 214 10% 55%;
-
-    --accent: 192 65% 50%;
-    --accent-foreground: 215 25% 10%;
-
-    --destructive: 0 60% 45%;
-    --destructive-foreground: 0 0% 100%;
-
-    --success: 152 45% 42%;
-    --success-foreground: 0 0% 100%;
-
-    --warning: 38 80% 52%;
-    --warning-foreground: 217 30% 7%;
-
-    --info: 217 60% 50%;
-    --info-foreground: 0 0% 100%;
-
-    --border: 217 22% 20%;
-    --input: 217 22% 20%;
-    --ring: 217 60% 50%;
-
-    --sidebar-background: 217 35% 10%;
-    --sidebar-foreground: 214 15% 90%;
-    --sidebar-primary: 217 55% 55%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 217 28% 18%;
-    --sidebar-accent-foreground: 214 15% 90%;
-    --sidebar-border: 217 25% 16%;
-    --sidebar-ring: 192 65% 50%;
-
-    --gradient-hero: linear-gradient(145deg, hsl(217 30% 10%) 0%, hsl(217 28% 18%) 50%, hsl(217 25% 24%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(217 28% 11%) 0%, hsl(217 28% 9%) 100%);
-    --gradient-accent: linear-gradient(135deg, hsl(217 60% 45%) 0%, hsl(217 50% 38%) 100%);
-
-    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.3);
-    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.4), 0 2px 4px -2px hsl(0 0% 0% / 0.3);
-    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.4), 0 4px 6px -4px hsl(0 0% 0% / 0.3);
-    --shadow-xl: 0 20px 25px -5px hsl(0 0% 0% / 0.5), 0 8px 10px -6px hsl(0 0% 0% / 0.4);
-    --shadow-card: 0 1px 3px hsl(0 0% 0% / 0.3), 0 6px 16px hsl(0 0% 0% / 0.2);
-    --shadow-card-hover: 0 4px 12px hsl(0 0% 0% / 0.4), 0 12px 28px hsl(0 0% 0% / 0.3);
+    --sky: linear-gradient(90deg, #fbfcff 0%, #f6f8fd 50%, #f3f5fb 100%);
   }
 }
 
@@ -129,22 +108,280 @@
     @apply border-border;
   }
 
-  body {
-    @apply bg-background text-foreground;
+  html {
+    background: #01061a;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: geometricPrecision;
+    font-kerning: normal;
   }
-}
 
-/* Keep motion minimal: one fade for route transitions only. */
-@layer base {
+  html.light {
+    background: #fbfcff;
+  }
+
+  body {
+    @apply text-foreground;
+    background: var(--sky);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+
   h1, h2, h3 {
     text-wrap: balance;
+    letter-spacing: -0.02em;
   }
   p {
     text-wrap: pretty;
   }
+
+  *:focus {
+    outline: none;
+  }
+  a:focus-visible,
+  button:focus-visible,
+  [role="button"]:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 2px solid #7fd4ff;
+    outline-offset: 4px;
+  }
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: 2px solid #7fd4ff;
+    outline-offset: 2px;
+  }
 }
 
-/* Respect reduced motion */
+/* ===== Masthead ===== */
+.masthead {
+  padding-top: calc(env(safe-area-inset-top, 0px) + 28 * var(--u));
+}
+.masthead-mark {
+  font-size: max(23.5 * var(--u), 17px);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 1;
+  margin-left: calc(-0.5 * var(--u));
+}
+.masthead-rule {
+  width: min(max(420 * var(--u), 300px), calc(100vw - 32px));
+  height: 1px;
+  background: hsl(var(--border));
+  margin-top: calc(18 * var(--u));
+  transform-origin: center;
+}
+.masthead-nav {
+  width: min(max(420 * var(--u), 300px), calc(100vw - 32px));
+  margin-top: calc(13 * var(--u));
+  padding: 0 calc(6 * var(--u));
+  font-size: max(15 * var(--u), 13px);
+  letter-spacing: -0.033em;
+  color: hsl(var(--nav));
+}
+.masthead-nav a {
+  color: inherit;
+  transition: color 0.2s;
+  padding: 6px 4px;
+  margin: -6px -4px;
+}
+.masthead-nav a:hover,
+.masthead-nav a[aria-current="page"] {
+  color: hsl(var(--foreground));
+}
+
+/* ===== Hero ===== */
+.hero {
+  min-height: calc(100vh - 150px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0 24px calc(48 * var(--u));
+}
+@supports (height: 100dvh) {
+  .hero {
+    min-height: calc(100dvh - 150px);
+  }
+}
+.hero-gap {
+  flex: 82.98 1 0;
+  min-height: calc(24 * var(--u));
+}
+.hero-h1 {
+  font-weight: 400;
+  font-size: max(68 * var(--u), 34px);
+  line-height: 0.9559;
+  letter-spacing: -0.0279em;
+  white-space: nowrap;
+  color: hsl(var(--foreground));
+}
+.hero-h1 .l {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.06em;
+  margin-bottom: -0.06em;
+}
+.hero-h1 .l2 {
+  letter-spacing: -0.0294em;
+  transform: translateX(calc(2.6 * var(--u)));
+}
+.hero-h1 .li {
+  display: inline-block;
+  will-change: transform;
+}
+.hero-sub {
+  margin-top: calc(18.98 * var(--u));
+  font-size: max(21 * var(--u), 15px);
+  letter-spacing: -0.005em;
+  color: hsl(var(--subhead));
+  text-wrap: balance;
+  max-width: 34em;
+}
+.hero-btn {
+  margin-top: calc(25.64 * var(--u));
+  width: max(216 * var(--u), 196px);
+  height: max(46 * var(--u), 44px);
+  border-radius: max(4.5 * var(--u), 4px);
+  font-weight: 500;
+  font-size: max(17 * var(--u), 15px);
+  letter-spacing: -0.0265em;
+  background: #fff;
+  color: #0a0a0a;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s, box-shadow 0.2s;
+}
+.hero-btn:hover {
+  background: #e8eef7;
+  box-shadow: 0 0 0 calc(4 * var(--u)) rgba(120, 200, 255, 0.12);
+}
+.light .hero-btn {
+  background: #0a0a0a;
+  color: #fff;
+}
+.light .hero-btn:hover {
+  background: #1f2937;
+  box-shadow: 0 0 0 calc(4 * var(--u)) rgba(30, 80, 200, 0.14);
+}
+.hero-btn:focus-visible {
+  outline-offset: 3px;
+}
+.hero-link {
+  margin-top: calc(20.55 * var(--u));
+  font-size: max(14.8 * var(--u), 13px);
+  letter-spacing: -0.051em;
+  color: hsl(var(--link));
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  transition: color 0.2s;
+}
+.hero-link:hover {
+  color: hsl(var(--foreground));
+}
+.hero-link svg {
+  width: 0.68em;
+  height: 0.85em;
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.hero-link:hover svg {
+  transform: translateY(0.12em);
+}
+.hero-field {
+  flex: 318.68 1 0;
+  min-height: calc(120 * var(--u));
+  width: 100%;
+  position: relative;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 55% at 50% 100%, rgba(120, 170, 255, 0.16) 0%, rgba(120, 170, 255, 0.05) 45%, transparent 75%);
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 12%);
+}
+.light .hero-field {
+  background: radial-gradient(60% 55% at 50% 100%, rgba(30, 80, 200, 0.12) 0%, transparent 70%);
+}
+
+/* Entrance: elements start hidden only while .intro is set. */
+.intro .io {
+  opacity: 0;
+}
+.intro .masthead-rule {
+  transform: scaleX(0);
+}
+.intro .hero-h1 .li {
+  transform: translateY(104%);
+}
+
+/* ===== Page header ===== */
+.page-h1 {
+  font-weight: 400;
+  font-size: max(46 * var(--u), 30px);
+  line-height: 1.02;
+  letter-spacing: -0.028em;
+}
+
+/* ===== Responsive ===== */
+@media (min-width: 600px) and (max-width: 1099.98px) and (min-height: 541px) {
+  :root {
+    --u: min(calc(100vh / 800), 1px, max(calc(100vw / 1280), calc(100vh / 1190), 0.86px));
+  }
+  .hero-field {
+    max-height: 48vh;
+  }
+}
+@media (max-width: 599.98px) {
+  :root {
+    --u: min(calc(100svh / 800), max(calc(100vw / 1280), min(calc(100vw / 640), 0.75px)));
+  }
+  .hero {
+    min-height: 0;
+  }
+  .hero-h1 {
+    white-space: normal;
+    font-size: max(28px, min(68 * var(--u), (100vw - 48px) / 11.5));
+  }
+  .hero-h1 .l2 {
+    transform: none;
+  }
+  .hero-gap {
+    min-height: calc(40 * var(--u));
+  }
+  .hero-field {
+    min-height: calc(90 * var(--u));
+    max-height: 32svh;
+  }
+  .hero-sub {
+    font-size: max(16px, min(21 * var(--u), 3.345vw));
+    line-height: 1.25;
+    overflow-wrap: break-word;
+  }
+  .hero-field {
+    max-height: 48svh;
+  }
+  .masthead-nav {
+    font-size: 13px;
+  }
+}
+@media (max-height: 539.98px) and (orientation: landscape) {
+  .masthead-mark { font-size: 13px; }
+  .masthead-rule, .masthead-nav { width: 210px; }
+  .masthead-nav { font-size: 11px; }
+  .hero-h1 { font-size: max(28px, 68 * var(--u)); }
+  .hero-sub { font-size: max(12px, 21 * var(--u)); }
+  .hero-btn { width: 150px; height: 34px; font-size: 12.5px; }
+  .hero-link { font-size: 11px; }
+  .hero-gap { min-height: calc(14 * var(--u)); }
+  .hero-field { min-height: calc(120 * var(--u)); }
+}
+@media (max-width: 359px) {
+  .hero-h1 {
+    white-space: normal;
+    font-size: 30px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

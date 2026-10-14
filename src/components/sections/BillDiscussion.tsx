@@ -51,7 +51,7 @@ const CommentNode = ({
   const maxDepth = 3;
 
   return (
-    <div className={depth > 0 ? "ml-6 pl-3 border-l-2 border-border/50" : ""}>
+    <div className={depth > 0 ? "ml-6 pl-3 border-l-2 border-border" : ""}>
       <div className="flex gap-2 group py-1.5">
         {/* Vote buttons */}
         <div className="flex flex-col items-center gap-0 shrink-0 pt-0.5">
@@ -66,7 +66,7 @@ const CommentNode = ({
           >
             <ChevronUp className="w-3.5 h-3.5" aria-hidden="true" />
           </button>
-          <span aria-label={`Score ${comment.score}`} className={`text-xs font-semibold tabular-nums leading-none ${
+          <span aria-label={`Score ${comment.score}`} className={`text-xs font-medium tabular-nums leading-none ${
             comment.score > 0 ? "text-primary" : comment.score < 0 ? "text-destructive" : "text-muted-foreground"
           }`}>
             {comment.score}
@@ -85,7 +85,7 @@ const CommentNode = ({
         </div>
 
         {/* Avatar */}
-        <div className="w-6 h-6 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5" aria-hidden="true">
+        <div className="w-6 h-6 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center text-[10px] font-medium shrink-0 mt-0.5" aria-hidden="true">
           {getInitials(comment.user_email)}
         </div>
 
@@ -224,7 +224,7 @@ const BillDiscussion = ({ billId }: Props) => {
 
   return (
     <div className="space-y-4">
-      <h3 className="font-semibold flex items-center gap-2">
+      <h3 className="font-medium flex items-center gap-2">
         <MessageSquare className="w-4 h-4" aria-hidden="true" />
         Community Discussion
         {commentCount > 0 && (
@@ -237,7 +237,7 @@ const BillDiscussion = ({ billId }: Props) => {
       {/* Top-level comment input */}
       {user ? (
         <form onSubmit={handleSubmit} className="flex gap-2">
-          <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold shrink-0" aria-hidden="true">
+          <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-medium shrink-0" aria-hidden="true">
             {getInitials(user.email || "?")}
           </div>
           <div className="flex-1 flex gap-2">

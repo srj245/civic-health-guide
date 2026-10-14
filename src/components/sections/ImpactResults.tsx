@@ -40,7 +40,7 @@ const ImpactResults = ({ profile, results, sources = [], loading, error, onReset
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-xl font-bold text-foreground">Your Personalized Results</h2>
+          <h2 className="text-xl font-medium text-foreground">Your Personalized Results</h2>
           <p className="text-sm text-muted-foreground">
             {profile.ageRange} · {profile.insuranceType} · {profile.state}
           </p>
@@ -91,7 +91,7 @@ const ImpactResults = ({ profile, results, sources = [], loading, error, onReset
               <Card key={i} className={`border ${config.color.split(" ").find(c => c.startsWith("border-"))}`}>
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between gap-3 mb-3">
-                    <h3 className="font-semibold text-foreground">{result.billTitle}</h3>
+                    <h3 className="font-medium text-foreground">{result.billTitle}</h3>
                     <Badge className={config.color}>
                       <Icon className="w-3 h-3 mr-1" />
                       {config.label}

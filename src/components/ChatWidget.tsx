@@ -129,7 +129,7 @@ const ChatWidget = () => {
           <div className="flex items-center justify-between p-4 border-b border-border bg-primary/5">
             <div className="flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-primary" aria-hidden="true" />
-              <span className="font-semibold text-foreground">Health Policy Chat</span>
+              <span className="font-medium text-foreground">Health Policy Chat</span>
             </div>
             <button type="button" onClick={() => setOpen(false)} aria-label="Close chat" className="rounded p-1 text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
               <X className="w-5 h-5" aria-hidden="true" />

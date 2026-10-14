@@ -60,7 +60,7 @@ const Accessibility = () => {
         <div className="mx-auto max-w-6xl space-y-12">
           <div className="max-w-3xl space-y-4">
             <p className="text-sm font-medium uppercase tracking-wide text-primary">Our approach</p>
-            <h2 className="text-2xl font-bold tracking-tight text-foreground">Honest, not aspirational</h2>
+            <h2 className="text-2xl font-medium tracking-tight text-foreground">Honest, not aspirational</h2>
             <p className="text-lg leading-relaxed text-muted-foreground">
               We aim for the Web Content Accessibility Guidelines (WCAG) 2.1 Level AA. This page lists only what the
               current code actually does, so you know what to expect.
@@ -71,14 +71,14 @@ const Accessibility = () => {
             {features.map((f) => (
               <div key={f.title} className="rounded-lg border border-border bg-card p-5">
                 <f.icon className="mb-3 h-5 w-5 text-primary" aria-hidden="true" />
-                <h3 className="mb-1 font-semibold text-foreground">{f.title}</h3>
+                <h3 className="mb-1 font-medium text-foreground">{f.title}</h3>
                 <p className="text-sm leading-relaxed text-muted-foreground">{f.desc}</p>
               </div>
             ))}
           </div>
 
           <div className="space-y-4">
-            <h2 className="text-2xl font-bold tracking-tight text-foreground">What is in place</h2>
+            <h2 className="text-2xl font-medium tracking-tight text-foreground">What is in place</h2>
             <ul className="grid gap-3 sm:grid-cols-2">
               {checklist.map((item) => (
                 <li key={item} className="flex items-start gap-3 rounded-lg border border-border bg-card p-3">
@@ -90,7 +90,7 @@ const Accessibility = () => {
           </div>
 
           <div className="space-y-4">
-            <h2 className="text-2xl font-bold tracking-tight text-foreground">Known gaps</h2>
+            <h2 className="text-2xl font-medium tracking-tight text-foreground">Known gaps</h2>
             <ul className="max-w-3xl list-disc space-y-2 pl-5 text-muted-foreground">
               {notYet.map((item) => (
                 <li key={item} className="leading-relaxed">{item}</li>
@@ -99,7 +99,7 @@ const Accessibility = () => {
           </div>
 
           <div className="max-w-3xl space-y-3 rounded-lg border border-border bg-card p-6">
-            <h2 className="text-xl font-bold tracking-tight text-foreground">Found a barrier?</h2>
+            <h2 className="text-xl font-medium tracking-tight text-foreground">Found a barrier?</h2>
             <p className="leading-relaxed text-muted-foreground">
               If something on CivicCare is hard to use with assistive technology, please open an issue on the project
               repository or contact the team. We would rather hear about it than guess.

@@ -32,7 +32,7 @@ const FaqSection = () => {
   return (
     <section id="faq" className="border-t border-border px-6 py-14 md:px-10 md:py-20" aria-labelledby="faq-heading">
       <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-[1fr_2fr]">
-        <h2 id="faq-heading" className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+        <h2 id="faq-heading" className="text-2xl font-medium tracking-tight text-foreground md:text-3xl">
           Common questions
         </h2>
         <Accordion type="single" collapsible className="divide-y divide-border border-y border-border">

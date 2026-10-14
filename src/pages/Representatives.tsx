@@ -163,7 +163,7 @@ const Representatives = () => {
               )}
               {house.length > 0 && (
                 <div>
-                  <h2 className="text-lg font-semibold text-foreground">
+                  <h2 className="text-lg font-medium text-foreground">
                     House of Representatives{house.length > 1 ? ` (${house.length})` : ""}
                   </h2>
                   <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -175,7 +175,7 @@ const Representatives = () => {
               )}
               {senators.length > 0 && (
                 <div>
-                  <h2 className="text-lg font-semibold text-foreground">Senate</h2>
+                  <h2 className="text-lg font-medium text-foreground">Senate</h2>
                   <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {senators.map((rep) => (
                       <RepCard key={rep.bioguideId ?? rep.name} rep={rep} onShowBills={setSelectedRep} />

@@ -161,7 +161,7 @@ const ImpactForm = ({ onSubmit }: Props) => {
         </div>
 
         <Badge variant="secondary" className="mb-3">Step {step + 1} of {steps.length}</Badge>
-        <h2 className="text-xl font-bold tracking-tight text-foreground mb-6">{steps[step].title}</h2>
+        <h2 className="text-xl font-medium tracking-tight text-foreground mb-6">{steps[step].title}</h2>
         {steps[step].content}
 
         <div className="flex justify-between mt-8">

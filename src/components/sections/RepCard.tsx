@@ -58,7 +58,7 @@ const RepCard = ({ rep, onShowBills }: RepCardProps) => {
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <h3 className="truncate font-semibold text-foreground">{rep.name}</h3>
+          <h3 className="truncate font-medium text-foreground">{rep.name}</h3>
           <p className="text-sm text-muted-foreground">{repTitle(rep)}</p>
           <span
             className={`mt-1.5 inline-block rounded border px-1.5 py-0.5 text-xs font-medium ${partyBadgeClass(rep.party)}`}

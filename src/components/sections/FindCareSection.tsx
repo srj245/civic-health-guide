@@ -26,7 +26,7 @@ function ResultCard({ result, isFavorite, onToggleFavorite }: { result: CareResu
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <h4 className="font-semibold text-foreground truncate">{result.name}</h4>
+              <h4 className="font-medium text-foreground truncate">{result.name}</h4>
               <button type="button" onClick={onToggleFavorite} className="shrink-0 p-1 rounded hover:bg-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-pressed={isFavorite} aria-label={isFavorite ? `Remove ${result.name} from favorites` : `Save ${result.name} to favorites`}>
                 <Heart className={`w-4 h-4 transition-colors ${isFavorite ? "fill-destructive text-destructive" : "text-muted-foreground hover:text-destructive"}`} />
               </button>
@@ -65,7 +65,7 @@ function FavoriteCard({ fav, onRemove }: { fav: FavoriteFacility; onRemove: () =
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <h4 className="font-semibold text-foreground truncate text-sm">{fav.name}</h4>
+              <h4 className="font-medium text-foreground truncate text-sm">{fav.name}</h4>
               <button type="button" onClick={onRemove} className="shrink-0 p-1 rounded hover:bg-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={`Remove ${fav.name} from favorites`}>
                 <Heart className="w-3.5 h-3.5 fill-destructive text-destructive" />
               </button>
@@ -132,7 +132,7 @@ const FindCareSection = () => {
             <div className="lg:col-span-2 space-y-4">
               <Card className="border-border bg-card shadow-none">
                 <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold text-foreground mb-4">Find resources near you</h3>
+                  <h3 className="text-lg font-medium text-foreground mb-4">Find resources near you</h3>
                   <label htmlFor="care-location" className="text-sm font-medium text-foreground mb-2 block">Zip code or city</label>
                   <div className="relative mb-4">
                     <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" aria-hidden="true" />
@@ -194,7 +194,7 @@ const FindCareSection = () => {
                   <CardContent className="p-4">
                     <div className="flex items-center gap-2 mb-3">
                       <Bookmark className="w-4 h-4 text-primary" />
-                      <h4 className="text-sm font-semibold text-foreground">Saved Facilities ({favorites.length})</h4>
+                      <h4 className="text-sm font-medium text-foreground">Saved Facilities ({favorites.length})</h4>
                     </div>
                     <div className="space-y-2 max-h-[300px] overflow-y-auto">
                       {favorites.map((fav) => (
@@ -227,7 +227,7 @@ const FindCareSection = () => {
                 <Card className="border-border bg-card shadow-none">
                   <CardContent className="p-8 text-center">
                     <MapPin className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-                    <h4 className="font-semibold text-foreground mb-1">No results found</h4>
+                    <h4 className="font-medium text-foreground mb-1">No results found</h4>
                     <p className="text-sm text-muted-foreground">Try a different zip code or broaden your search category.</p>
                   </CardContent>
                 </Card>
@@ -291,7 +291,7 @@ const FindCareSection = () => {
                         <category.icon className="w-6 h-6 text-primary-foreground" />
                       </div>
                       <div className="flex-1">
-                        <h4 className="font-semibold text-foreground group-hover:text-primary transition-colors">{category.title}</h4>
+                        <h4 className="font-medium text-foreground group-hover:text-primary transition-colors">{category.title}</h4>
                         <p className="text-sm text-muted-foreground">{category.description}</p>
                       </div>
                       <ExternalLink className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" aria-hidden="true" />
@@ -307,7 +307,7 @@ const FindCareSection = () => {
                     <Phone className="w-5 h-5 text-destructive-foreground" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-foreground mb-1">Need immediate help?</h4>
+                    <h4 className="font-medium text-foreground mb-1">Need immediate help?</h4>
                     <p className="text-sm text-muted-foreground mb-2">If you're experiencing a medical or mental health emergency</p>
                     <div className="flex flex-wrap gap-3 text-sm">
                       <a href="tel:911" className="font-medium text-destructive hover:underline">Call 911</a>

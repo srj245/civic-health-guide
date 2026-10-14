@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import { TrendingUp, Users, MapPin, Calculator, ArrowRight } from "lucide-react";
 import HeroSection from "@/components/sections/HeroSection";
+import LiveBillsSection from "@/components/sections/LiveBillsSection";
 import DistrictDashboard from "@/components/sections/DistrictDashboard";
 import HowItWorksSection from "@/components/sections/HowItWorksSection";
 import FaqSection from "@/components/sections/FaqSection";
@@ -8,57 +8,39 @@ import ActionSection from "@/components/sections/ActionSection";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 const quickActions = [
-  {
-    icon: TrendingUp,
-    title: "Health bills",
-    description: "What Congress is voting on, explained.",
-    href: "/news",
-  },
-  {
-    icon: Users,
-    title: "Who's affected",
-    description: "Students, families, seniors, workers.",
-    href: "/affected",
-  },
-  {
-    icon: MapPin,
-    title: "Find care",
-    description: "Clinics and services near you.",
-    href: "/care",
-  },
-  {
-    icon: Calculator,
-    title: "Your impact",
-    description: "Which bills matter for your situation.",
-    href: "/impact",
-  },
+  { title: "Health bills", description: "What Congress is voting on, explained.", href: "/news" },
+  { title: "Who's affected", description: "Students, families, seniors, workers.", href: "/affected" },
+  { title: "Find care", description: "Clinics and services near you.", href: "/care" },
+  { title: "Your impact", description: "Which bills matter for your situation.", href: "/impact" },
 ];
 
 const Index = () => {
   usePageTitle("", "CivicCare makes healthcare policy accessible. Track health bills, find care, and contact your representatives.");
 
   return (
-    <div className="bg-background">
+    <div>
       <HeroSection />
+      <LiveBillsSection />
 
-      <section className="px-6 py-12 md:px-10" aria-labelledby="start-heading">
+      <section className="border-t border-border px-6 py-14 md:px-10 md:py-20" aria-labelledby="start-heading">
         <div className="mx-auto max-w-6xl">
-          <h2 id="start-heading" className="mb-6 text-xl font-semibold text-foreground">
+          <h2 id="start-heading" className="text-2xl tracking-tight text-foreground md:text-3xl">
             Start here
           </h2>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-8 grid gap-px overflow-hidden rounded-md border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
             {quickActions.map((action) => (
               <Link
                 key={action.title}
                 to={action.href}
-                className="group rounded-lg border border-border bg-card p-5 transition-colors hover:border-primary/40 hover:bg-secondary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="group bg-background p-6 transition-colors hover:bg-secondary"
               >
-                <action.icon className="h-5 w-5 text-primary" aria-hidden="true" />
-                <h3 className="mt-4 font-semibold text-foreground">{action.title}</h3>
+                <h3 className="text-lg text-foreground">{action.title}</h3>
                 <p className="mt-1 text-sm text-muted-foreground">{action.description}</p>
-                <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary">
+                <span className="mt-6 inline-flex items-center gap-1.5 text-sm text-accent">
                   Open
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+                  <svg viewBox="0 0 11 12.6" className="h-[0.85em] w-[0.68em] transition-transform group-hover:translate-y-[0.12em]" fill="none" stroke="currentColor" strokeWidth="1.45" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M5.5 .4V12M1 7.5L5.5 12L10 7.5" />
+                  </svg>
                 </span>
               </Link>
             ))}

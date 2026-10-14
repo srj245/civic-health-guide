@@ -1,3 +1,4 @@
+import PageHero from "@/components/sections/PageHero";
 import { useTrackedBills } from "@/hooks/useTrackedBills";
 import { useAuth } from "@/hooks/useAuth";
 import { usePageTitle } from "@/hooks/usePageTitle";
@@ -21,7 +22,7 @@ const Dashboard = () => {
         <Card className="max-w-md w-full mx-4">
           <CardContent className="p-8 text-center">
             <LogIn className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-            <h2 className="text-xl font-bold mb-2">Sign in to track bills</h2>
+            <h2 className="text-xl font-medium mb-2">Sign in to track bills</h2>
             <p className="text-muted-foreground mb-4">Create an account to save and follow health bills that matter to you.</p>
             <Button onClick={() => navigate("/auth")}>Sign in</Button>
           </CardContent>
@@ -32,10 +33,7 @@ const Dashboard = () => {
 
   return (
     <div className="bg-background">
-      <div className="px-6 py-8 md:px-10">
-        <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1">My Dashboard</h1>
-        <p className="text-muted-foreground mb-6">Bills you're tracking · {trackedBills.length} total</p>
-      </div>
+      <PageHero badge="Tracked" title="Your bills" subtitle={`Bills you are following · ${trackedBills.length} total`} />
 
       <section className="px-6 pb-12 md:px-10">
         <div className="max-w-4xl mx-auto">
@@ -50,7 +48,7 @@ const Dashboard = () => {
           {!loading && trackedBills.length === 0 && (
             <div className="text-center py-16">
               <Bookmark className="w-16 h-16 mx-auto mb-4 text-muted-foreground/30" />
-              <h3 className="text-lg font-semibold mb-2">No tracked bills yet</h3>
+              <h3 className="text-lg font-medium mb-2">No tracked bills yet</h3>
               <p className="text-muted-foreground mb-4">Head to Health News to find and track bills that interest you.</p>
               <Button variant="outline" onClick={() => navigate("/news")}>
                 Browse Health Bills <ArrowRight className="w-4 h-4 ml-2" />
@@ -73,7 +71,7 @@ const Dashboard = () => {
                             {ordinal(bill.congress)} Congress
                           </Badge>
                         </div>
-                        <h3 className="font-semibold text-foreground line-clamp-2 mb-2">{bill.bill_title}</h3>
+                        <h3 className="font-medium text-foreground line-clamp-2 mb-2">{bill.bill_title}</h3>
                         {bill.latest_action_text && (
                           <div className="flex items-start gap-2 text-sm text-muted-foreground">
                             <Calendar className="w-3.5 h-3.5 mt-0.5 shrink-0" />
