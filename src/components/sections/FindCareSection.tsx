@@ -31,7 +31,12 @@ function ResultCard({ result, isFavorite, onToggleFavorite }: { result: CareResu
                 <Heart className={`w-4 h-4 transition-colors ${isFavorite ? "fill-destructive text-destructive" : "text-muted-foreground hover:text-destructive"}`} />
               </button>
             </div>
-            <p className="text-sm text-muted-foreground mt-1">{result.address}</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              {result.distanceKm != null && (
+                <span className="text-foreground">{(result.distanceKm * 0.621371).toFixed(1)} mi · </span>
+              )}
+              {result.address}
+            </p>
             <div className="flex items-center gap-3 mt-2 flex-wrap">
               {result.rating && (
                 <span className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -107,7 +112,7 @@ const FindCareSection = () => {
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
   const [selectedResultId, setSelectedResultId] = useState<string | null>(null);
   const { toast } = useToast();
-  const { results, loading, error, searched, search } = useCareFinder();
+  const { results, loading, error, searched, search, location } = useCareFinder();
   const { user } = useAuth();
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
 
@@ -236,7 +241,7 @@ const FindCareSection = () => {
               {!loading && results.length > 0 && (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm text-muted-foreground" aria-live="polite">{results.length} results found</p>
+                    <p className="text-sm text-muted-foreground" aria-live="polite">{results.length} results{location ? ` near ${location.label}` : ""}</p>
                     <div className="flex items-center gap-1 bg-secondary rounded-lg p-1" role="group" aria-label="Results view">
                       <button
                         type="button"

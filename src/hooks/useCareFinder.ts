@@ -12,6 +12,14 @@ export interface CareResult {
   lat: number;
   lng: number;
   types: string[];
+  /** Straight-line distance from the searched location, when known. */
+  distanceKm?: number;
+}
+
+export interface SearchLocation {
+  lat: number;
+  lng: number;
+  label: string;
 }
 
 interface SearchParams {
@@ -28,6 +36,7 @@ export function useCareFinder() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searched, setSearched] = useState(false);
+  const [location, setLocation] = useState<SearchLocation | null>(null);
 
   const search = async (params: SearchParams) => {
     setLoading(true);
@@ -51,13 +60,15 @@ export function useCareFinder() {
       if (data?.error) throw new Error(data.error);
 
       setResults(data.results || []);
+      setLocation(data.location ?? null);
     } catch (err: unknown) {
       setError((err instanceof Error && err.message) || FRIENDLY_ERROR);
       setResults([]);
+      setLocation(null);
     } finally {
       setLoading(false);
     }
   };
 
-  return { results, loading, error, searched, search };
+  return { results, loading, error, searched, location, search };
 }
