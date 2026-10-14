@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import BillDiscussion from "./BillDiscussion";
+import { escapeHtml, ordinal } from "@/lib/format";
 
 interface BillDetailModalProps {
   bill: Bill | null;
@@ -45,10 +46,12 @@ const BillDetailModal = ({ bill, open, onOpenChange }: BillDetailModalProps) => 
   }, [details, open]);
 
   const handlePrint = () => {
-    const title = bill?.title || "Health Bill";
-    const summary = aiSummary?.plainEnglish || "";
-    const impact = aiSummary?.impact || "";
-    const official = details?.summary ? stripHtml(details.summary) : "";
+    const title = escapeHtml(bill?.title || "Health Bill");
+    const summary = escapeHtml(aiSummary?.plainEnglish || "");
+    const impact = escapeHtml(aiSummary?.impact || "");
+    const official = escapeHtml(details?.summary ? stripHtml(details.summary) : "");
+    const billCode = escapeHtml(`${details?.type?.toUpperCase() || ""}${details?.number || ""}`);
+    const congressLabel = details?.congress ? escapeHtml(`${ordinal(details.congress)} Congress`) : "";
     const printWindow = window.open("", "_blank");
     if (printWindow) {
       printWindow.document.write(`
@@ -59,8 +62,8 @@ const BillDetailModal = ({ bill, open, onOpenChange }: BillDetailModalProps) => 
         .badge{display:inline-block;background:#f0f0f0;padding:2px 10px;border-radius:12px;font-size:0.85em;margin-right:6px}
         @media print{body{margin:20px}}</style></head><body>
         <h1>${title}</h1>
-        <span class="badge">${details?.type?.toUpperCase() || ""}${details?.number || ""}</span>
-        <span class="badge">${details?.congress || ""}th Congress</span>
+        <span class="badge">${billCode}</span>
+        <span class="badge">${congressLabel}</span>
         ${summary ? `<h2>Plain English Summary</h2><p>${summary}</p>` : ""}
         ${impact ? `<h2>How Does This Affect You?</h2><p>${impact}</p>` : ""}
         ${official ? `<hr><h2>Official Summary</h2><p>${official}</p>` : ""}
@@ -216,7 +219,7 @@ const BillDetailModal = ({ bill, open, onOpenChange }: BillDetailModalProps) => 
                   {details.sponsors.map((sponsor, idx) => (
                     <span
                       key={idx}
-                      className="text-xs px-3 py-1.5 rounded-full bg-secondary text-secondary-foreground"
+                      className="text-xs px-2.5 py-1 rounded border border-border bg-card text-foreground"
                     >
                       {sponsor.firstName} {sponsor.lastName} ({sponsor.party}-{sponsor.state})
                     </span>
@@ -264,8 +267,8 @@ const BillDetailModal = ({ bill, open, onOpenChange }: BillDetailModalProps) => 
                 <Share2 className="w-4 h-4 mr-2" />
                 Share
               </Button>
-              <Button variant="outline" onClick={handlePrint} title="Print summary">
-                <Printer className="w-4 h-4" />
+              <Button variant="outline" onClick={handlePrint} aria-label="Print summary">
+                <Printer className="w-4 h-4" aria-hidden="true" />
               </Button>
             </div>
 

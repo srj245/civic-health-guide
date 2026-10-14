@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Clock, ArrowRight, FileText, Bookmark } from "lucide-react";
+import { Clock, ArrowRight, FileText, Bookmark, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { useHealthBills, type Bill } from "@/hooks/useCongressApi";
 import { useTrackedBills } from "@/hooks/useTrackedBills";
 import { useAuth } from "@/hooks/useAuth";
@@ -28,7 +29,17 @@ function getBillCategory(title: string): string {
 }
 
 const NewsSection = () => {
-  const { bills, loading, error } = useHealthBills(8);
+  const { bills: allBills, loading, error } = useHealthBills(24);
+  const [query, setQuery] = useState("");
+  const q = query.trim().toLowerCase();
+  const bills = q
+    ? allBills.filter(
+        (b) =>
+          b.title.toLowerCase().includes(q) ||
+          `${b.type}${b.number}`.toLowerCase().includes(q.replace(/[\s.]/g, "")) ||
+          getBillCategory(b.title).toLowerCase().includes(q),
+      )
+    : allBills;
   const [selectedBill, setSelectedBill] = useState<Bill | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const { user } = useAuth();
@@ -56,8 +67,27 @@ const NewsSection = () => {
 
 
   return (
-    <section id="news" className="py-20 md:py-28 bg-background">
+    <section id="news" className="py-6 md:py-8 bg-background">
       <div className="container mx-auto px-4">
+        <div className="max-w-5xl mx-auto mb-6">
+          <label htmlFor="bill-search" className="sr-only">Search bills</label>
+          <div className="relative max-w-md">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+            <Input
+              id="bill-search"
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search by keyword, topic, or bill number"
+              className="pl-9"
+            />
+          </div>
+          {!loading && !error && (
+            <p className="mt-2 text-xs text-muted-foreground" aria-live="polite">
+              {q ? `${bills.length} of ${allBills.length} bills match` : `${allBills.length} recent health bills from Congress.gov`}
+            </p>
+          )}
+        </div>
 
         {/* Loading State */}
         {loading && (
@@ -85,19 +115,25 @@ const NewsSection = () => {
           </div>
         )}
 
+        {!loading && !error && q && bills.length === 0 && (
+          <p className="max-w-5xl mx-auto text-sm text-muted-foreground">No bills match "{query}".</p>
+        )}
+
         {/* Bills Grid */}
         {!loading && !error && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
             {bills.map((bill, index) => (
               <Card
                 key={bill.id}
-                className="group cursor-pointer border-border/50 bg-card shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1 stagger-child"
-                style={{ '--stagger-i': index } as React.CSSProperties}
+                role="button"
+                tabIndex={0}
+                className="group cursor-pointer border-border bg-card transition-colors hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 onClick={() => handleReadMore(bill)}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleReadMore(bill); } }}
               >
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between mb-3">
-                    <Badge variant="outline" className="text-xs font-medium animate-bounce-in" style={{ animationDelay: `${index * 0.05 + 0.2}s` }}>
+                    <Badge variant="outline" className="text-xs font-medium">
                       {getBillCategory(bill.title)}
                     </Badge>
                     <span className="text-xs text-muted-foreground font-mono">
@@ -124,12 +160,10 @@ const NewsSection = () => {
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <button 
-                        className="text-xs font-medium text-primary flex items-center gap-1 group-hover:gap-2 transition-all duration-300"
-                      >
+                      <span className="text-xs font-medium text-primary flex items-center gap-1">
                         View details
-                        <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" />
-                      </button>
+                        <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+                      </span>
                       <button
                         onClick={(e) => handleTrack(e, bill)}
                         className="p-1 rounded-md hover:bg-secondary transition-colors"

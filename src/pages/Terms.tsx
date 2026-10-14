@@ -5,7 +5,7 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 const Terms = () => {
   usePageTitle("Terms of Service", "CivicCare terms of service and usage guidelines.");
   return (
-    <div className="bg-background animate-fade-in">
+    <div className="bg-background">
       <PageHero
         icon={FileText}
         badge="Legal"
@@ -26,7 +26,7 @@ const Terms = () => {
           <h2 className="text-xl font-bold text-foreground">Changes</h2>
           <p className="text-muted-foreground leading-relaxed">We may update these terms as the platform evolves. Continued use of CivicCare constitutes acceptance of any changes.</p>
 
-          <p className="text-sm text-muted-foreground pt-4 border-t border-border">Last updated: {new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" })}</p>
+          <p className="text-sm text-muted-foreground pt-4 border-t border-border">Last updated: October 14, 2026</p>
         </div>
       </section>
     </div>

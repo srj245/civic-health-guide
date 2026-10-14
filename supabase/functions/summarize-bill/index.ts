@@ -1,27 +1,55 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import {
+  badRequest,
+  fail,
+  json,
+  methodNotAllowed,
+  preflight,
+  rateLimit,
+  readJsonObject,
+} from "../_shared/http.ts";
+import { parseBillId, parseCongress, parseText } from "../_shared/validate.ts";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
-};
+const TITLE_MAX = 500;
+const SUMMARY_MAX = 6000;
+const ACTION_MAX = 500;
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
-  }
+  if (req.method === "OPTIONS") return preflight();
+  if (req.method !== "POST") return methodNotAllowed();
+
+  const limited = rateLimit(req, { limit: 20, windowMs: 60_000 });
+  if (limited) return limited;
 
   try {
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) throw new Error('LOVABLE_API_KEY is not configured');
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) return fail(500, "Summaries are temporarily unavailable.", "LOVABLE_API_KEY missing");
 
-    const { title, summary, latestAction } = await req.json();
-    if (!title) throw new Error('Bill title is required');
+    const body = await readJsonObject(req);
+    if (!body) return badRequest("Request body must be a JSON object.");
 
-    const prompt = `You are a civic education assistant. Summarize this congressional bill in 2-3 sentences that a high school student could understand. Focus on what the bill does and who it affects.
+    // billId / congress are optional (the client may only have the title), but
+    // when present they must be well-formed.
+    let billId: string | null = null;
+    if (body.billId !== undefined && body.billId !== null && body.billId !== "") {
+      const parsed = parseBillId(body.billId);
+      if (!parsed) return badRequest("billId must look like hr1234 or s567.");
+      billId = parsed.id;
+    }
+    const congress = parseCongress(body.congress);
+    if (congress === null) return badRequest("congress must be a whole number between 93 and 130.");
 
-Bill Title: ${title}
-${summary ? `Official Summary: ${summary}` : ''}
-${latestAction ? `Latest Action: ${latestAction}` : ''}
+    const title = parseText(body.title, { max: TITLE_MAX, required: true });
+    if (!title) return badRequest("A bill title is required.");
+    const summary = parseText(body.summary, { max: SUMMARY_MAX });
+    const latestAction = parseText(body.latestAction, { max: ACTION_MAX });
+    if (summary === null || latestAction === null) return badRequest("summary and latestAction must be text.");
+
+    const prompt = `You are a civic education assistant. Summarize this congressional bill in 2-3 sentences that a high school student could understand. Focus on what the bill does and who it affects. Use only the information below; do not invent provisions.
+
+${billId ? `Bill: ${billId.toUpperCase()} (${congress}th Congress)\n` : ""}Bill Title: ${title}
+${summary ? `Official Summary: ${summary}` : ""}
+${latestAction ? `Latest Action: ${latestAction}` : ""}
 
 Respond with a JSON object with two fields:
 - "plainEnglish": A 2-3 sentence plain English summary
@@ -35,9 +63,7 @@ Respond with a JSON object with two fields:
       },
       body: JSON.stringify({
         model: "google/gemini-3-flash-preview",
-        messages: [
-          { role: "user", content: prompt }
-        ],
+        messages: [{ role: "user", content: prompt }],
         tools: [
           {
             type: "function",
@@ -61,44 +87,34 @@ Respond with a JSON object with two fields:
     });
 
     if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limited, please try again shortly." }), {
-          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "AI credits exhausted." }), {
-          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      const t = await response.text();
-      console.error("AI gateway error:", response.status, t);
-      throw new Error("AI gateway error");
+      if (response.status === 429) return json({ error: "Rate limited, please try again shortly." }, 429);
+      if (response.status === 402) return json({ error: "AI credits exhausted." }, 402);
+      const text = await response.text().catch(() => "");
+      return fail(502, "The summary service is unavailable right now.", `AI gateway ${response.status}: ${text}`);
     }
 
     const data = await response.json();
     const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
-    let result;
+    let result: { plainEnglish: string; impact: string };
+
     if (toolCall?.function?.arguments) {
-      result = JSON.parse(toolCall.function.arguments);
+      const parsed = JSON.parse(toolCall.function.arguments);
+      result = {
+        plainEnglish: String(parsed.plainEnglish ?? ""),
+        impact: String(parsed.impact ?? ""),
+      };
     } else {
-      // Fallback: try parsing content directly
-      const content = data.choices?.[0]?.message?.content || '';
+      const content: string = data.choices?.[0]?.message?.content ?? "";
       try {
-        result = JSON.parse(content);
+        const parsed = JSON.parse(content);
+        result = { plainEnglish: String(parsed.plainEnglish ?? content), impact: String(parsed.impact ?? "") };
       } catch {
         result = { plainEnglish: content, impact: "Impact information unavailable." };
       }
     }
 
-    return new Response(JSON.stringify(result), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-  } catch (error: unknown) {
-    console.error('Summarize bill error:', error);
-    const msg = error instanceof Error ? error.message : 'Unknown error';
-    return new Response(JSON.stringify({ error: msg }), {
-      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return json({ ...result, billId, congress });
+  } catch (error) {
+    return fail(500, "Could not summarize this bill right now. Please try again.", error);
   }
 });

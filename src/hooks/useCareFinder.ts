@@ -51,8 +51,8 @@ export function useCareFinder() {
       if (data?.error) throw new Error(data.error);
 
       setResults(data.results || []);
-    } catch (err: any) {
-      setError(err?.message || FRIENDLY_ERROR);
+    } catch (err: unknown) {
+      setError((err instanceof Error && err.message) || FRIENDLY_ERROR);
       setResults([]);
     } finally {
       setLoading(false);

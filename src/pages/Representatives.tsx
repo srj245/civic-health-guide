@@ -1,217 +1,188 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Mail, ExternalLink, Users, Search, Award } from "lucide-react";
+import { Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import PageHero from "@/components/sections/PageHero";
+import RepCard from "@/components/sections/RepCard";
 import RepDetailModal from "@/components/sections/RepDetailModal";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import {
+  STATE_NAMES,
+  US_STATES,
+  isSenator,
+  type DistrictLocation,
+  type Representative,
+  type RepLookupResponse,
+} from "@/lib/reps";
 
-const US_STATES = [
-  "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA",
-  "KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ",
-  "NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT",
-  "VA","WA","WV","WI","WY"
-];
-
-const STATE_NAMES: Record<string, string> = {
-  AL:"Alabama",AK:"Alaska",AZ:"Arizona",AR:"Arkansas",CA:"California",CO:"Colorado",
-  CT:"Connecticut",DE:"Delaware",FL:"Florida",GA:"Georgia",HI:"Hawaii",ID:"Idaho",
-  IL:"Illinois",IN:"Indiana",IA:"Iowa",KS:"Kansas",KY:"Kentucky",LA:"Louisiana",
-  ME:"Maine",MD:"Maryland",MA:"Massachusetts",MI:"Michigan",MN:"Minnesota",
-  MS:"Mississippi",MO:"Missouri",MT:"Montana",NE:"Nebraska",NV:"Nevada",
-  NH:"New Hampshire",NJ:"New Jersey",NM:"New Mexico",NY:"New York",NC:"North Carolina",
-  ND:"North Dakota",OH:"Ohio",OK:"Oklahoma",OR:"Oregon",PA:"Pennsylvania",
-  RI:"Rhode Island",SC:"South Carolina",SD:"South Dakota",TN:"Tennessee",TX:"Texas",
-  UT:"Utah",VT:"Vermont",VA:"Virginia",WA:"Washington",WV:"West Virginia",
-  WI:"Wisconsin",WY:"Wyoming",
-};
-
-interface Representative {
-  name: string;
-  party: string;
-  state: string;
-  district: number | null;
-  chamber: string;
-  url: string;
-  depiction: string | null;
-}
+type Mode = "zip" | "state";
 
 const Representatives = () => {
   usePageTitle("Find Your Representatives", "Look up your congressional representatives and send them a message about health policy.");
+  const [mode, setMode] = useState<Mode>("zip");
+  const [zip, setZip] = useState("");
   const [state, setState] = useState("");
   const [members, setMembers] = useState<Representative[]>([]);
+  const [location, setLocation] = useState<DistrictLocation | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searched, setSearched] = useState(false);
   const [selectedRep, setSelectedRep] = useState<Representative | null>(null);
-  const [repModalOpen, setRepModalOpen] = useState(false);
 
-  const handleSearch = async () => {
-    if (!state) return;
+  const run = async (body: { zip: string } | { state: string }) => {
     setLoading(true);
     setError(null);
     setSearched(true);
+    setLocation(null);
     try {
-      const { data, error: fnError } = await supabase.functions.invoke('find-representatives', {
-        body: { state },
-      });
-      if (fnError) throw fnError;
-      setMembers(data.members || []);
-    } catch (e: any) {
-      setError(e.message || "Failed to find representatives");
+      const { data, error: fnError } = await supabase.functions.invoke<RepLookupResponse>("find-representatives", { body });
+      if (fnError) throw new Error("We couldn't reach the representative directory. Please try again.");
+      if (data?.error) throw new Error(data.error);
+      setMembers(data?.members ?? []);
+      setLocation(data?.location ?? null);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Something went wrong.");
+      setMembers([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const getEmailSubject = (repName: string) =>
-    encodeURIComponent(`Health Policy Concerns from a Constituent`);
-
-  const getEmailBody = (repName: string) =>
-    encodeURIComponent(
-      `Dear ${repName},\n\nAs your constituent, I am writing to express my concerns about healthcare policy in our community. Access to affordable healthcare is critically important to me and my family.\n\nI urge you to support legislation that:\n- Protects access to affordable health insurance\n- Expands mental health services\n- Reduces prescription drug costs\n\nThank you for your service and for considering my views.\n\nSincerely,\n[Your Name]\n[Your Address]`
-    );
-
-  const getPartyColor = (party: string) => {
-    if (party?.toLowerCase().includes("republican")) return "bg-destructive/10 text-destructive";
-    if (party?.toLowerCase().includes("democrat")) return "bg-info/10 text-info-foreground";
-    return "bg-muted text-muted-foreground";
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (mode === "zip") {
+      if (!/^\d{5}$/.test(zip)) {
+        setError("Enter a 5-digit ZIP code.");
+        return;
+      }
+      run({ zip });
+    } else if (state) {
+      run({ state });
+    }
   };
+
+  const senators = members.filter(isSenator);
+  const house = members.filter((m) => !isSenator(m));
 
   return (
     <div className="bg-background">
       <PageHero
-        icon={Users}
-        badge="Contact Your Reps"
-        title="Find Your Representatives"
-        subtitle="Look up your congressional representatives and send them a message about health policy."
+        badge="Take action"
+        title="Your representatives"
+        subtitle="Find the senators and House member who vote on health legislation for you, and send them a message."
       />
 
       <section className="px-6 py-8 md:px-10">
-        <div className="max-w-4xl mx-auto">
-          {/* Search */}
-          <div className="flex flex-col sm:flex-row gap-3 mb-8">
-            <Select value={state} onValueChange={setState}>
-              <SelectTrigger className="w-full sm:w-64" aria-label="Select your state">
-                <SelectValue placeholder="Select your state" />
-              </SelectTrigger>
-              <SelectContent>
-                {US_STATES.map((s) => (
-                  <SelectItem key={s} value={s}>
-                    {STATE_NAMES[s]} ({s})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button onClick={handleSearch} disabled={!state || loading}>
-              <Search className="w-4 h-4 mr-2" />
-              Find Representatives
-            </Button>
+        <div className="mx-auto max-w-6xl">
+          <div className="flex gap-1 rounded-md border border-border p-1 w-fit" role="tablist" aria-label="Lookup method">
+            {(["zip", "state"] as Mode[]).map((m) => (
+              <button
+                key={m}
+                role="tab"
+                type="button"
+                aria-selected={mode === m}
+                onClick={() => setMode(m)}
+                className={`rounded px-3 py-1.5 text-sm font-medium transition-colors ${
+                  mode === m ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {m === "zip" ? "By ZIP code" : "By state"}
+              </button>
+            ))}
           </div>
 
-          {/* Loading */}
+          <form onSubmit={onSubmit} className="mt-4 flex max-w-lg flex-col gap-3 sm:flex-row">
+            {mode === "zip" ? (
+              <div className="flex-1">
+                <label htmlFor="rep-zip" className="sr-only">
+                  ZIP code
+                </label>
+                <Input
+                  id="rep-zip"
+                  inputMode="numeric"
+                  autoComplete="postal-code"
+                  maxLength={5}
+                  value={zip}
+                  onChange={(e) => setZip(e.target.value.replace(/\D/g, ""))}
+                  placeholder="ZIP code"
+                />
+              </div>
+            ) : (
+              <Select value={state} onValueChange={setState}>
+                <SelectTrigger className="flex-1" aria-label="State">
+                  <SelectValue placeholder="Choose a state" />
+                </SelectTrigger>
+                <SelectContent>
+                  {US_STATES.map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {STATE_NAMES[s]} ({s})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+            <Button type="submit" disabled={loading || (mode === "zip" ? zip.length < 5 : !state)}>
+              <Search className="h-4 w-4" aria-hidden="true" />
+              Find
+            </Button>
+          </form>
+
+          {error && (
+            <p className="mt-4 text-sm text-destructive" role="alert">
+              {error}
+            </p>
+          )}
+
           {loading && (
-            <div className="grid md:grid-cols-2 gap-4">
-              {[1, 2, 3, 4].map((i) => (
-                <Card key={i}><CardContent className="p-5"><Skeleton className="h-24 w-full" /></CardContent></Card>
+            <div className="mt-8 grid gap-4 md:grid-cols-3" aria-busy="true">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="rounded-lg border border-border p-4">
+                  <Skeleton className="h-14 w-14 rounded-md" />
+                  <Skeleton className="mt-3 h-4 w-2/3" />
+                  <Skeleton className="mt-2 h-3 w-1/2" />
+                </div>
               ))}
             </div>
           )}
 
-          {/* Error */}
-          {error && <p className="text-destructive text-sm">{error}</p>}
-
-          {/* Results */}
-          {!loading && members.length > 0 && (
-            <div className="space-y-6">
-              <p className="text-sm text-muted-foreground">
-                Found {members.length} representative{members.length !== 1 ? 's' : ''} for {STATE_NAMES[state]}
-              </p>
-              <div className="grid md:grid-cols-2 gap-4">
-                {members.map((rep, idx) => (
-                  <Card key={idx} className="border-border hover:shadow-card-hover transition-shadow">
-                    <CardContent className="p-5">
-                      <div className="flex items-start gap-4">
-                        {rep.depiction ? (
-                          <img
-                            src={rep.depiction}
-                            alt={rep.name}
-                            className="w-16 h-16 rounded-xl object-cover bg-muted"
-                          />
-                        ) : (
-                          <div className="w-16 h-16 rounded-xl bg-secondary flex items-center justify-center">
-                            <Users className="w-6 h-6 text-muted-foreground" />
-                          </div>
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-foreground truncate">{rep.name}</h3>
-                          <div className="flex flex-wrap gap-1.5 mt-1">
-                            <Badge variant="outline" className={getPartyColor(rep.party)}>
-                              {rep.party}
-                            </Badge>
-                            <Badge variant="secondary" className="text-xs">
-                              {rep.chamber === 'Senate' ? 'Senator' : `District ${rep.district}`}
-                            </Badge>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex gap-2 mt-4">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setSelectedRep(rep);
-                            setRepModalOpen(true);
-                          }}
-                        >
-                          <Award className="w-4 h-4 mr-1" />
-                          Health Score
-                        </Button>
-                        <Button
-                          variant="default"
-                          size="sm"
-                          className="flex-1"
-                          onClick={() =>
-                            window.open(
-                              `mailto:?subject=${getEmailSubject(rep.name)}&body=${getEmailBody(rep.name)}`,
-                              '_blank'
-                            )
-                          }
-                        >
-                          <Mail className="w-4 h-4 mr-1" />
-                          Email
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            const match = rep.url?.match(/member\/([A-Z]\d+)/);
-                            const publicUrl = match
-                              ? `https://www.congress.gov/member/${rep.name.toLowerCase().replace(/[^a-z]/g, '-')}/${match[1]}`
-                              : `https://www.congress.gov/search?q=${encodeURIComponent(rep.name)}`;
-                            window.open(publicUrl, '_blank');
-                          }}
-                        >
-                          <ExternalLink className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
+          {!loading && searched && !error && members.length === 0 && (
+            <p className="mt-8 text-sm text-muted-foreground">No current members found. Try another ZIP or state.</p>
           )}
 
-          {/* Empty state */}
-          {!loading && searched && members.length === 0 && !error && (
-            <div className="text-center py-12 text-muted-foreground">
-              <Users className="w-12 h-12 mx-auto mb-3 opacity-50" />
-              <p>No representatives found for this state. Try a different selection.</p>
+          {!loading && members.length > 0 && (
+            <div className="mt-8 space-y-10">
+              {location && (
+                <p className="text-sm text-muted-foreground">
+                  {location.city ? `${location.city}, ` : ""}
+                  {STATE_NAMES[location.state] ?? location.state}
+                  {location.district ? ` · District ${location.districtLabel}` : ""}
+                </p>
+              )}
+              {house.length > 0 && (
+                <div>
+                  <h2 className="text-lg font-semibold text-foreground">
+                    House of Representatives{house.length > 1 ? ` (${house.length})` : ""}
+                  </h2>
+                  <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    {house.map((rep) => (
+                      <RepCard key={rep.bioguideId ?? rep.name} rep={rep} onShowBills={setSelectedRep} />
+                    ))}
+                  </div>
+                </div>
+              )}
+              {senators.length > 0 && (
+                <div>
+                  <h2 className="text-lg font-semibold text-foreground">Senate</h2>
+                  <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    {senators.map((rep) => (
+                      <RepCard key={rep.bioguideId ?? rep.name} rep={rep} onShowBills={setSelectedRep} />
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -221,8 +192,8 @@ const Representatives = () => {
         <RepDetailModal
           repName={selectedRep.name}
           repUrl={selectedRep.url}
-          open={repModalOpen}
-          onOpenChange={setRepModalOpen}
+          open={Boolean(selectedRep)}
+          onOpenChange={(open) => !open && setSelectedRep(null)}
         />
       )}
     </div>

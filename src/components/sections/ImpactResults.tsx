@@ -2,13 +2,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, AlertTriangle, TrendingUp, Minus, Share2 } from "lucide-react";
+import { ArrowLeft, AlertTriangle, TrendingUp, Minus, Share2, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import type { ImpactProfile, ImpactResult } from "@/pages/Impact";
+import type { ImpactProfile, ImpactResult, ImpactSource } from "@/pages/Impact";
 
 interface Props {
   profile: ImpactProfile;
   results: ImpactResult[];
+  sources?: ImpactSource[];
   loading: boolean;
   error: string | null;
   onReset: () => void;
@@ -20,14 +21,15 @@ const relevanceConfig = {
   low: { color: "bg-muted text-muted-foreground border-border", icon: Minus, label: "Low Impact" },
 };
 
-const ImpactResults = ({ profile, results, loading, error, onReset }: Props) => {
+const ImpactResults = ({ profile, results, sources = [], loading, error, onReset }: Props) => {
   const { toast } = useToast();
+  const sourceById = new Map(sources.map((s) => [s.id, s]));
 
   const handleShare = async () => {
     const text = results.map((r) => `• ${r.billTitle} (${r.relevance} impact): ${r.impact}`).join("\n");
     const full = `My CivicCare Impact Report\n${profile.ageRange} · ${profile.insuranceType} · ${profile.state}\n\n${text}\n\nGenerated at civiccare.app`;
     if (navigator.share) {
-      try { await navigator.share({ title: "My CivicCare Impact Report", text: full }); } catch {}
+      try { await navigator.share({ title: "My CivicCare Impact Report", text: full }); } catch { /* user dismissed the share sheet */ }
     } else {
       await navigator.clipboard.writeText(full);
       toast({ title: "Copied to clipboard!", description: "Share your impact report with others." });
@@ -84,6 +86,7 @@ const ImpactResults = ({ profile, results, loading, error, onReset }: Props) => 
           {results.map((result, i) => {
             const config = relevanceConfig[result.relevance];
             const Icon = config.icon;
+            const source = sourceById.get(result.billId);
             return (
               <Card key={i} className={`border ${config.color.split(" ").find(c => c.startsWith("border-"))}`}>
                 <CardContent className="p-5">
@@ -95,6 +98,31 @@ const ImpactResults = ({ profile, results, loading, error, onReset }: Props) => 
                     </Badge>
                   </div>
                   <p className="text-sm text-muted-foreground leading-relaxed">{result.impact}</p>
+                  {source && (
+                    <div className="mt-4 pt-3 border-t border-border text-xs text-muted-foreground space-y-1">
+                      <p>
+                        <span className="font-medium text-foreground">Official record:</span>{" "}
+                        {source.type}{source.number}, {source.congress}th Congress
+                        {source.url && (
+                          <a
+                            href={source.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1 ml-2 underline underline-offset-2"
+                          >
+                            Congress.gov <ExternalLink className="w-3 h-3" />
+                          </a>
+                        )}
+                      </p>
+                      {source.latestAction && (
+                        <p>
+                          <span className="font-medium text-foreground">Latest action:</span>{" "}
+                          {source.latestAction}
+                          {source.latestActionDate ? ` (${source.latestActionDate})` : ""}
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             );

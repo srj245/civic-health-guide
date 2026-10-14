@@ -22,8 +22,8 @@ export function useBillSummary() {
       if (fnError) throw fnError;
       if (data.error) throw new Error(data.error);
       setSummary(data);
-    } catch (e: any) {
-      setError(e.message || "Failed to generate summary");
+    } catch (e: unknown) {
+      setError((e instanceof Error && e.message) || "Failed to generate summary");
     } finally {
       setLoading(false);
     }

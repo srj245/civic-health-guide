@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import type { Database } from "@/integrations/supabase/types";
 
 export interface BillComment {
   id: string;
@@ -15,6 +16,9 @@ export interface BillComment {
   userVote: number;
   replies: BillComment[];
 }
+
+type CommentRow = Database["public"]["Tables"]["bill_comments"]["Row"];
+type CommentInsert = Database["public"]["Tables"]["bill_comments"]["Insert"];
 
 interface CommentVote {
   id: string;
@@ -40,13 +44,13 @@ export function useBillComments(billId: string | null) {
         .order("created_at", { ascending: true });
       if (commentsError) throw commentsError;
 
-      const rawComments = (commentsData || []) as any[];
+      const rawComments = (commentsData || []) as CommentRow[];
       if (rawComments.length === 0) { setComments([]); setLoading(false); return; }
 
       // Fetch vote totals and the current user's own votes
       const commentIds = rawComments.map((c) => c.id);
       const [{ data: scoresData }, { data: myVotes }] = await Promise.all([
-        (supabase.rpc as any)("get_comment_scores", { _comment_ids: commentIds }),
+        supabase.rpc("get_comment_scores", { _comment_ids: commentIds }),
         user
           ? supabase.from("comment_votes").select("*").eq("user_id", user.id).in("comment_id", commentIds)
           : Promise.resolve({ data: [] as CommentVote[] }),
@@ -108,7 +112,7 @@ export function useBillComments(billId: string | null) {
     if (!user || !billId || !content.trim()) return;
     setSubmitting(true);
     try {
-      const row: any = {
+      const row: CommentInsert = {
         user_id: user.id,
         bill_id: billId,
         content: content.trim(),

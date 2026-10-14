@@ -37,7 +37,7 @@ export function useFavorites() {
 
     if (!error && data) {
       setFavorites(data as FavoriteFacility[]);
-      setFavoriteIds(new Set(data.map((f: any) => f.place_id)));
+      setFavoriteIds(new Set(data.map((f) => f.place_id)));
     }
     setLoading(false);
   }, [user]);

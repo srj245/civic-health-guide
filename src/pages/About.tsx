@@ -6,7 +6,7 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 const About = () => {
   usePageTitle("About", "Learn about CivicCare's mission to make healthcare policy accessible to everyone.");
   return (
-    <div className="bg-background animate-fade-in">
+    <div className="bg-background">
       <PageHero
         icon={Heart}
         badge="Our Mission"
@@ -14,7 +14,7 @@ const About = () => {
         subtitle="Bridging the gap between government health policy and the people it affects."
       />
 
-      <section className="px-6 py-12 md:px-10">
+      <section className="px-6 py-14 md:px-10">
         <div className="max-w-4xl mx-auto space-y-12">
           {/* Problem Statement */}
           <div className="space-y-4">
@@ -61,21 +61,30 @@ const About = () => {
             </div>
           </div>
 
-          {/* Tech Stack */}
+          {/* How it's built */}
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-success/10 flex items-center justify-center">
-                <Code className="w-5 h-5 text-success" />
-              </div>
-              <h2 className="text-2xl font-bold text-foreground">Tech Stack</h2>
+              <Code className="w-5 h-5 text-primary" aria-hidden="true" />
+              <h2 className="text-2xl font-bold tracking-tight text-foreground">How it's built</h2>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {["React", "TypeScript", "Tailwind CSS", "Lovable Cloud", "Congress.gov API", "Google Maps Platform", "Lovable AI", "Vite"].map((tech) => (
-                <span key={tech} className="px-3 py-1.5 rounded-full text-sm bg-secondary text-secondary-foreground font-medium">
-                  {tech}
-                </span>
+            <ul className="grid gap-3 sm:grid-cols-2">
+              {[
+                { name: "React + TypeScript", role: "Single-page frontend built with Vite and Tailwind CSS" },
+                { name: "Supabase", role: "Postgres database with row-level security and realtime for comments and votes" },
+                { name: "Deno edge functions", role: "Server-side proxies that keep API keys off the client and rate-limit requests" },
+                { name: "Congress.gov API", role: "Live bill data, official summaries and sponsor information" },
+                { name: "Google Places", role: "Clinic, pharmacy and mental health provider search for the Care Finder" },
+                { name: "AI model for summaries", role: "Generates plain-English bill summaries and the chat assistant, always linked back to the official text" },
+              ].map((item) => (
+                <li key={item.name} className="rounded-lg border border-border bg-card p-4">
+                  <p className="font-semibold text-foreground">{item.name}</p>
+                  <p className="text-sm text-muted-foreground">{item.role}</p>
+                </li>
               ))}
-            </div>
+            </ul>
+            <p className="text-sm text-muted-foreground">
+              AI coding tools were used during development; which ones and how is disclosed in the project README.
+            </p>
           </div>
 
           {/* Impact */}
@@ -92,12 +101,10 @@ const About = () => {
           </div>
 
           {/* Congressional App Challenge */}
-          <div className="rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/5 to-accent/5 p-8 text-center space-y-4">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold">
-              🏆 Congressional App Challenge
-            </div>
-            <h2 className="text-2xl font-bold text-foreground">Built for the Congressional App Challenge</h2>
-            <p className="text-muted-foreground leading-relaxed max-w-2xl mx-auto">
+          <div className="rounded-lg border border-border bg-card p-6 space-y-3">
+            <p className="text-sm font-medium uppercase tracking-wide text-primary">Congressional App Challenge 2026</p>
+            <h2 className="text-2xl font-bold tracking-tight text-foreground">Built for the Congressional App Challenge</h2>
+            <p className="text-muted-foreground leading-relaxed max-w-2xl">
               CivicCare was designed and developed as a submission for the Congressional App Challenge. Our goal is to show how technology can make civic engagement in healthcare more accessible and understandable for every American.
             </p>
           </div>

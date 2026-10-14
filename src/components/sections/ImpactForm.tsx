@@ -61,8 +61,10 @@ const ImpactForm = ({ onSubmit }: Props) => {
           {AGE_RANGES.map((a) => (
             <button
               key={a}
+              type="button"
+              aria-pressed={ageRange === a}
               onClick={() => setAgeRange(a)}
-              className={`p-4 rounded-xl border-2 text-center font-medium transition-all ${
+              className={`p-4 rounded-lg border text-center font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                 ageRange === a
                   ? "border-primary bg-primary/10 text-primary"
                   : "border-border hover:border-primary/40 text-foreground"
@@ -81,8 +83,10 @@ const ImpactForm = ({ onSubmit }: Props) => {
           {INSURANCE_TYPES.map((t) => (
             <button
               key={t}
+              type="button"
+              aria-pressed={insuranceType === t}
               onClick={() => setInsuranceType(t)}
-              className={`p-4 rounded-xl border-2 text-center text-sm font-medium transition-all ${
+              className={`p-4 rounded-lg border text-center text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                 insuranceType === t
                   ? "border-primary bg-primary/10 text-primary"
                   : "border-border hover:border-primary/40 text-foreground"
@@ -101,8 +105,10 @@ const ImpactForm = ({ onSubmit }: Props) => {
           {CONCERNS.map((c) => (
             <button
               key={c}
+              type="button"
+              aria-pressed={concerns.includes(c)}
               onClick={() => toggleConcern(c)}
-              className={`px-4 py-2 rounded-full border text-sm font-medium transition-all ${
+              className={`px-3 py-2 rounded-lg border text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                 concerns.includes(c)
                   ? "border-primary bg-primary/10 text-primary"
                   : "border-border hover:border-primary/40 text-foreground"
@@ -122,8 +128,10 @@ const ImpactForm = ({ onSubmit }: Props) => {
           {US_STATES.map((s) => (
             <button
               key={s}
+              type="button"
+              aria-pressed={state === s}
               onClick={() => setState(s)}
-              className={`p-2 rounded-lg border text-xs font-medium transition-all ${
+              className={`p-2 rounded-lg border text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                 state === s
                   ? "border-primary bg-primary/10 text-primary"
                   : "border-border hover:border-primary/40 text-foreground"
@@ -138,14 +146,14 @@ const ImpactForm = ({ onSubmit }: Props) => {
   ];
 
   return (
-    <Card>
+    <Card className="border-border bg-card shadow-none">
       <CardContent className="p-6 md:p-8">
         {/* Progress */}
-        <div className="flex items-center gap-2 mb-6">
+        <div className="flex items-center gap-2 mb-6" role="progressbar" aria-valuemin={1} aria-valuemax={steps.length} aria-valuenow={step + 1} aria-label="Form progress">
           {steps.map((_, i) => (
             <div
               key={i}
-              className={`h-1.5 flex-1 rounded-full transition-colors ${
+              className={`h-1.5 flex-1 rounded transition-colors ${
                 i <= step ? "bg-primary" : "bg-border"
               }`}
             />
@@ -153,7 +161,7 @@ const ImpactForm = ({ onSubmit }: Props) => {
         </div>
 
         <Badge variant="secondary" className="mb-3">Step {step + 1} of {steps.length}</Badge>
-        <h2 className="text-xl font-bold text-foreground mb-6">{steps[step].title}</h2>
+        <h2 className="text-xl font-bold tracking-tight text-foreground mb-6">{steps[step].title}</h2>
         {steps[step].content}
 
         <div className="flex justify-between mt-8">

@@ -5,7 +5,7 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 const Privacy = () => {
   usePageTitle("Privacy Policy", "How CivicCare handles your data and protects your privacy.");
   return (
-    <div className="bg-background animate-fade-in">
+    <div className="bg-background">
       <PageHero
         icon={Lock}
         badge="Legal"
@@ -24,9 +24,9 @@ const Privacy = () => {
           <p className="text-muted-foreground leading-relaxed">CivicCare uses the Congress.gov API (public government data), Google Maps API (for care finding), and AI services for bill summaries. These services receive only the minimum data needed to function.</p>
 
           <h2 className="text-xl font-bold text-foreground">Your Rights</h2>
-          <p className="text-muted-foreground leading-relaxed">You can delete your account and all associated data at any time. You may also delete individual comments and untrack bills through the dashboard.</p>
+          <p className="text-muted-foreground leading-relaxed">You can delete your own comments and untrack bills from within the app at any time. There is not yet a self-service account deletion button; to have your account and its data removed, contact the team through the project repository and we will delete it.</p>
 
-          <p className="text-sm text-muted-foreground pt-4 border-t border-border">Last updated: {new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" })}</p>
+          <p className="text-sm text-muted-foreground pt-4 border-t border-border">Last updated: October 14, 2026</p>
         </div>
       </section>
     </div>

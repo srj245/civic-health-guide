@@ -1,102 +1,110 @@
 import { Shield, Check, Eye, Keyboard, Monitor, Volume2 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
 import PageHero from "@/components/sections/PageHero";
 import { usePageTitle } from "@/hooks/usePageTitle";
+
+const LAST_UPDATED = "October 14, 2026";
 
 const features = [
   {
     icon: Keyboard,
-    title: "Keyboard Navigation",
-    desc: "Every interactive element is reachable and operable via keyboard. Skip-to-content links let users bypass repetitive navigation.",
+    title: "Keyboard navigation",
+    desc: "Clickable cards, buttons and links are reachable with Tab and activated with Enter or Space. A skip-to-content link is the first focusable element on every page.",
   },
   {
     icon: Eye,
-    title: "Color Contrast",
-    desc: "All text meets WCAG AA contrast ratios (4.5:1 for normal text, 3:1 for large text) in both light and dark modes.",
+    title: "Focus and motion",
+    desc: "Interactive elements show a visible focus ring. When your system asks for reduced motion, page transitions and animations are turned off.",
   },
   {
     icon: Volume2,
-    title: "Screen Reader Support",
-    desc: "Semantic HTML, ARIA labels, and roles ensure assistive technologies can interpret every page accurately.",
+    title: "Screen reader support",
+    desc: "Pages use semantic HTML with one H1, labelled form inputs, aria-labels on icon-only buttons, and a live region that announces chat replies.",
   },
   {
     icon: Monitor,
-    title: "Responsive Design",
-    desc: "The interface adapts to any screen size—from mobile phones to ultrawide monitors—without loss of content or functionality.",
+    title: "Responsive and themed",
+    desc: "The layout works from phone widths to large monitors, and a dark theme is available from the header toggle or your system setting.",
   },
 ];
 
 const checklist = [
   "Skip-to-content link on every page",
-  "Focus-visible outlines on all interactive elements",
-  "Alt text on all informational images",
+  "Focus-visible outlines on interactive elements",
   "Semantic heading hierarchy (single H1 per page)",
   "ARIA labels on icon-only buttons",
-  "Reduced-motion media query support",
-  "Form labels associated with inputs",
-  "Color is never the sole means of conveying information",
-  "Dark mode with proper contrast",
-  "Touch targets meet 44×44px minimum",
+  "prefers-reduced-motion disables animations and transitions",
+  "Form inputs have a visible label or aria-label",
+  "Keyboard-operable cards (Enter and Space)",
+  "Streamed chat replies announced via aria-live",
+  "Dark mode available",
+];
+
+const notYet = [
+  "We have not completed a formal WCAG 2.1 AA audit. Colour contrast has been checked by eye, not by a tool, in both themes.",
+  "Some tap targets, such as comment vote arrows, are smaller than the 44x44px recommendation.",
+  "Images from third parties (for example maps) depend on those providers' accessibility.",
 ];
 
 const Accessibility = () => {
-  usePageTitle("Accessibility", "CivicCare's commitment to digital accessibility and WCAG AA compliance.");
+  usePageTitle("Accessibility", "What CivicCare does today for accessibility, and what is still missing.");
   return (
-    <div className="bg-background animate-fade-in">
+    <div className="bg-background">
       <PageHero
         icon={Shield}
         badge="Commitment"
         title="Accessibility Statement"
-        subtitle="CivicCare is committed to making healthcare policy accessible to everyone—including people with disabilities."
+        subtitle="What CivicCare does today for people using keyboards, screen readers and reduced-motion settings, and what still needs work."
       />
 
-      <section className="px-6 py-12 md:px-10">
-        <div className="max-w-4xl mx-auto space-y-12">
-          {/* Intro */}
-          <div className="space-y-4">
-            <h2 className="text-2xl font-bold text-foreground">Our Approach</h2>
-            <p className="text-muted-foreground leading-relaxed text-lg">
-              We design and develop CivicCare following the Web Content Accessibility Guidelines (WCAG) 2.1 Level AA. Accessibility isn't an afterthought—it's built into every component, page, and interaction from the start.
+      <section className="px-6 py-14 md:px-10">
+        <div className="mx-auto max-w-6xl space-y-12">
+          <div className="max-w-3xl space-y-4">
+            <p className="text-sm font-medium uppercase tracking-wide text-primary">Our approach</p>
+            <h2 className="text-2xl font-bold tracking-tight text-foreground">Honest, not aspirational</h2>
+            <p className="text-lg leading-relaxed text-muted-foreground">
+              We aim for the Web Content Accessibility Guidelines (WCAG) 2.1 Level AA. This page lists only what the
+              current code actually does, so you know what to expect.
             </p>
           </div>
 
-          {/* Feature Cards */}
-          <div className="grid sm:grid-cols-2 gap-4">
+          <div className="grid gap-4 sm:grid-cols-2">
             {features.map((f) => (
-              <Card key={f.title} className="border-border">
-                <CardContent className="p-5">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-3">
-                    <f.icon className="w-5 h-5 text-primary" />
-                  </div>
-                  <h3 className="font-semibold text-foreground mb-1">{f.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
-                </CardContent>
-              </Card>
+              <div key={f.title} className="rounded-lg border border-border bg-card p-5">
+                <f.icon className="mb-3 h-5 w-5 text-primary" aria-hidden="true" />
+                <h3 className="mb-1 font-semibold text-foreground">{f.title}</h3>
+                <p className="text-sm leading-relaxed text-muted-foreground">{f.desc}</p>
+              </div>
             ))}
           </div>
 
-          {/* Checklist */}
           <div className="space-y-4">
-            <h2 className="text-2xl font-bold text-foreground">Compliance Checklist</h2>
-            <div className="grid sm:grid-cols-2 gap-3">
+            <h2 className="text-2xl font-bold tracking-tight text-foreground">What is in place</h2>
+            <ul className="grid gap-3 sm:grid-cols-2">
               {checklist.map((item) => (
-                <div key={item} className="flex items-start gap-3 p-3 rounded-lg bg-secondary/30">
-                  <Check className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                <li key={item} className="flex items-start gap-3 rounded-lg border border-border bg-card p-3">
+                  <Check className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
                   <span className="text-sm text-foreground">{item}</span>
-                </div>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
 
-          {/* Contact */}
-          <div className="space-y-4 rounded-xl border border-primary/20 bg-primary/5 p-6">
-            <h2 className="text-xl font-bold text-foreground">Found a Barrier?</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              If you encounter any accessibility issues while using CivicCare, we want to know. Please reach out so we can address it promptly and improve the experience for everyone.
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold tracking-tight text-foreground">Known gaps</h2>
+            <ul className="max-w-3xl list-disc space-y-2 pl-5 text-muted-foreground">
+              {notYet.map((item) => (
+                <li key={item} className="leading-relaxed">{item}</li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="max-w-3xl space-y-3 rounded-lg border border-border bg-card p-6">
+            <h2 className="text-xl font-bold tracking-tight text-foreground">Found a barrier?</h2>
+            <p className="leading-relaxed text-muted-foreground">
+              If something on CivicCare is hard to use with assistive technology, please open an issue on the project
+              repository or contact the team. We would rather hear about it than guess.
             </p>
-            <p className="text-sm text-muted-foreground">
-              This statement was last updated on {new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" })}.
-            </p>
+            <p className="text-sm text-muted-foreground">Last updated {LAST_UPDATED}.</p>
           </div>
         </div>
       </section>

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Bookmark, Calendar, ArrowRight, LogIn } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { ordinal } from "@/lib/format";
 
 const Dashboard = () => {
   usePageTitle("My Dashboard", "Track and follow health bills that matter to you.");
@@ -30,7 +31,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="bg-background animate-fade-in">
+    <div className="bg-background">
       <div className="px-6 py-8 md:px-10">
         <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1">My Dashboard</h1>
         <p className="text-muted-foreground mb-6">Bills you're tracking · {trackedBills.length} total</p>
@@ -60,7 +61,7 @@ const Dashboard = () => {
           {!loading && trackedBills.length > 0 && (
             <div className="space-y-3">
               {trackedBills.map((bill) => (
-                <Card key={bill.id} className="border-border hover:shadow-card-hover transition-shadow">
+                <Card key={bill.id} className="border-border transition-colors hover:border-primary/40">
                   <CardContent className="p-5">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 min-w-0">
@@ -69,7 +70,7 @@ const Dashboard = () => {
                             {bill.bill_type.toUpperCase()}{bill.bill_number}
                           </Badge>
                           <Badge variant="secondary" className="text-xs shrink-0">
-                            {bill.congress}th Congress
+                            {ordinal(bill.congress)} Congress
                           </Badge>
                         </div>
                         <h3 className="font-semibold text-foreground line-clamp-2 mb-2">{bill.bill_title}</h3>

@@ -1,189 +1,137 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { isHealthBill } from "../_shared/health-filter.ts";
+import {
+  badRequest,
+  fail,
+  json,
+  methodNotAllowed,
+  preflight,
+  rateLimit,
+  readJsonObject,
+} from "../_shared/http.ts";
+import { parseBillId, parseCongress, parseEnum, parseLimit } from "../_shared/validate.ts";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+const CONGRESS_API_BASE = "https://api.congress.gov/v3";
+const ACTIONS = ["recent-bills", "bill-details", "health-bills", "subjects"] as const;
 
-const CONGRESS_API_BASE = 'https://api.congress.gov/v3';
+interface CongressBill {
+  type?: string;
+  number?: string | number;
+  congress?: number;
+  title?: string;
+  latestAction?: unknown;
+  updateDate?: string;
+  url?: string;
+  policyArea?: { name?: string };
+}
+
+function slimBill(bill: CongressBill) {
+  return {
+    id: `${bill.type ?? ""}${bill.number ?? ""}`,
+    congress: bill.congress,
+    type: bill.type,
+    number: bill.number,
+    title: bill.title,
+    latestAction: bill.latestAction,
+    updateDate: bill.updateDate,
+    url: bill.url,
+  };
+}
+
+async function congressFetch(path: string, apiKey: string, params: Record<string, string> = {}) {
+  const url = new URL(`${CONGRESS_API_BASE}${path}`);
+  url.searchParams.set("api_key", apiKey);
+  url.searchParams.set("format", "json");
+  for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
+  const res = await fetch(url.toString());
+  if (!res.ok) throw new Error(`Congress API responded ${res.status} for ${path}`);
+  return res.json();
+}
 
 serve(async (req) => {
-  // Handle CORS preflight
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
-  }
+  if (req.method === "OPTIONS") return preflight();
+  if (req.method !== "POST") return methodNotAllowed();
+
+  const limited = rateLimit(req, { limit: 60, windowMs: 60_000 });
+  if (limited) return limited;
 
   try {
-    const CONGRESS_API_KEY = Deno.env.get('CONGRESS_API_KEY');
-    if (!CONGRESS_API_KEY) {
-      throw new Error('CONGRESS_API_KEY is not configured');
-    }
+    const apiKey = Deno.env.get("CONGRESS_API_KEY");
+    if (!apiKey) return fail(500, "Bill data is temporarily unavailable.", "CONGRESS_API_KEY missing");
 
-    // Get params from body (POST) or URL (GET)
-    let params: any = {};
-    if (req.method === 'POST') {
-      try {
-        params = await req.json();
-      } catch {
-        params = {};
-      }
-    }
-    
-    const url = new URL(req.url);
-    const action = params.action || url.searchParams.get('action') || 'recent-bills';
-    const billId = params.billId || url.searchParams.get('billId');
-    const congress = params.congress || url.searchParams.get('congress') || '119';
-    const limit = params.limit || url.searchParams.get('limit') || '10';
+    const body = await readJsonObject(req);
+    if (!body) return badRequest("Request body must be a JSON object.");
 
-    let data: any;
+    const action = body.action === undefined ? "recent-bills" : parseEnum(body.action, ACTIONS);
+    if (!action) return badRequest("Unknown action.");
+
+    const congress = parseCongress(body.congress);
+    if (congress === null) return badRequest("congress must be a whole number between 93 and 130.");
+
+    const limit = parseLimit(body.limit, 10);
+    if (limit === null) return badRequest("limit must be a whole number between 1 and 250.");
 
     switch (action) {
-      case 'recent-bills':
-        // Fetch recent bills with health-related subjects
-        const billsUrl = `${CONGRESS_API_BASE}/bill/${congress}?api_key=${CONGRESS_API_KEY}&format=json&limit=${limit}&sort=updateDate+desc`;
-        const billsRes = await fetch(billsUrl);
-        if (!billsRes.ok) {
-          throw new Error(`Congress API error: ${billsRes.status}`);
-        }
-        const billsData = await billsRes.json();
-        data = {
-          bills: billsData.bills?.map((bill: any) => ({
-            id: `${bill.type}${bill.number}`,
-            congress: bill.congress,
-            type: bill.type,
-            number: bill.number,
-            title: bill.title,
-            latestAction: bill.latestAction,
-            updateDate: bill.updateDate,
-            url: bill.url,
-          })) || [],
-        };
-        break;
-
-      case 'bill-details':
-        if (!billId) {
-          throw new Error('billId is required for bill-details action');
-        }
-        // Parse bill ID (e.g., "hr1234" -> type=hr, number=1234)
-        const match = billId.match(/^([a-z]+)(\d+)$/i);
-        if (!match) {
-          throw new Error('Invalid billId format. Use format like "hr1234" or "s567"');
-        }
-        const billType = match[1].toLowerCase();
-        const billNumber = match[2];
-        
-        const detailUrl = `${CONGRESS_API_BASE}/bill/${congress}/${billType}/${billNumber}?api_key=${CONGRESS_API_KEY}&format=json`;
-        const detailRes = await fetch(detailUrl);
-        if (!detailRes.ok) {
-          throw new Error(`Congress API error: ${detailRes.status}`);
-        }
-        const detailData = await detailRes.json();
-        
-        // Also fetch summaries if available
-        let summary = null;
-        try {
-          const summaryUrl = `${CONGRESS_API_BASE}/bill/${congress}/${billType}/${billNumber}/summaries?api_key=${CONGRESS_API_KEY}&format=json`;
-          const summaryRes = await fetch(summaryUrl);
-          if (summaryRes.ok) {
-            const summaryData = await summaryRes.json();
-            summary = summaryData.summaries?.[0]?.text || null;
-          }
-        } catch (e) {
-          console.log('No summary available');
-        }
-
-        data = {
-          bill: {
-            ...detailData.bill,
-            summary,
-          },
-        };
-        break;
-
-      case 'health-bills': {
-        const max = parseInt(limit as string);
-        const healthTerms = [
-          'health', 'healthcare', 'medicare', 'medicaid', 'hospital', 'medical',
-          'prescription drug', 'pharmacy', 'pharmaceutical', 'opioid', 'fentanyl',
-          'nursing', 'physician', 'patient', 'affordable care', 'maternal',
-          'reproductive', 'telehealth', 'disease', 'pandemic', 'vaccine', 'cancer',
-          'diabetes', 'clinical', 'nurse', 'substance use', 'substance abuse',
-          'addiction', 'emergency medical', 'hospice', 'mental', 'suicide',
-          'drug pricing', 'insulin', 'dental', 'organ', 'alzheimer', 'autism',
-        ];
-        const excludeTerms = [
-          'terrorism', 'terrorist', 'property and casualty', 'casualty insurance',
-          'flood insurance', 'crop insurance', 'deposit insurance', 'title insurance',
-          'reinsurance', 'firearm', 'tax-exempt bond',
-        ];
-        const isHealth = (title: string) => {
-          const t = title.toLowerCase();
-          if (excludeTerms.some((x) => t.includes(x))) return false;
-          return healthTerms.some((term) => t.includes(term));
-        };
-
-        const allHealthBills: any[] = [];
-        const fallbackUrl = `${CONGRESS_API_BASE}/bill/${congress}?api_key=${CONGRESS_API_KEY}&format=json&limit=250&sort=updateDate+desc`;
-        const fallbackRes = await fetch(fallbackUrl);
-        if (!fallbackRes.ok) throw new Error(`Congress API error: ${fallbackRes.status}`);
-        const fallbackData = await fallbackRes.json();
-        for (const bill of fallbackData.bills || []) {
-          if (allHealthBills.length >= max) break;
-          if (!isHealth(bill.title || '')) continue;
-          const id = `${bill.type}${bill.number}`;
-          if (allHealthBills.find((b: any) => b.id === id)) continue;
-          allHealthBills.push({
-            id,
-            congress: bill.congress,
-            type: bill.type,
-            number: bill.number,
-            title: bill.title,
-            latestAction: bill.latestAction,
-            updateDate: bill.updateDate,
-          });
-        }
-        data = { bills: allHealthBills };
-        break;
-      }
-
-      case 'subjects':
-        // Fetch policy area subjects
-        const subjectsUrl = `${CONGRESS_API_BASE}/bill/${congress}?api_key=${CONGRESS_API_KEY}&format=json&limit=50&sort=updateDate+desc`;
-        const subjectsRes = await fetch(subjectsUrl);
-        if (!subjectsRes.ok) {
-          throw new Error(`Congress API error: ${subjectsRes.status}`);
-        }
-        const subjectsData = await subjectsRes.json();
-        
-        // Extract unique policy areas
-        const policyAreas = new Set<string>();
-        subjectsData.bills?.forEach((bill: any) => {
-          if (bill.policyArea?.name) {
-            policyAreas.add(bill.policyArea.name);
-          }
+      case "recent-bills": {
+        const data = await congressFetch(`/bill/${congress}`, apiKey, {
+          limit: String(limit),
+          sort: "updateDate desc",
         });
-
-        data = {
-          subjects: Array.from(policyAreas),
-        };
-        break;
-
-      default:
-        throw new Error(`Unknown action: ${action}`);
-    }
-
-    return new Response(JSON.stringify(data), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-  } catch (error: unknown) {
-    console.error('Congress API error:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        const bills: CongressBill[] = data.bills ?? [];
+        return json({ bills: bills.map(slimBill) });
       }
-    );
+
+      case "bill-details": {
+        const bill = parseBillId(body.billId);
+        if (!bill) return badRequest("billId must look like hr1234 or s567.");
+
+        const detail = await congressFetch(`/bill/${congress}/${bill.type}/${bill.number}`, apiKey);
+
+        let summary: string | null = null;
+        try {
+          const summaries = await congressFetch(
+            `/bill/${congress}/${bill.type}/${bill.number}/summaries`,
+            apiKey,
+          );
+          summary = summaries.summaries?.[0]?.text ?? null;
+        } catch (e) {
+          console.log("No summary available:", e instanceof Error ? e.message : e);
+        }
+
+        return json({ bill: { ...(detail.bill ?? {}), summary } });
+      }
+
+      case "health-bills": {
+        const data = await congressFetch(`/bill/${congress}`, apiKey, {
+          limit: "250",
+          sort: "updateDate desc",
+        });
+        const seen = new Set<string>();
+        const health: ReturnType<typeof slimBill>[] = [];
+        for (const bill of (data.bills ?? []) as CongressBill[]) {
+          if (health.length >= limit) break;
+          if (!isHealthBill(bill.title)) continue;
+          const slim = slimBill(bill);
+          if (seen.has(slim.id)) continue;
+          seen.add(slim.id);
+          health.push(slim);
+        }
+        return json({ bills: health });
+      }
+
+      case "subjects": {
+        const data = await congressFetch(`/bill/${congress}`, apiKey, {
+          limit: "50",
+          sort: "updateDate desc",
+        });
+        const areas = new Set<string>();
+        for (const bill of (data.bills ?? []) as CongressBill[]) {
+          if (bill.policyArea?.name) areas.add(bill.policyArea.name);
+        }
+        return json({ subjects: Array.from(areas) });
+      }
+    }
+  } catch (error) {
+    return fail(500, "Could not load bill data right now. Please try again.", error);
   }
 });

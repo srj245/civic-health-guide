@@ -1,97 +1,57 @@
-import { Heart } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+
+const columns = [
+  {
+    heading: "Explore",
+    links: [
+      { name: "Health bills", href: "/news" },
+      { name: "Who's affected", href: "/affected" },
+      { name: "Find care", href: "/care" },
+      { name: "Your representatives", href: "/representatives" },
+      { name: "Impact calculator", href: "/impact" },
+    ],
+  },
+  {
+    heading: "CivicCare",
+    links: [
+      { name: "About", href: "/about" },
+      { name: "Accessibility", href: "/accessibility" },
+      { name: "Privacy", href: "/privacy" },
+      { name: "Terms", href: "/terms" },
+    ],
+  },
+];
 
 const Footer = () => {
-  const navigate = useNavigate();
-
-  const footerLinks = {
-    resources: [
-      { name: "Health News", href: "/news" },
-      { name: "Find Care", href: "/care" },
-      { name: "Who's Affected", href: "/affected" },
-      { name: "Take Action", href: "/#action" },
-    ],
-    company: [
-      { name: "About Us", href: "/about" },
-      { name: "Our Mission", href: "/about" },
-      { name: "Contact", href: "/#action" },
-    ],
-    legal: [
-      { name: "Privacy Policy", href: "/privacy" },
-      { name: "Terms of Service", href: "/terms" },
-      { name: "Accessibility", href: "/accessibility" },
-    ],
-  };
-
-  const handleNav = (href: string) => {
-    if (href.startsWith("/#")) {
-      const hash = href.slice(1);
-      if (window.location.pathname !== "/") {
-        navigate("/");
-        setTimeout(() => {
-          document.querySelector(hash)?.scrollIntoView({ behavior: "smooth" });
-        }, 100);
-      } else {
-        document.querySelector(hash)?.scrollIntoView({ behavior: "smooth" });
-      }
-    } else {
-      navigate(href);
-    }
-  };
-
-  const renderLinks = (links: { name: string; href: string }[]) =>
-    links.map((link) => (
-      <li key={link.name}>
-        <button
-          onClick={() => handleNav(link.href)}
-          className="text-sm text-background/60 hover:text-background transition-colors"
-        >
-          {link.name}
-        </button>
-      </li>
-    ));
-
   return (
-    <footer className="bg-foreground text-background py-16">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
-          {/* Brand */}
-          <div className="col-span-2 md:col-span-1">
-            <button onClick={() => handleNav("/")} className="flex items-center gap-2 mb-4">
-              <div className="w-9 h-9 rounded-xl bg-gradient-hero flex items-center justify-center">
-                <Heart className="w-5 h-5 text-primary-foreground" />
-              </div>
-              <span className="text-xl font-bold">CivicCare</span>
-            </button>
-            <p className="text-sm text-background/60 leading-relaxed">
-              Making healthcare policy accessible to everyone. Nonpartisan, inclusive, and built for everyday people.
-            </p>
-          </div>
-
-          <div>
-            <h4 className="font-semibold mb-4 text-background/90">Resources</h4>
-            <ul className="space-y-2">{renderLinks(footerLinks.resources)}</ul>
-          </div>
-
-          <div>
-            <h4 className="font-semibold mb-4 text-background/90">Company</h4>
-            <ul className="space-y-2">{renderLinks(footerLinks.company)}</ul>
-          </div>
-
-          <div>
-            <h4 className="font-semibold mb-4 text-background/90">Legal</h4>
-            <ul className="space-y-2">{renderLinks(footerLinks.legal)}</ul>
-          </div>
-        </div>
-
-        <div className="pt-8 border-t border-background/10 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-background/50">
-            © {new Date().getFullYear()} CivicCare. All rights reserved.
+    <footer className="border-t border-border bg-background px-6 py-10 md:px-10" role="contentinfo">
+      <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-[2fr_1fr_1fr]">
+        <div>
+          <p className="text-lg font-bold text-foreground">CivicCare</p>
+          <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">
+            Health legislation in plain English, with the resources to act on it. Nonpartisan and free.
           </p>
-          <p className="text-sm text-background/50">
-            Made with care for informed citizens everywhere.
+          <p className="mt-4 text-xs text-muted-foreground">
+            Bill data from Congress.gov. Care listings from Google Places. CivicCare is not legal or medical advice.
           </p>
         </div>
+        {columns.map((col) => (
+          <nav key={col.heading} aria-label={col.heading}>
+            <h2 className="text-sm font-semibold text-foreground">{col.heading}</h2>
+            <ul className="mt-3 space-y-2">
+              {col.links.map((link) => (
+                <li key={link.href + link.name}>
+                  <Link to={link.href} className="text-sm text-muted-foreground hover:text-foreground">
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        ))}
+      </div>
+      <div className="mx-auto mt-8 max-w-6xl border-t border-border pt-6 text-xs text-muted-foreground">
+        © {new Date().getFullYear()} CivicCare. Built for the Congressional App Challenge.
       </div>
     </footer>
   );

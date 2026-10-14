@@ -108,7 +108,7 @@ export function AppSidebar() {
       <SidebarFooter className="p-4">
         {!collapsed && (
           <p className="text-xs text-sidebar-foreground/50 text-center">
-            © 2026 CivicCare
+            © {new Date().getFullYear()} CivicCare
           </p>
         )}
       </SidebarFooter>

@@ -78,7 +78,7 @@ const AudienceBillsModal = ({ group, open, onOpenChange, bills, loading }: Audie
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-xl ${group.iconBg} flex items-center justify-center`}>
+            <div className={`w-10 h-10 rounded-lg ${group.iconBg} flex items-center justify-center`} aria-hidden="true">
               <group.icon className="w-5 h-5 text-primary-foreground" />
             </div>
             Bills Affecting {group.title}
@@ -166,22 +166,30 @@ const AffectedSection = () => {
   };
 
   return (
-    <section id="affected" className="py-20 md:py-28 bg-secondary/30">
-      <div className="container mx-auto px-4">
+    <section id="affected" className="px-6 py-6 md:px-10 md:py-8 bg-background">
+      <div className="mx-auto max-w-6xl">
 
         {/* Audience Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
-          {audienceGroups.map((group, index) => (
+          {audienceGroups.map((group) => (
             <Card
               key={group.id}
-              className="group cursor-pointer border-border/50 bg-card shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1 overflow-hidden animate-fade-in-up"
-              style={{ animationDelay: `${index * 0.1}s` }}
+              role="button"
+              tabIndex={0}
+              aria-label={`View bills for ${group.title}`}
+              className="group cursor-pointer rounded-lg border border-border bg-card shadow-none transition-colors hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               onClick={() => handleViewUpdates(group)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  handleViewUpdates(group);
+                }
+              }}
             >
               <CardContent className="p-6">
                 <div className="flex items-start gap-4">
                   {/* Icon */}
-                  <div className={`w-14 h-14 rounded-2xl ${group.iconBg} flex items-center justify-center flex-shrink-0 shadow-md`}>
+                  <div className={`w-12 h-12 rounded-lg ${group.iconBg} flex items-center justify-center flex-shrink-0`} aria-hidden="true">
                     <group.icon className="w-7 h-7 text-primary-foreground" />
                   </div>
 
@@ -191,7 +199,7 @@ const AffectedSection = () => {
                       <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
                         {group.title}
                       </h3>
-                      <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                      <span className="text-xs text-muted-foreground">
                         {group.ageRange}
                       </span>
                     </div>
@@ -204,7 +212,7 @@ const AffectedSection = () => {
                       {group.keyTopics.map((topic) => (
                         <span
                           key={topic}
-                          className={`text-xs px-2.5 py-1 rounded-full border ${group.color}`}
+                          className={`text-xs px-2 py-0.5 rounded border ${group.color}`}
                         >
                           {topic}
                         </span>
@@ -212,12 +220,10 @@ const AffectedSection = () => {
                     </div>
 
                     {/* CTA */}
-                    <button 
-                      className="inline-flex items-center gap-1.5 text-sm font-medium text-primary group-hover:gap-2.5 transition-all"
-                    >
+                    <span className="inline-flex items-center gap-1.5 text-sm font-medium text-primary" aria-hidden="true">
                       View bills for {group.title.split(' ')[0].toLowerCase()}
                       <ArrowRight className="w-4 h-4" />
-                    </button>
+                    </span>
                   </div>
                 </div>
               </CardContent>

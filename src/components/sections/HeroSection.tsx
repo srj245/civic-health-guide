@@ -1,125 +1,106 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { ArrowRight, FileText, MapPin, Megaphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Shield, Search, Users } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useHealthBills } from "@/hooks/useCongressApi";
 
-const fullText = "Understand How Government Decisions Affect Your Health";
+const proofPoints = [
+  { icon: FileText, text: "Live bills from Congress.gov, summarized in plain English" },
+  { icon: MapPin, text: "Clinics, mental health services, and low-cost care near you" },
+  { icon: Megaphone, text: "Your representatives, and a message ready to send" },
+];
+
+function formatDate(iso?: string) {
+  if (!iso) return "";
+  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
 
 const HeroSection = () => {
-  const navigate = useNavigate();
-  const [displayedText, setDisplayedText] = useState("");
-  const [showCursor, setShowCursor] = useState(true);
-  const [typingDone, setTypingDone] = useState(false);
-
-  useEffect(() => {
-    let i = 0;
-    const interval = setInterval(() => {
-      i++;
-      setDisplayedText(fullText.slice(0, i));
-      if (i >= fullText.length) {
-        clearInterval(interval);
-        setTypingDone(true);
-      }
-    }, 35);
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    if (!typingDone) return;
-    const blink = setInterval(() => setShowCursor((c) => !c), 530);
-    return () => clearInterval(blink);
-  }, [typingDone]);
-
-  const features = [
-    { icon: Search, label: "Plain English Explanations", desc: "No law degree needed" },
-    { icon: Users, label: "See Who's Affected", desc: "Students, families, seniors" },
-    { icon: Shield, label: "Find Local Resources", desc: "Clinics, services, support" },
-  ];
+  const { bills, loading } = useHealthBills(3);
 
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden">
-      {/* Gradient base */}
-      <div className="absolute inset-0 bg-gradient-hero" />
-
-      {/* Animated mesh orbs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute w-[500px] h-[500px] rounded-full bg-primary/30 blur-[120px] animate-orb-1 top-[-10%] left-[-5%]" />
-        <div className="absolute w-[400px] h-[400px] rounded-full bg-accent/20 blur-[100px] animate-orb-2 bottom-[5%] right-[-5%]" />
-        <div className="absolute w-[300px] h-[300px] rounded-full bg-primary-foreground/10 blur-[80px] animate-orb-3 top-[40%] left-[50%]" />
-      </div>
-
-      {/* Radial overlays */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.15)_0%,_transparent_50%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(0,0,0,0.1)_0%,_transparent_50%)]" />
-
-      {/* Parallax decorative shapes */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute w-24 h-24 border-2 border-primary-foreground/10 rounded-full top-[15%] right-[10%] animate-float" />
-        <div className="absolute w-16 h-16 border border-primary-foreground/10 rounded-lg top-[60%] left-[8%] animate-float" style={{ animationDelay: "1.5s" }} />
-        <div className="absolute w-10 h-10 bg-accent/20 rounded-full top-[25%] left-[20%] animate-float" style={{ animationDelay: "0.8s" }} />
-        <div className="absolute w-6 h-6 bg-primary-foreground/10 rounded-full bottom-[30%] right-[25%] animate-float" style={{ animationDelay: "2s" }} />
-      </div>
-
-      <div className="container mx-auto px-4 pt-24 pb-16 relative z-10">
-        <div className="max-w-4xl mx-auto text-center">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/20 mb-8 animate-bounce-in">
-            <Shield className="w-4 h-4 text-primary-foreground" />
-            <span className="text-sm font-medium text-primary-foreground">Nonpartisan • Accessible • For Everyone</span>
+    <section className="border-b border-border bg-background">
+      <div className="mx-auto max-w-6xl px-6 py-14 md:px-10 md:py-20">
+        <div className="grid items-start gap-12 lg:grid-cols-[1.15fr_1fr]">
+          <div>
+            <p className="mb-4 text-sm font-medium uppercase tracking-wide text-primary">
+              Health policy, in plain English
+            </p>
+            <h1 className="text-4xl font-bold leading-[1.1] tracking-tight text-foreground md:text-5xl">
+              Know what Congress is doing to your health care. Then do something about it.
+            </h1>
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
+              CivicCare reads the bills so you don&apos;t have to. See which ones affect you, find care in your
+              community, and reach the people who represent you.
+            </p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <Button asChild size="lg">
+                <Link to="/news">
+                  Browse health bills
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="outline">
+                <Link to="/care">Find care near me</Link>
+              </Button>
+            </div>
+            <ul className="mt-10 space-y-3">
+              {proofPoints.map((p) => (
+                <li key={p.text} className="flex items-start gap-3 text-sm text-muted-foreground">
+                  <p.icon className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                  <span>{p.text}</span>
+                </li>
+              ))}
+            </ul>
           </div>
 
-          {/* Typewriter Headline */}
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6 min-h-[3.5em] md:min-h-[2.5em]">
-            <span className="gradient-text-animated">{displayedText}</span>
-            <span
-              className={`inline-block w-[3px] h-[1em] bg-accent ml-1 align-middle transition-opacity duration-100 ${showCursor ? "opacity-100" : "opacity-0"}`}
-            />
-          </h1>
-
-          {/* Subheadline */}
-          <p className="text-lg md:text-xl text-primary-foreground/80 max-w-2xl mx-auto mb-10 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
-            CivicCare translates complex healthcare policies and news into plain English—and connects you to real care in your community.
-          </p>
-
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
-            <Button variant="hero" size="xl" onClick={() => navigate("/news")} className="shimmer-hover group">
-              Explore Health Updates
-              <ArrowRight className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-1" />
-            </Button>
-            <Button variant="hero" size="xl" onClick={() => navigate("/care")} className="shimmer-hover group shadow-xl hover:shadow-2xl">
-              Find Care Near Me
-              <Search className="w-5 h-5 transition-transform duration-200 group-hover:scale-110" />
-            </Button>
-          </div>
-
-          {/* Feature highlights */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
-            {features.map((item, i) => (
-              <div
-                key={item.label}
-                className="flex flex-col items-center p-4 rounded-2xl glassmorphism-card hover:-translate-y-1 transition-all duration-300 stagger-child"
-                style={{ '--stagger-i': i + 4 } as React.CSSProperties}
-              >
-                <div className="w-12 h-12 rounded-xl bg-primary-foreground/20 flex items-center justify-center mb-3 animate-float" style={{ animationDelay: `${i * 0.5}s` }}>
-                  <item.icon className="w-6 h-6 text-primary-foreground" />
-                </div>
-                <h3 className="font-semibold text-primary-foreground mb-1">{item.label}</h3>
-                <p className="text-sm text-primary-foreground/70">{item.desc}</p>
-              </div>
-            ))}
-          </div>
+          <aside className="rounded-lg border border-border bg-card" aria-labelledby="live-bills-heading">
+            <div className="flex items-center justify-between border-b border-border px-5 py-3">
+              <h2 id="live-bills-heading" className="text-sm font-semibold text-foreground">
+                Latest health bills in Congress
+              </h2>
+              <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <span className="h-1.5 w-1.5 rounded-full bg-success" aria-hidden="true" />
+                Live
+              </span>
+            </div>
+            <ol className="divide-y divide-border">
+              {loading
+                ? [0, 1, 2].map((i) => (
+                    <li key={i} className="px-5 py-4">
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="mt-2 h-3 w-1/2" />
+                    </li>
+                  ))
+                : bills.map((bill) => (
+                    <li key={bill.id}>
+                      <Link
+                        to="/news"
+                        className="block px-5 py-4 transition-colors hover:bg-secondary focus-visible:bg-secondary focus-visible:outline-none"
+                      >
+                        <p className="text-xs font-medium text-muted-foreground">
+                          {bill.type} {bill.number}
+                          {bill.latestAction?.actionDate && ` · ${formatDate(bill.latestAction.actionDate)}`}
+                        </p>
+                        <p className="mt-1 line-clamp-2 text-sm font-medium leading-snug text-foreground">
+                          {bill.title}
+                        </p>
+                      </Link>
+                    </li>
+                  ))}
+              {!loading && bills.length === 0 && (
+                <li className="px-5 py-6 text-sm text-muted-foreground">
+                  Couldn&apos;t reach Congress.gov right now. Try again in a moment.
+                </li>
+              )}
+            </ol>
+            <div className="border-t border-border px-5 py-3">
+              <Link to="/news" className="text-sm font-medium text-primary hover:underline">
+                See all health bills
+              </Link>
+            </div>
+          </aside>
         </div>
-      </div>
-
-      {/* Bottom wave */}
-      <div className="absolute bottom-0 left-0 right-0">
-        <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
-          <path
-            d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z"
-            className="fill-background"
-          />
-        </svg>
       </div>
     </section>
   );
