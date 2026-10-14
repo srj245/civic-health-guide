@@ -121,13 +121,13 @@ const NewsSection = () => {
 
         {/* Bills Grid */}
         {!loading && !error && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto" data-stagger>
             {bills.map((bill, index) => (
               <Card
                 key={bill.id}
                 role="button"
                 tabIndex={0}
-                className="group cursor-pointer border-border bg-card transition-colors hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="group lift cursor-pointer border-border bg-card"
                 onClick={() => handleReadMore(bill)}
                 onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleReadMore(bill); } }}
               >

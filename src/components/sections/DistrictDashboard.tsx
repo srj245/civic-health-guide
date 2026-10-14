@@ -176,7 +176,7 @@ const DistrictDashboard = () => {
                   </p>
                 )}
                 {reps.length > 0 ? (
-                  <div className="mt-4 grid gap-4 md:grid-cols-3">
+                  <div className="mt-4 grid gap-4 md:grid-cols-3" data-stagger>
                     {reps.map((rep) => (
                       <RepCard key={rep.bioguideId ?? rep.name} rep={rep} onShowBills={setSelectedRep} />
                     ))}
@@ -190,10 +190,10 @@ const DistrictDashboard = () => {
             {bills.length > 0 && (
               <div>
                 <h3 className="text-lg font-medium text-foreground">Health bills they are voting on</h3>
-                <ul className="mt-4 divide-y divide-border border-y border-border">
+                <ul className="mt-4 divide-y divide-border border-y border-border" data-stagger>
                   {bills.map((bill) => (
                     <li key={bill.id}>
-                      <Link to="/news" className="block py-3 hover:bg-secondary/60">
+                      <Link to="/news" className="block py-3 transition-[padding,background-color] duration-300 hover:bg-secondary/60 hover:pl-2">
                         <p className="text-xs font-medium text-muted-foreground">
                           {bill.type} {bill.number}
                         </p>

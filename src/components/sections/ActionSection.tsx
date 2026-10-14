@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import Reveal from "@/components/motion/Reveal";
 import { Mail, Vote, Share2, ArrowRight, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -54,17 +55,17 @@ const ActionSection = () => {
   return (
     <section id="action" className="border-t border-border bg-secondary/40 px-6 py-14 md:px-10 md:py-20" aria-labelledby="action-heading">
       <div className="mx-auto max-w-6xl">
-        <h2 id="action-heading" className="text-2xl font-medium tracking-tight text-foreground md:text-3xl">
+        <Reveal as="h2" id="action-heading" className="text-2xl font-medium tracking-tight text-foreground md:text-3xl">
           Take action
-        </h2>
+        </Reveal>
         <p className="mt-2 max-w-2xl text-muted-foreground">
           Three things you can do in the next five minutes.
         </p>
 
-        <div className="mt-8 grid gap-4 md:grid-cols-3">
+        <Reveal stagger delay={120} className="mt-8 grid gap-4 md:grid-cols-3">
           <Link
             to="/representatives"
-            className="group rounded-lg border border-border bg-card p-5 transition-colors hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="group lift nudge rounded-lg border border-border bg-card p-5"
           >
             <Mail className="h-5 w-5 text-primary" aria-hidden="true" />
             <h3 className="mt-4 font-medium text-foreground">Message your representative</h3>
@@ -73,7 +74,7 @@ const ActionSection = () => {
             </p>
             <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary">
               Find your rep
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </span>
           </Link>
 
@@ -81,7 +82,7 @@ const ActionSection = () => {
             href="https://www.vote.org/am-i-registered-to-vote/"
             target="_blank"
             rel="noopener noreferrer"
-            className="group rounded-lg border border-border bg-card p-5 transition-colors hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="group lift nudge rounded-lg border border-border bg-card p-5"
           >
             <Vote className="h-5 w-5 text-primary" aria-hidden="true" />
             <h3 className="mt-4 font-medium text-foreground">Check your voter registration</h3>
@@ -97,7 +98,7 @@ const ActionSection = () => {
           <button
             type="button"
             onClick={handleShare}
-            className="group rounded-lg border border-border bg-card p-5 text-left transition-colors hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="group lift nudge rounded-lg border border-border bg-card p-5 text-left"
           >
             <Share2 className="h-5 w-5 text-primary" aria-hidden="true" />
             <h3 className="mt-4 font-medium text-foreground">Share CivicCare</h3>
@@ -106,12 +107,12 @@ const ActionSection = () => {
             </p>
             <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary">
               Copy link
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </span>
           </button>
-        </div>
+        </Reveal>
 
-        <form
+        <Reveal as="form"
           onSubmit={handleSubscribe}
           className="mt-10 flex flex-col gap-3 rounded-lg border border-border bg-card p-5 sm:flex-row sm:items-end"
         >
@@ -132,7 +133,7 @@ const ActionSection = () => {
           <Button type="submit" size="lg" disabled={submitting}>
             {submitting ? "Saving…" : "Notify me"}
           </Button>
-        </form>
+        </Reveal>
       </div>
     </section>
   );

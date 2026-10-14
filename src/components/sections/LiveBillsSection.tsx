@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
+import Reveal from "@/components/motion/Reveal";
 import { useHealthBills } from "@/hooks/useCongressApi";
 
 function formatDate(iso?: string) {
@@ -14,7 +15,7 @@ const LiveBillsSection = () => {
   return (
     <section className="border-t border-border px-6 py-14 md:px-10 md:py-20" aria-labelledby="live-heading">
       <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-[1fr_2fr]">
-        <div>
+        <Reveal>
           <p className="text-sm uppercase tracking-wide text-muted-foreground">Live from Congress.gov</p>
           <h2 id="live-heading" className="mt-2 text-2xl tracking-tight text-foreground md:text-3xl">
             The latest health bills
@@ -25,8 +26,8 @@ const LiveBillsSection = () => {
           <Link to="/news" className="mt-4 inline-block text-sm text-accent hover:text-foreground">
             See all health bills
           </Link>
-        </div>
-        <ol className="divide-y divide-border border-y border-border">
+        </Reveal>
+        <ol className="divide-y divide-border border-y border-border" data-stagger>
           {loading &&
             [0, 1, 2, 3, 4].map((i) => (
               <li key={i} className="py-4">
@@ -37,7 +38,7 @@ const LiveBillsSection = () => {
           {!loading &&
             bills.map((bill) => (
               <li key={bill.id}>
-                <Link to="/news" className="group block py-4">
+                <Link to="/news" className="group block py-4 transition-[padding] duration-300 hover:pl-2">
                   <p className="text-xs text-muted-foreground">
                     {bill.type} {bill.number}
                     {bill.latestAction?.actionDate && ` · ${formatDate(bill.latestAction.actionDate)}`}

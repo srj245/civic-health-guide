@@ -21,7 +21,7 @@ function ResultCard({ result, isFavorite, onToggleFavorite }: { result: CareResu
   const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(result.address)}`;
 
   return (
-    <Card className="border-border bg-card shadow-none transition-colors hover:border-primary/40">
+    <Card className="lift border-border bg-card shadow-none">
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
@@ -239,7 +239,7 @@ const FindCareSection = () => {
               )}
 
               {!loading && results.length > 0 && (
-                <div className="space-y-3">
+                <div className="space-y-3" data-stagger>
                   <div className="flex items-center justify-between">
                     <p className="text-sm text-muted-foreground" aria-live="polite">{results.length} results{location ? ` near ${location.label}` : ""}</p>
                     <div className="flex items-center gap-1 bg-secondary rounded-lg p-1" role="group" aria-label="Results view">

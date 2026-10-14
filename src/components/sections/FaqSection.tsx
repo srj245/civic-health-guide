@@ -4,6 +4,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import Reveal from "@/components/motion/Reveal";
 
 const faqs = [
   {
@@ -32,9 +33,10 @@ const FaqSection = () => {
   return (
     <section id="faq" className="border-t border-border px-6 py-14 md:px-10 md:py-20" aria-labelledby="faq-heading">
       <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-[1fr_2fr]">
-        <h2 id="faq-heading" className="text-2xl font-medium tracking-tight text-foreground md:text-3xl">
+        <Reveal as="h2" id="faq-heading" className="text-2xl font-medium tracking-tight text-foreground md:text-3xl">
           Common questions
-        </h2>
+        </Reveal>
+        <Reveal stagger delay={100}>
         <Accordion type="single" collapsible className="divide-y divide-border border-y border-border">
           {faqs.map((faq, i) => (
             <AccordionItem key={i} value={`faq-${i}`} className="border-0">
@@ -47,6 +49,7 @@ const FaqSection = () => {
             </AccordionItem>
           ))}
         </Accordion>
+        </Reveal>
       </div>
     </section>
   );

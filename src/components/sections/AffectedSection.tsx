@@ -170,7 +170,7 @@ const AffectedSection = () => {
       <div className="mx-auto max-w-6xl">
 
         {/* Audience Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto" data-stagger>
           {audienceGroups.map((group) => (
             <Card
               key={group.id}

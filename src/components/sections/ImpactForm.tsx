@@ -153,7 +153,7 @@ const ImpactForm = ({ onSubmit }: Props) => {
           {steps.map((_, i) => (
             <div
               key={i}
-              className={`h-1.5 flex-1 rounded transition-colors ${
+              className={`bar-ease h-1.5 flex-1 rounded ${
                 i <= step ? "bg-primary" : "bg-border"
               }`}
             />

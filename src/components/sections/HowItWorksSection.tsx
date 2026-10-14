@@ -1,4 +1,5 @@
 import { Search, BookOpen, HeartHandshake } from "lucide-react";
+import Reveal from "@/components/motion/Reveal";
 
 const steps = [
   {
@@ -22,10 +23,10 @@ const HowItWorksSection = () => {
   return (
     <section id="how-it-works" className="border-t border-border px-6 py-14 md:px-10 md:py-20" aria-labelledby="how-heading">
       <div className="mx-auto max-w-6xl">
-        <h2 id="how-heading" className="text-2xl font-medium tracking-tight text-foreground md:text-3xl">
+        <Reveal as="h2" id="how-heading" className="text-2xl font-medium tracking-tight text-foreground md:text-3xl">
           How CivicCare works
-        </h2>
-        <ol className="mt-10 grid gap-10 md:grid-cols-3">
+        </Reveal>
+        <Reveal as="ol" stagger delay={100} className="mt-10 grid gap-10 md:grid-cols-3">
           {steps.map((s, i) => (
             <li key={s.title} className="flex gap-4">
               <span
@@ -43,7 +44,7 @@ const HowItWorksSection = () => {
               </div>
             </li>
           ))}
-        </ol>
+        </Reveal>
       </div>
     </section>
   );

@@ -115,7 +115,7 @@ const ChatWidget = () => {
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg transition-colors hover:bg-primary/90 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="chat-fab fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg transition-colors hover:bg-primary/90 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           aria-label="Open health policy chat"
         >
           <MessageCircle className="w-6 h-6" aria-hidden="true" />
@@ -124,7 +124,7 @@ const ChatWidget = () => {
 
       {/* Chat panel */}
       {open && (
-        <div role="dialog" aria-label="Health Policy Chat" className="fixed bottom-6 right-6 z-50 w-[380px] max-w-[calc(100vw-2rem)] h-[500px] max-h-[calc(100vh-6rem)] rounded-lg border border-border bg-background shadow-lg flex flex-col overflow-hidden">
+        <div role="dialog" aria-label="Health Policy Chat" className="chat-panel fixed bottom-6 right-6 z-50 w-[380px] max-w-[calc(100vw-2rem)] h-[500px] max-h-[calc(100vh-6rem)] rounded-lg border border-border bg-background shadow-lg flex flex-col overflow-hidden">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-border bg-primary/5">
             <div className="flex items-center gap-2">

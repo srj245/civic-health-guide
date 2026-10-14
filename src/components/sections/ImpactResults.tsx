@@ -82,7 +82,7 @@ const ImpactResults = ({ profile, results, sources = [], loading, error, onReset
       )}
 
       {!loading && !error && results.length > 0 && (
-        <div className="space-y-4">
+        <div className="space-y-4" data-stagger>
           {results.map((result, i) => {
             const config = relevanceConfig[result.relevance];
             const Icon = config.icon;
