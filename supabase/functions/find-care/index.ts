@@ -76,18 +76,44 @@ Deno.serve(async (req) => {
     let query = category ? categoryQueries[category] : "health clinic";
     if (lowCostOnly) query += " free low cost sliding scale";
     if (includeTelehealth) query += " telehealth";
-    query += ` near ${zipCode}`;
+
+    const gwHeaders = {
+      Authorization: `Bearer ${LOVABLE_API_KEY}`,
+      "X-Connection-Api-Key": GOOGLE_MAPS_API_KEY,
+    };
+
+    // 1. Resolve the ZIP/city to coordinates so results stay in that area
+    const isZip = /^\d{5}(-\d{4})?$/.test(zipCode);
+    const geoParams = new URLSearchParams({
+      address: zipCode,
+      components: isZip ? `country:US|postal_code:${zipCode.slice(0, 5)}` : "country:US",
+    });
+    const geoRes = await fetch(`${GATEWAY_URL}/maps/api/geocode/json?${geoParams}`, { headers: gwHeaders });
+    if (!geoRes.ok) {
+      const details = await geoRes.text().catch(() => "");
+      return fail(502, "We couldn't look up that location right now. Please try again shortly.", `Geocode failed [${geoRes.status}]: ${details}`);
+    }
+    const geo = await geoRes.json();
+    const loc = geo?.results?.[0]?.geometry?.location;
+    if (!loc || typeof loc.lat !== "number") {
+      return json({ error: "We couldn't find that ZIP code or city. Please check it and try again.", code: "location_not_found" }, 400);
+    }
+    const center = { latitude: loc.lat, longitude: loc.lng };
+    const RADIUS_M = 25_000;
 
     const response = await fetch(`${GATEWAY_URL}/places/v1/places:searchText`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "X-Connection-Api-Key": GOOGLE_MAPS_API_KEY,
+        ...gwHeaders,
         "Content-Type": "application/json",
         "X-Goog-FieldMask":
           "places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount,places.currentOpeningHours.openNow,places.types",
       },
-      body: JSON.stringify({ textQuery: query, pageSize: 10 }),
+      body: JSON.stringify({
+        textQuery: query,
+        pageSize: 20,
+        locationBias: { circle: { center, radius: RADIUS_M } },
+      }),
     });
 
     if (!response.ok) {
@@ -99,18 +125,31 @@ Deno.serve(async (req) => {
       );
     }
 
+    const distKm = (lat: number, lng: number) => {
+      const R = 6371, toRad = (d: number) => (d * Math.PI) / 180;
+      const dLat = toRad(lat - center.latitude), dLng = toRad(lng - center.longitude);
+      const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(center.latitude)) * Math.cos(toRad(lat)) * Math.sin(dLng / 2) ** 2;
+      return 2 * R * Math.asin(Math.sqrt(a));
+    };
+
     const data = await response.json();
-    const results = ((data.places || []) as PlaceResult[]).map((p) => ({
-      id: p.id,
-      name: p.displayName?.text ?? "Unnamed location",
-      address: p.formattedAddress ?? "",
-      rating: p.rating ?? null,
-      totalRatings: p.userRatingCount ?? 0,
-      isOpen: p.currentOpeningHours?.openNow ?? null,
-      lat: p.location?.latitude,
-      lng: p.location?.longitude,
-      types: p.types || [],
-    }));
+    const results = ((data.places || []) as PlaceResult[])
+      .filter((p) => typeof p.location?.latitude === "number" && typeof p.location?.longitude === "number")
+      .map((p) => ({ p, d: distKm(p.location!.latitude!, p.location!.longitude!) }))
+      .filter(({ d }) => d <= 40)
+      .sort((a, b) => a.d - b.d)
+      .slice(0, 10)
+      .map(({ p }) => ({
+        id: p.id,
+        name: p.displayName?.text ?? "Unnamed location",
+        address: p.formattedAddress ?? "",
+        rating: p.rating ?? null,
+        totalRatings: p.userRatingCount ?? 0,
+        isOpen: p.currentOpeningHours?.openNow ?? null,
+        lat: p.location?.latitude,
+        lng: p.location?.longitude,
+        types: p.types || [],
+      }));
 
     return json({ results, query });
   } catch (error) {
