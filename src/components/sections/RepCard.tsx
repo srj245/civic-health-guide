@@ -41,7 +41,7 @@ const RepCard = ({ rep, onShowBills }: RepCardProps) => {
   };
 
   return (
-    <article data-spotlight className="lift rounded-lg border border-border bg-card p-4" aria-label={rep.name}>
+    <article className="lift rounded-lg border border-border bg-card p-4" aria-label={rep.name}>
       <div className="flex items-start gap-3">
         {rep.depiction ? (
           <img

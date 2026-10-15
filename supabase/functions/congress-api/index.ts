@@ -38,6 +38,38 @@ function slimBill(bill: CongressBill) {
   };
 }
 
+const HEALTH_PAGES = 4; // 4 x 250 = the 1,000 most recently updated bills
+const HEALTH_TTL_MS = 15 * 60 * 1000;
+const healthCache = new Map<number, { at: number; bills: ReturnType<typeof slimBill>[] }>();
+
+async function getHealthBills(congress: number, apiKey: string) {
+  const cached = healthCache.get(congress);
+  if (cached && Date.now() - cached.at < HEALTH_TTL_MS) return cached.bills;
+
+  const pages = await Promise.all(
+    Array.from({ length: HEALTH_PAGES }, (_, i) =>
+      congressFetch(`/bill/${congress}`, apiKey, {
+        limit: "250",
+        offset: String(i * 250),
+        sort: "updateDate desc",
+      }).catch(() => ({ bills: [] })),
+    ),
+  );
+  const seen = new Set<string>();
+  const health: ReturnType<typeof slimBill>[] = [];
+  for (const page of pages) {
+    for (const bill of (page.bills ?? []) as CongressBill[]) {
+      if (!isHealthBill(bill.title)) continue;
+      const slim = slimBill(bill);
+      if (seen.has(slim.id)) continue;
+      seen.add(slim.id);
+      health.push(slim);
+    }
+  }
+  if (health.length > 0) healthCache.set(congress, { at: Date.now(), bills: health });
+  return health;
+}
+
 async function congressFetch(path: string, apiKey: string, params: Record<string, string> = {}) {
   const url = new URL(`${CONGRESS_API_BASE}${path}`);
   url.searchParams.set("api_key", apiKey);
@@ -102,21 +134,11 @@ serve(async (req) => {
       }
 
       case "health-bills": {
-        const data = await congressFetch(`/bill/${congress}`, apiKey, {
-          limit: "250",
-          sort: "updateDate desc",
-        });
-        const seen = new Set<string>();
-        const health: ReturnType<typeof slimBill>[] = [];
-        for (const bill of (data.bills ?? []) as CongressBill[]) {
-          if (health.length >= limit) break;
-          if (!isHealthBill(bill.title)) continue;
-          const slim = slimBill(bill);
-          if (seen.has(slim.id)) continue;
-          seen.add(slim.id);
-          health.push(slim);
-        }
-        return json({ bills: health });
+        // Congress.gov returns at most 250 bills per page. Health bills are a
+        // small share of recent activity, so we page through up to 1,000 and
+        // cache the filtered list per isolate for 15 minutes.
+        const bills = await getHealthBills(congress, apiKey);
+        return json({ bills: bills.slice(0, limit), total: bills.length, fetchedAt: healthCache.get(congress)?.at ?? Date.now() });
       }
 
       case "subjects": {

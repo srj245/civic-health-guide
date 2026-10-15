@@ -1,16 +1,29 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { RefreshCw } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import Reveal from "@/components/motion/Reveal";
 import { useHealthBills } from "@/hooks/useCongressApi";
+import { timeAgo } from "@/lib/time";
 
 function formatDate(iso?: string) {
   if (!iso) return "";
   return new Date(`${iso.slice(0, 10)}T12:00:00`).toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
+/** Re-renders once a minute so "updated N min ago" stays honest. */
+function useTick(ms = 60_000) {
+  const [, setN] = useState(0);
+  useEffect(() => {
+    const t = window.setInterval(() => setN((n) => n + 1), ms);
+    return () => window.clearInterval(t);
+  }, [ms]);
+}
+
 /** The latest health bills from Congress.gov, as a hairline list. */
 const LiveBillsSection = () => {
-  const { bills, loading } = useHealthBills(5);
+  const { bills, total, loading, refreshing, error, updatedAt, refetch } = useHealthBills(6);
+  useTick();
 
   return (
     <section className="border-t border-border px-6 py-14 md:px-10 md:py-20" aria-labelledby="live-heading">
@@ -21,15 +34,30 @@ const LiveBillsSection = () => {
             The latest health bills
           </h2>
           <p className="mt-3 text-sm text-muted-foreground">
-            Fetched each time you open the page. Open one for the plain-English version.
+            {total > 0
+              ? `${total} health bills among the 1,000 most recently updated in Congress. Refreshes every 10 minutes.`
+              : "Pulled from the 1,000 most recently updated bills in Congress."}
           </p>
+          <div className="mt-4 flex items-center gap-3 text-xs text-muted-foreground">
+            {updatedAt && <span aria-live="polite">Updated {timeAgo(updatedAt)}</span>}
+            <button
+              type="button"
+              onClick={() => refetch()}
+              disabled={refreshing}
+              className="inline-flex items-center gap-1 text-accent hover:text-foreground disabled:opacity-60"
+              aria-label="Refresh bills"
+            >
+              <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`} aria-hidden="true" />
+              {refreshing ? "Refreshing" : "Refresh"}
+            </button>
+          </div>
           <Link to="/news" className="mt-4 inline-block text-sm text-accent hover:text-foreground">
             See all health bills
           </Link>
         </Reveal>
         <ol className="divide-y divide-border border-y border-border" data-stagger>
           {loading &&
-            [0, 1, 2, 3, 4].map((i) => (
+            [0, 1, 2, 3, 4, 5].map((i) => (
               <li key={i} className="py-4">
                 <Skeleton className="h-3 w-20" />
                 <Skeleton className="mt-2 h-4 w-4/5" />
@@ -47,7 +75,7 @@ const LiveBillsSection = () => {
                 </Link>
               </li>
             ))}
-          {!loading && bills.length === 0 && (
+          {!loading && (error || bills.length === 0) && (
             <li className="py-6 text-sm text-muted-foreground">Couldn&apos;t reach Congress.gov right now.</li>
           )}
         </ol>

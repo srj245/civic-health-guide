@@ -1,64 +1,39 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import PageHero from "@/components/sections/PageHero";
 import RepCard from "@/components/sections/RepCard";
 import RepDetailModal from "@/components/sections/RepDetailModal";
 import { usePageTitle } from "@/hooks/usePageTitle";
-import {
-  STATE_NAMES,
-  US_STATES,
-  isSenator,
-  type DistrictLocation,
-  type Representative,
-  type RepLookupResponse,
-} from "@/lib/reps";
+import { STATE_NAMES, US_STATES, isSenator, type Representative } from "@/lib/reps";
+import { useRepLookup } from "@/hooks/useRepLookup";
 
 type Mode = "zip" | "state";
 
 const Representatives = () => {
   usePageTitle("Find Your Representatives", "Look up your congressional representatives and send them a message about health policy.");
+  const [params] = useSearchParams();
   const [mode, setMode] = useState<Mode>("zip");
-  const [zip, setZip] = useState("");
+  const [zip, setZip] = useState(() => params.get("zip") ?? "");
   const [state, setState] = useState("");
-  const [members, setMembers] = useState<Representative[]>([]);
-  const [location, setLocation] = useState<DistrictLocation | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [searched, setSearched] = useState(false);
   const [selectedRep, setSelectedRep] = useState<Representative | null>(null);
+  const { members, location, loading, error, searched, lookup } = useRepLookup();
+  const run = lookup;
 
-  const run = async (body: { zip: string } | { state: string }) => {
-    setLoading(true);
-    setError(null);
-    setSearched(true);
-    setLocation(null);
-    try {
-      const { data, error: fnError } = await supabase.functions.invoke<RepLookupResponse>("find-representatives", { body });
-      if (fnError) throw new Error("We couldn't reach the representative directory. Please try again.");
-      if (data?.error) throw new Error(data.error);
-      setMembers(data?.members ?? []);
-      setLocation(data?.location ?? null);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Something went wrong.");
-      setMembers([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    const z = params.get("zip");
+    if (z && /^\d{5}$/.test(z)) lookup({ zip: z });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (mode === "zip") {
-      if (!/^\d{5}$/.test(zip)) {
-        setError("Enter a 5-digit ZIP code.");
-        return;
-      }
-      run({ zip });
+      run({ zip }); // the hook validates the ZIP and sets the error
     } else if (state) {
       run({ state });
     }

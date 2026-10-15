@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-interface Bill {
+export interface Bill {
   id: string;
   congress: number;
   type: string;
@@ -15,7 +16,7 @@ interface Bill {
   url?: string;
 }
 
-interface BillDetail extends Bill {
+export interface BillDetail extends Bill {
   summary?: string;
   sponsors?: Array<{
     firstName: string;
@@ -28,76 +29,57 @@ interface BillDetail extends Bill {
   policyArea?: { name: string };
 }
 
-interface CongressApiResponse {
+interface HealthBillsResponse {
   bills?: Bill[];
-  bill?: BillDetail;
-  subjects?: string[];
+  total?: number;
+  fetchedAt?: number;
   error?: string;
 }
 
-export function useRecentBills(limit = 10) {
-  const [bills, setBills] = useState<Bill[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function fetchBills() {
-      try {
-        setLoading(true);
-        const { data, error: fnError } = await supabase.functions.invoke<CongressApiResponse>(
-          'congress-api',
-          { body: { action: 'recent-bills', limit } }
-        );
-
-        if (fnError) throw new Error(fnError.message);
-        if (data?.error) throw new Error(data.error);
-        
-        setBills(data?.bills || []);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch bills');
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchBills();
-  }, [limit]);
-
-  return { bills, loading, error, refetch: () => {} };
+interface BillDetailResponse {
+  bill?: BillDetail;
+  error?: string;
 }
 
+const HEALTH_BILLS_LIMIT = 100;
+const STALE_MS = 10 * 60 * 1000;
+
+async function fetchHealthBills(): Promise<HealthBillsResponse> {
+  const { data, error } = await supabase.functions.invoke<HealthBillsResponse>("congress-api", {
+    body: { action: "health-bills", limit: HEALTH_BILLS_LIMIT },
+  });
+  if (error) throw new Error("Couldn't reach Congress.gov");
+  if (data?.error) throw new Error(data.error);
+  return data ?? {};
+}
+
+/**
+ * Recent health bills, shared by every component on the page through one
+ * React Query cache entry. Refetches in the background every 10 minutes while
+ * the tab is visible and on window focus, so the list stays current without
+ * each component firing its own request.
+ */
 export function useHealthBills(limit = 10) {
-  const [bills, setBills] = useState<Bill[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function fetchBills() {
-      try {
-        setLoading(true);
-        const { data, error: fnError } = await supabase.functions.invoke<CongressApiResponse>(
-          'congress-api',
-          { body: { action: 'health-bills', limit } }
-        );
-
-        if (fnError) throw new Error(fnError.message);
-        if (data?.error) throw new Error(data.error);
-        
-        setBills(data?.bills || []);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch health bills');
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchBills();
-  }, [limit]);
-
-  return { bills, loading, error };
+  const query = useQuery({
+    queryKey: ["health-bills"],
+    queryFn: fetchHealthBills,
+    staleTime: STALE_MS,
+    refetchInterval: STALE_MS,
+    refetchOnWindowFocus: true,
+  });
+  const all = query.data?.bills ?? [];
+  return {
+    bills: all.slice(0, limit),
+    total: query.data?.total ?? all.length,
+    loading: query.isPending,
+    refreshing: query.isFetching && !query.isPending,
+    error: query.error ? query.error.message : null,
+    updatedAt: query.dataUpdatedAt || null,
+    refetch: () => query.refetch(),
+  };
 }
 
-export function useBillDetails(billId: string | null, congress = '119') {
+export function useBillDetails(billId: string | null, congress = "119") {
   const [bill, setBill] = useState<BillDetail | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -107,30 +89,28 @@ export function useBillDetails(billId: string | null, congress = '119') {
       setBill(null);
       return;
     }
-
+    let cancelled = false;
     async function fetchBill() {
       try {
         setLoading(true);
-        const { data, error: fnError } = await supabase.functions.invoke<CongressApiResponse>(
-          'congress-api',
-          { body: { action: 'bill-details', billId, congress } }
-        );
-
+        setError(null);
+        const { data, error: fnError } = await supabase.functions.invoke<BillDetailResponse>("congress-api", {
+          body: { action: "bill-details", billId, congress },
+        });
         if (fnError) throw new Error(fnError.message);
         if (data?.error) throw new Error(data.error);
-        
-        setBill(data?.bill || null);
+        if (!cancelled) setBill(data?.bill || null);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch bill details');
+        if (!cancelled) setError(err instanceof Error ? err.message : "Failed to fetch bill details");
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }
-
     fetchBill();
+    return () => {
+      cancelled = true;
+    };
   }, [billId, congress]);
 
   return { bill, loading, error };
 }
-
-export type { Bill, BillDetail };

@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import Reveal from "@/components/motion/Reveal";
 import HeroSection from "@/components/sections/HeroSection";
 import LiveBillsSection from "@/components/sections/LiveBillsSection";
-import DistrictDashboard from "@/components/sections/DistrictDashboard";
 import HowItWorksSection from "@/components/sections/HowItWorksSection";
 import FaqSection from "@/components/sections/FaqSection";
 import ActionSection from "@/components/sections/ActionSection";
@@ -33,7 +32,7 @@ const Index = () => {
               <Link
                 key={action.title}
                 to={action.href}
-                data-spotlight
+               
                 className="group nudge-down bg-background p-6 transition-colors duration-300 hover:bg-secondary"
               >
                 <h3 className="text-lg text-foreground">{action.title}</h3>
@@ -50,7 +49,6 @@ const Index = () => {
         </div>
       </section>
 
-      <DistrictDashboard />
       <HowItWorksSection />
       <ActionSection />
       <FaqSection />

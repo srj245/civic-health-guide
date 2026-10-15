@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Clock, ArrowRight, FileText, Bookmark, Search } from "lucide-react";
+import { Clock, ArrowRight, FileText, Bookmark, Search, RefreshCw } from "lucide-react";
+import { timeAgo } from "@/lib/time";
 import { Input } from "@/components/ui/input";
 import { useHealthBills, type Bill } from "@/hooks/useCongressApi";
 import { useTrackedBills } from "@/hooks/useTrackedBills";
@@ -29,7 +30,7 @@ function getBillCategory(title: string): string {
 }
 
 const NewsSection = () => {
-  const { bills: allBills, loading, error } = useHealthBills(24);
+  const { bills: allBills, total, loading, refreshing, error, updatedAt, refetch } = useHealthBills(100);
   const [query, setQuery] = useState("");
   const q = query.trim().toLowerCase();
   const bills = q
@@ -83,8 +84,13 @@ const NewsSection = () => {
             />
           </div>
           {!loading && !error && (
-            <p className="mt-2 text-xs text-muted-foreground" aria-live="polite">
-              {q ? `${bills.length} of ${allBills.length} bills match` : `${allBills.length} recent health bills from Congress.gov`}
+            <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground" aria-live="polite">
+              <span>{q ? `${bills.length} of ${allBills.length} bills match` : `${total} health bills from the 1,000 most recently updated in Congress`}</span>
+              {updatedAt && <span>· Updated {timeAgo(updatedAt)}</span>}
+              <button type="button" onClick={() => refetch()} disabled={refreshing} className="inline-flex items-center gap-1 text-accent hover:text-foreground disabled:opacity-60" aria-label="Refresh bills">
+                <RefreshCw className={`h-3 w-3 ${refreshing ? "animate-spin" : ""}`} aria-hidden="true" />
+                {refreshing ? "Refreshing" : "Refresh"}
+              </button>
             </p>
           )}
         </div>
@@ -127,7 +133,7 @@ const NewsSection = () => {
                 key={bill.id}
                 role="button"
                 tabIndex={0}
-                data-spotlight className="bill-card group lift cursor-pointer border-border bg-card"
+                className="group lift cursor-pointer border-border bg-card"
                 onClick={() => handleReadMore(bill)}
                 onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleReadMore(bill); } }}
               >
@@ -136,7 +142,7 @@ const NewsSection = () => {
                     <Badge variant="outline" className="text-xs font-medium">
                       {getBillCategory(bill.title)}
                     </Badge>
-                    <span className="bill-id text-xs text-muted-foreground font-mono">
+                    <span className="text-xs text-muted-foreground font-mono">
                       {bill.type.toUpperCase()}{bill.number}
                     </span>
                   </div>
