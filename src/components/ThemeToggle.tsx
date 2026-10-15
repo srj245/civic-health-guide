@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Moon, Sun } from "lucide-react";
 
-const STORAGE_KEY = "theme";
+const STORAGE_KEY = "civiccare-theme";
 
 /** Dark is the default. The `light` class on <html> switches palettes. */
 const ThemeToggle = () => {
