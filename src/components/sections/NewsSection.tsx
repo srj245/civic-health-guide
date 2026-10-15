@@ -84,7 +84,7 @@ const NewsSection = () => {
         </div>
         {!loading && !error && (
           <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground" aria-live="polite">
-            <span>{q ? `${bills.length} of ${allBills.length} bills match` : `${total} health bills from the 1,000 most recently updated in Congress`}</span>
+            <span>{q ? `${bills.length} of ${allBills.length} bills match` : `${total} health bills from the 2,000 most recently updated in Congress`}</span>
             {updatedAt && <span>· Updated {timeAgo(updatedAt)}</span>}
             <Button type="button" variant="ghost" size="sm" onClick={() => refetch()} disabled={refreshing} aria-label="Refresh bills">
               <RefreshCw className={refreshing ? "animate-spin" : ""} aria-hidden="true" />

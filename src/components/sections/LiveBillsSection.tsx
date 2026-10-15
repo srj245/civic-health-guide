@@ -38,8 +38,8 @@ const LiveBillsSection = () => {
           </h2>
           <p className="mt-3 text-sm text-muted-foreground">
             {total > 0
-              ? `${total} health bills among the 1,000 most recently updated in Congress. Refreshes every 10 minutes.`
-              : "Pulled from the 1,000 most recently updated bills in Congress."}
+              ? `${total} health bills among the 2,000 most recently updated in Congress. Refreshes every 10 minutes.`
+              : "Pulled from the 2,000 most recently updated bills in Congress."}
           </p>
           <div className="mt-4 flex items-center gap-3 text-xs text-muted-foreground">
             {updatedAt && <span aria-live="polite">Updated {timeAgo(updatedAt)}</span>}

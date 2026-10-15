@@ -63,11 +63,14 @@ interface AudienceBillsModalProps {
 const AudienceBillsModal = ({ group, open, onOpenChange, bills, loading }: AudienceBillsModalProps) => {
   if (!group) return null;
 
-  // Filter bills relevant to this group
-  const relevantBills = bills.filter(bill => {
-    const titleLower = bill.title.toLowerCase();
-    return group.searchTerms.some(term => titleLower.includes(term));
-  }).slice(0, 5);
+  // Bills whose titles name this group. Whole-word so "senior" doesn't match "seniority".
+  const escaped = group.searchTerms.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const pattern = new RegExp(`\\b(?:${escaped.join("|")})s?\\b`, "i");
+  const named = bills.filter((bill) => pattern.test(bill.title));
+  // Health bills rarely name an audience in the title, so fall back to the latest
+  // health bills rather than show an empty dialog.
+  const usingFallback = named.length < 3;
+  const relevantBills = (usingFallback ? [...named, ...bills.filter((b) => !named.includes(b))] : named).slice(0, 5);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -91,11 +94,17 @@ const AudienceBillsModal = ({ group, open, onOpenChange, bills, loading }: Audie
             </div>
           )}
 
+          {!loading && usingFallback && relevantBills.length > 0 && (
+            <p className="text-sm text-muted-foreground">
+              Few current bills name {groupNoun(group)} in the title, so these are the latest health bills that still apply.
+            </p>
+          )}
+
           {!loading && relevantBills.length === 0 && (
             <EmptyState
               compact
               title="No matching bills right now"
-              body="Browse all health bills on the News page for the latest updates."
+              body="Open the bills page for the latest health legislation."
               action={
                 <Button asChild variant="outline">
                   <Link to="/news" onClick={() => onOpenChange(false)}>Browse health bills</Link>

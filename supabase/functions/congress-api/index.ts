@@ -38,7 +38,7 @@ function slimBill(bill: CongressBill) {
   };
 }
 
-const HEALTH_PAGES = 4; // 4 x 250 = the 1,000 most recently updated bills
+const HEALTH_PAGES = 8; // 8 x 250 = the 2,000 most recently updated bills
 const HEALTH_TTL_MS = 15 * 60 * 1000;
 const healthCache = new Map<number, { at: number; bills: ReturnType<typeof slimBill>[] }>();
 
