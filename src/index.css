@@ -27,7 +27,7 @@
     --secondary-foreground: 0 0% 100%;
 
     --muted: 227 45% 13%;
-    --muted-foreground: 224 60% 84%;
+    --muted-foreground: 224 50% 86%;
 
     --accent: 206 100% 92%;
     --accent-foreground: 0 0% 4%;
@@ -74,7 +74,7 @@
     --secondary-foreground: 215 25% 12%;
 
     --muted: 214 12% 93%;
-    --muted-foreground: 215 12% 40%;
+    --muted-foreground: 215 14% 36%;
 
     --accent: 217 72% 24%;
     --accent-foreground: 0 0% 100%;
@@ -583,6 +583,12 @@ html[data-js] .skeleton-shimmer {
 html[data-js] .chat-panel {
   animation: panel-in 0.45s var(--ease-expo) both;
   transform-origin: bottom right;
+}
+.chat-panel {
+  background: hsl(var(--card));
+}
+.chat-fab {
+  border: 1px solid hsl(var(--border));
 }
 .chat-fab {
   position: relative;
