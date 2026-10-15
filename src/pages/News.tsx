@@ -3,7 +3,7 @@ import NewsSection from "@/components/sections/NewsSection";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 const News = () => {
-  usePageTitle("Health Legislation Updates", "Track real-time health-related bills from Congress, explained in plain English.");
+  usePageTitle("Health bills", "Track real-time health-related bills from Congress, explained in plain English.");
 
   return (
     <div className="bg-background">

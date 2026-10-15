@@ -100,7 +100,7 @@ const ImpactResults = ({ profile, results, sources = [], loading, error, onReset
                         <a
                           href={source.url}
                           target="_blank"
-                          rel="noreferrer"
+                          rel="noopener noreferrer"
                           className="ml-2 inline-flex items-center gap-1 text-accent underline underline-offset-2 hover:text-foreground"
                         >
                           Congress.gov <ExternalLink className="h-3 w-3" aria-hidden="true" />

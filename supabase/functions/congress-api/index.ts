@@ -127,7 +127,7 @@ serve(async (req) => {
           );
           summary = summaries.summaries?.[0]?.text ?? null;
         } catch (e) {
-          console.log("No summary available:", e instanceof Error ? e.message : e);
+          void e; // a bill without a summary is normal
         }
 
         return json({ bill: { ...(detail.bill ?? {}), summary } });

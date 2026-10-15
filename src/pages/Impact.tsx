@@ -34,7 +34,7 @@ export interface ImpactSource {
 }
 
 const Impact = () => {
-  usePageTitle("Impact Calculator", "See how current health bills affect you personally.");
+  usePageTitle("Impact calculator", "See how current health bills affect you personally.");
   const [profile, setProfile] = useState<ImpactProfile | null>(null);
   const [results, setResults] = useState<ImpactResult[]>([]);
   const [sources, setSources] = useState<ImpactSource[]>([]);

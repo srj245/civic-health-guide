@@ -1,5 +1,4 @@
 import { Link, useLocation } from "react-router-dom";
-import { useEffect } from "react";
 import PageHero from "@/components/sections/PageHero";
 import Section from "@/components/layout/Section";
 import { Button } from "@/components/ui/button";
@@ -8,10 +7,6 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 const NotFound = () => {
   const location = useLocation();
   usePageTitle("Page not found", "That page does not exist.");
-
-  useEffect(() => {
-    console.error("404: no route for", location.pathname);
-  }, [location.pathname]);
 
   return (
     <div>

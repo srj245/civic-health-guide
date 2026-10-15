@@ -1,17 +1,12 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Reveal from "@/components/motion/Reveal";
 import Section from "@/components/layout/Section";
-import { Input } from "@/components/ui/input";
-import { FieldLabel, IconTile, SectionHeading, Surface } from "@/components/ui/primitives";
+import { IconTile, SectionHeading, Surface } from "@/components/ui/primitives";
 import { Mail, Vote, Share2, ArrowRight, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 
 const ActionSection = () => {
-  const [email, setEmail] = useState("");
-  const [submitting, setSubmitting] = useState(false);
   const { toast } = useToast();
 
   const handleShare = async () => {
@@ -29,29 +24,6 @@ const ActionSection = () => {
     } else {
       await navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`);
       toast({ title: "Link copied", description: "Share it with friends and family." });
-    }
-  };
-
-  const handleSubscribe = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const value = email.trim().toLowerCase();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-      toast({ title: "Please enter a valid email address", variant: "destructive" });
-      return;
-    }
-    setSubmitting(true);
-    try {
-      const { error } = await supabase.from("newsletter_subscribers").insert({ email: value });
-      if (error && error.code !== "23505") throw error;
-      toast({
-        title: error ? "You're already on the list" : "You're on the list",
-        description: "We'll email you when CivicCare updates launch.",
-      });
-      setEmail("");
-    } catch {
-      toast({ title: "Something went wrong", description: "Please try again later.", variant: "destructive" });
-    } finally {
-      setSubmitting(false);
     }
   };
 
@@ -106,26 +78,6 @@ const ActionSection = () => {
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </span>
           </Surface>
-        </Reveal>
-
-        <Reveal as="form"
-          onSubmit={handleSubscribe}
-          className="mt-10 flex flex-col gap-3 rounded-md border border-border bg-card p-5 sm:flex-row sm:items-end"
-        >
-          <div className="flex-1">
-            <FieldLabel htmlFor="newsletter-email">Get notified when new features launch</FieldLabel>
-            <Input
-              id="newsletter-email"
-              type="email"
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-            />
-          </div>
-          <Button type="submit" size="lg" disabled={submitting}>
-            {submitting ? "Saving…" : "Notify me"}
-          </Button>
         </Reveal>
       </div>
     </Section>

@@ -19,13 +19,13 @@ import { useRepLookup } from "@/hooks/useRepLookup";
 type Mode = "zip" | "state";
 
 const Representatives = () => {
-  usePageTitle("Find Your Representatives", "Look up your congressional representatives and send them a message about health policy.");
+  usePageTitle("Your representatives", "Look up your congressional representatives and send them a message about health policy.");
   const [params] = useSearchParams();
   const [mode, setMode] = useState<Mode>("zip");
   const [zip, setZip] = useState(() => params.get("zip") ?? "");
   const [state, setState] = useState("");
   const [selectedRep, setSelectedRep] = useState<Representative | null>(null);
-  const { members, location, loading, error, searched, lookup } = useRepLookup();
+  const { members, location, unresolved, loading, error, searched, lookup } = useRepLookup();
   const run = lookup;
 
   useEffect(() => {
@@ -130,6 +130,11 @@ const Representatives = () => {
                 {location.city ? `${location.city}, ` : ""}
                 {STATE_NAMES[location.state] ?? location.state}
                 {location.district ? ` · District ${location.districtLabel}` : ""}
+              </p>
+            )}
+            {unresolved && (
+              <p className="-mt-6 text-sm text-muted-foreground">
+                We found your state but couldn&apos;t pin the district for this ZIP. Showing your senators.
               </p>
             )}
             {house.length > 0 && (

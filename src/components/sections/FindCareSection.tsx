@@ -1,4 +1,5 @@
 import { useState, type KeyboardEvent } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MapPin, Stethoscope, Brain, Pill, Heart, DollarSign, Phone, ArrowRight, Star, Navigation, AlertCircle, Map, List, Bookmark } from "lucide-react";
@@ -193,8 +194,16 @@ const FindCareSection = () => {
                 <span className="text-sm text-muted-foreground"><Phone className="mr-1 inline h-4 w-4" aria-hidden="true" />Include telehealth options</span>
               </label>
             </div>
+            {!user && (
+              <p className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-md border border-border bg-secondary/40 px-3 py-2 text-sm text-muted-foreground">
+                <span>Searching needs a free account, so the map service isn&apos;t an open proxy.</span>
+                <Button asChild variant="outline" size="sm">
+                  <Link to="/auth">Sign in</Link>
+                </Button>
+              </p>
+            )}
             <Button size="lg" className="w-full" onClick={handleSearch} disabled={loading}>
-              {loading ? "Searching..." : "Search for care"}
+              {loading ? "Searching…" : "Search for care"}
             </Button>
           </Surface>
 

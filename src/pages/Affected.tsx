@@ -4,7 +4,7 @@ import Section from "@/components/layout/Section";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 const Affected = () => {
-  usePageTitle("Who's Affected", "See how healthcare legislation impacts students, families, workers, and seniors.");
+  usePageTitle("Who's affected", "See how healthcare legislation impacts students, families, workers, and seniors.");
 
   return (
     <div className="bg-background">
