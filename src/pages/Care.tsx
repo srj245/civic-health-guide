@@ -3,7 +3,7 @@ import FindCareSection from "@/components/sections/FindCareSection";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 const Care = () => {
-  usePageTitle("Find Care Near You", "Discover clinics, mental health services, and low-cost care options in your area.");
+  usePageTitle("Find care near you", "Discover clinics, mental health services, and low-cost care options in your area.");
 
   return (
     <div className="bg-background">

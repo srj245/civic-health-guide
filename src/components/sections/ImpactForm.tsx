@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Eyebrow, Surface } from "@/components/ui/primitives";
 import { ArrowRight, ArrowLeft } from "lucide-react";
 import type { ImpactProfile } from "@/pages/Impact";
 
@@ -24,6 +23,12 @@ const US_STATES = [
   "NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT",
   "VA","WA","WV","WI","WY"
 ];
+
+/** One selectable option style for every step: selected = foreground border on secondary. */
+const optionClass = (selected: boolean) =>
+  `rounded-md border p-4 text-sm text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+    selected ? "border-foreground bg-secondary" : "border-border hover:bg-secondary"
+  }`;
 
 interface Props {
   onSubmit: (profile: ImpactProfile) => void;
@@ -64,11 +69,7 @@ const ImpactForm = ({ onSubmit }: Props) => {
               type="button"
               aria-pressed={ageRange === a}
               onClick={() => setAgeRange(a)}
-              className={`p-4 rounded-lg border text-center font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-                ageRange === a
-                  ? "border-primary bg-primary/10 text-primary"
-                  : "border-border hover:border-primary/40 text-foreground"
-              }`}
+              className={`${optionClass(ageRange === a)} text-center`}
             >
               {a}
             </button>
@@ -86,11 +87,7 @@ const ImpactForm = ({ onSubmit }: Props) => {
               type="button"
               aria-pressed={insuranceType === t}
               onClick={() => setInsuranceType(t)}
-              className={`p-4 rounded-lg border text-center text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-                insuranceType === t
-                  ? "border-primary bg-primary/10 text-primary"
-                  : "border-border hover:border-primary/40 text-foreground"
-              }`}
+              className={`${optionClass(insuranceType === t)} text-center`}
             >
               {t}
             </button>
@@ -108,34 +105,26 @@ const ImpactForm = ({ onSubmit }: Props) => {
               type="button"
               aria-pressed={concerns.includes(c)}
               onClick={() => toggleConcern(c)}
-              className={`px-3 py-2 rounded-lg border text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-                concerns.includes(c)
-                  ? "border-primary bg-primary/10 text-primary"
-                  : "border-border hover:border-primary/40 text-foreground"
-              }`}
+              className={`${optionClass(concerns.includes(c))} px-3 py-2`}
             >
               {c}
             </button>
           ))}
-          <p className="w-full text-xs text-muted-foreground mt-1">Select all that apply</p>
+          <p className="mt-1 w-full text-xs text-muted-foreground">Select all that apply</p>
         </div>
       ),
     },
     {
       title: "What state do you live in?",
       content: (
-        <div className="grid grid-cols-5 sm:grid-cols-10 gap-2">
+        <div className="grid grid-cols-5 gap-2 sm:grid-cols-8 md:grid-cols-10">
           {US_STATES.map((s) => (
             <button
               key={s}
               type="button"
               aria-pressed={state === s}
               onClick={() => setState(s)}
-              className={`p-2 rounded-lg border text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-                state === s
-                  ? "border-primary bg-primary/10 text-primary"
-                  : "border-border hover:border-primary/40 text-foreground"
-              }`}
+              className={`${optionClass(state === s)} min-h-10 p-2.5 text-center text-xs`}
             >
               {s}
             </button>
@@ -146,39 +135,36 @@ const ImpactForm = ({ onSubmit }: Props) => {
   ];
 
   return (
-    <Card className="border-border bg-card shadow-none">
-      <CardContent className="p-6 md:p-8">
-        {/* Progress */}
-        <div className="flex items-center gap-2 mb-6" role="progressbar" aria-valuemin={1} aria-valuemax={steps.length} aria-valuenow={step + 1} aria-label="Form progress">
-          {steps.map((_, i) => (
-            <div
-              key={i}
-              className={`bar-ease h-1.5 flex-1 rounded ${
-                i <= step ? "bg-primary" : "bg-border"
-              }`}
-            />
-          ))}
-        </div>
+    <Surface padding="lg">
+      <div
+        className="mb-6 flex items-center gap-2"
+        role="progressbar"
+        aria-valuemin={1}
+        aria-valuemax={steps.length}
+        aria-valuenow={step + 1}
+        aria-label="Form progress"
+      >
+        {steps.map((_, i) => (
+          <div key={i} className={`bar-ease h-1.5 flex-1 rounded ${i <= step ? "bg-foreground" : "bg-border"}`} />
+        ))}
+      </div>
 
-        <Badge variant="secondary" className="mb-3">Step {step + 1} of {steps.length}</Badge>
-        <h2 className="text-xl font-medium tracking-tight text-foreground mb-6">{steps[step].title}</h2>
-        {steps[step].content}
+      <Eyebrow className="mb-3">
+        Step {step + 1} of {steps.length}
+      </Eyebrow>
+      <h2 className="mb-6 text-2xl tracking-tight text-foreground">{steps[step].title}</h2>
+      {steps[step].content}
 
-        <div className="flex justify-between mt-8">
-          <Button
-            variant="ghost"
-            onClick={() => setStep(step - 1)}
-            disabled={step === 0}
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" /> Back
-          </Button>
-          <Button onClick={handleNext} disabled={!canNext}>
-            {step === 3 ? "See My Impact" : "Next"}
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+      <div className="mt-8 flex justify-between max-sm:sticky max-sm:bottom-0 max-sm:-mx-6 max-sm:border-t max-sm:border-border max-sm:bg-card max-sm:px-6 max-sm:py-3">
+        <Button variant="ghost" onClick={() => setStep(step - 1)} disabled={step === 0}>
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Back
+        </Button>
+        <Button onClick={handleNext} disabled={!canNext}>
+          {step === 3 ? "See my impact" : "Next"}
+          <ArrowRight className="h-4 w-4" aria-hidden="true" />
+        </Button>
+      </div>
+    </Surface>
   );
 };
 

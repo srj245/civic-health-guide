@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Check, Copy, ExternalLink, FileText, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Chip, Surface } from "@/components/ui/primitives";
 import { useToast } from "@/hooks/use-toast";
 import {
   draftMessage,
-  partyBadgeClass,
   partyShort,
+  partyTone,
   publicProfileUrl,
   repTitle,
   type Representative,
@@ -41,7 +42,7 @@ const RepCard = ({ rep, onShowBills }: RepCardProps) => {
   };
 
   return (
-    <article className="lift rounded-lg border border-border bg-card p-4" aria-label={rep.name}>
+    <Surface as="article" padding="md" aria-label={rep.name}>
       <div className="flex items-start gap-3">
         {rep.depiction ? (
           <img
@@ -53,18 +54,16 @@ const RepCard = ({ rep, onShowBills }: RepCardProps) => {
             className="h-14 w-14 shrink-0 rounded-md bg-muted object-cover"
           />
         ) : (
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-md bg-secondary" aria-hidden="true">
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-md border border-border bg-secondary" aria-hidden="true">
             <Users className="h-5 w-5 text-muted-foreground" />
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <h3 className="truncate font-medium text-foreground">{rep.name}</h3>
+          <h3 className="truncate text-lg text-foreground">{rep.name}</h3>
           <p className="text-sm text-muted-foreground">{repTitle(rep)}</p>
-          <span
-            className={`mt-1.5 inline-block rounded border px-1.5 py-0.5 text-xs font-medium ${partyBadgeClass(rep.party)}`}
-          >
+          <Chip tone={partyTone(rep.party)} dot className="mt-1.5">
             {partyShort(rep.party)} · {rep.party}
-          </span>
+          </Chip>
         </div>
       </div>
 
@@ -86,7 +85,7 @@ const RepCard = ({ rep, onShowBills }: RepCardProps) => {
           </Button>
         )}
       </div>
-    </article>
+    </Surface>
   );
 };
 

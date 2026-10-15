@@ -42,11 +42,12 @@ export const US_STATES = Object.keys(STATE_NAMES);
 
 export const isSenator = (rep: Representative) => /senate/i.test(rep.chamber);
 
-export const partyBadgeClass = (party: string) => {
+/** Chip dot tone for a party; the chip fill never changes. */
+export const partyTone = (party: string): "info" | "destructive" | "neutral" => {
   const p = party?.toLowerCase() ?? "";
-  if (p.includes("republican")) return "border-red-700/30 bg-red-700/10 text-red-800 dark:text-red-300";
-  if (p.includes("democrat")) return "border-blue-700/30 bg-blue-700/10 text-blue-800 dark:text-blue-300";
-  return "border-border bg-muted text-muted-foreground";
+  if (p.includes("democrat")) return "info";
+  if (p.includes("republican")) return "destructive";
+  return "neutral";
 };
 
 export const partyShort = (party: string) => {

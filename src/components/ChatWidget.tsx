@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { MessageCircle, X, Send, Sparkles } from "lucide-react";
 
 type Msg = { role: "user" | "assistant"; content: string };
@@ -115,7 +116,7 @@ const ChatWidget = () => {
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className="chat-fab fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg transition-colors hover:bg-primary/90 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="chat-fab fixed bottom-4 right-4 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground transition-colors hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:bottom-6 sm:right-6"
           aria-label="Open health policy chat"
         >
           <MessageCircle className="w-6 h-6" aria-hidden="true" />
@@ -124,12 +125,12 @@ const ChatWidget = () => {
 
       {/* Chat panel */}
       {open && (
-        <div role="dialog" aria-label="Health Policy Chat" className="chat-panel fixed bottom-6 right-6 z-50 w-[380px] max-w-[calc(100vw-2rem)] h-[500px] max-h-[calc(100vh-6rem)] rounded-lg border border-border bg-background shadow-lg flex flex-col overflow-hidden">
+        <div role="dialog" aria-label="Health policy chat" className="chat-panel fixed bottom-6 right-6 z-50 flex h-[500px] max-h-[calc(100vh-6rem)] w-[380px] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-md border border-border max-sm:inset-x-4 max-sm:bottom-4 max-sm:h-[70dvh] max-sm:w-auto max-sm:max-w-none">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-border bg-primary/5">
+          <div className="flex items-center justify-between border-b border-border p-4">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-primary" aria-hidden="true" />
-              <span className="font-medium text-foreground">Health Policy Chat</span>
+              <Sparkles className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+              <span className="font-medium text-foreground">Health policy chat</span>
             </div>
             <button type="button" onClick={() => setOpen(false)} aria-label="Close chat" className="rounded p-1 text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
               <X className="w-5 h-5" aria-hidden="true" />
@@ -140,15 +141,15 @@ const ChatWidget = () => {
           <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3" aria-live="polite" aria-relevant="additions text" aria-busy={isLoading}>
             {messages.length === 0 && (
               <div className="text-center py-6">
-                <Sparkles className="w-8 h-8 text-primary/40 mx-auto mb-3" aria-hidden="true" />
-                <p className="text-sm text-muted-foreground mb-4">Ask me anything about US health policy!</p>
+                <Sparkles className="mx-auto mb-3 h-6 w-6 text-muted-foreground" aria-hidden="true" />
+                <p className="mb-4 text-sm text-muted-foreground">Ask a question about US health policy.</p>
                 <div className="space-y-2">
                   {STARTERS.map((q) => (
                     <button
                       key={q}
                       type="button"
                       onClick={() => sendMessage(q)}
-                      className="block w-full text-left text-sm px-3 py-2 rounded-lg border border-border hover:bg-secondary/50 text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      className="block w-full rounded-md border border-border px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     >
                       {q}
                     </button>
@@ -159,10 +160,8 @@ const ChatWidget = () => {
             {messages.map((msg, i) => (
               <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                 <div
-                  className={`max-w-[85%] px-3 py-2 rounded-lg text-sm leading-relaxed ${
-                    msg.role === "user"
-                      ? "bg-primary text-primary-foreground rounded-br-none"
-                      : "bg-secondary text-secondary-foreground rounded-bl-none"
+                  className={`max-w-[85%] rounded-md px-3 py-2 text-sm leading-relaxed ${
+                    msg.role === "user" ? "bg-foreground text-background" : "bg-secondary text-foreground"
                   }`}
                 >
                   {msg.content}
@@ -171,7 +170,7 @@ const ChatWidget = () => {
             ))}
             {isLoading && messages[messages.length - 1]?.role !== "assistant" && (
               <div className="flex justify-start">
-                <div className="bg-secondary rounded-lg px-4 py-2 text-sm">
+                <div className="rounded-md bg-secondary px-4 py-2 text-sm text-muted-foreground">
                   <span>Thinking...</span>
                 </div>
               </div>
@@ -185,15 +184,15 @@ const ChatWidget = () => {
               className="flex gap-2"
             >
               <label htmlFor="chat-input" className="sr-only">Ask about health policy</label>
-              <input
+              <Input
                 id="chat-input"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask about health policy..."
-                className="flex-1 bg-secondary rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                placeholder="Ask about health policy…"
+                className="h-10 flex-1"
                 disabled={isLoading}
               />
-              <Button type="submit" size="sm" disabled={!input.trim() || isLoading} className="shrink-0" aria-label="Send message">
+              <Button type="submit" size="icon" disabled={!input.trim() || isLoading} className="shrink-0" aria-label="Send message">
                 <Send className="w-4 h-4" aria-hidden="true" />
               </Button>
             </form>

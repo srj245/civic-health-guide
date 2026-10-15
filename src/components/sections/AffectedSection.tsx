@@ -1,62 +1,59 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { GraduationCap, Users, Briefcase, Heart, ArrowRight, FileText, ExternalLink } from "lucide-react";
+import { Chip, IconTile, Surface } from "@/components/ui/primitives";
+import { EmptyState } from "@/components/ui/empty-state";
+import { GraduationCap, Users, Briefcase, Heart, ArrowRight, ExternalLink } from "lucide-react";
 import { useHealthBills, type Bill } from "@/hooks/useCongressApi";
 
 const audienceGroups = [
   {
     id: "students",
     icon: GraduationCap,
-    title: "Students & Young Adults",
+    title: "Students and young adults",
     ageRange: "18-26",
     description: "Stay on parents' insurance until 26, access campus mental health services, and understand student loan impacts on healthcare choices.",
-    keyTopics: ["Insurance Coverage", "Mental Health", "Preventive Care", "Campus Resources"],
+    keyTopics: ["Insurance coverage", "Mental health", "Preventive care", "Campus resources"],
     searchTerms: ["student", "young adult", "college", "university", "mental health", "education"],
-    color: "bg-info/10 text-info border-info/20",
-    iconBg: "bg-info",
   },
   {
     id: "families",
     icon: Users,
-    title: "Families with Children",
+    title: "Families with children",
     ageRange: "All ages",
     description: "Navigate CHIP and Medicaid for kids, understand school vaccination requirements, and find affordable family coverage options.",
-    keyTopics: ["Children's Health Insurance", "Vaccines", "Pediatric Care", "Family Plans"],
+    keyTopics: ["Children's health insurance", "Vaccines", "Pediatric care", "Family plans"],
     searchTerms: ["children", "family", "pediatric", "chip", "vaccination", "maternal"],
-    color: "bg-success/10 text-success border-success/20",
-    iconBg: "bg-success",
   },
   {
     id: "workers",
     icon: Briefcase,
-    title: "Workers & Employees",
+    title: "Workers and employees",
     ageRange: "26-64",
     description: "Understand employer benefits, COBRA coverage between jobs, marketplace options for self-employed, and workplace health policies.",
-    keyTopics: ["Employer Insurance", "COBRA", "Marketplace Plans", "Workplace Rights"],
+    keyTopics: ["Employer insurance", "COBRA", "Marketplace plans", "Workplace rights"],
     searchTerms: ["employer", "workplace", "worker", "cobra", "affordable care", "labor"],
-    color: "bg-warning/10 text-warning border-warning/20",
-    iconBg: "bg-warning",
   },
   {
     id: "seniors",
     icon: Heart,
-    title: "Seniors & Retirees",
+    title: "Seniors and retirees",
     ageRange: "65+",
     description: "Navigate Medicare Parts A, B, C, and D, understand prescription drug coverage, and access senior-specific health programs.",
-    keyTopics: ["Medicare", "Prescription Drugs", "Long-term Care", "Preventive Services"],
+    keyTopics: ["Medicare", "Prescription drugs", "Long-term care", "Preventive services"],
     searchTerms: ["medicare", "senior", "elderly", "prescription drug", "nursing", "retirement"],
-    color: "bg-accent/10 text-accent border-accent/20",
-    iconBg: "bg-accent",
   },
 ];
 
+type AudienceGroup = (typeof audienceGroups)[number];
+
+/** "Students and young adults" → "students" */
+const groupNoun = (group: AudienceGroup) => group.title.split(" ")[0].toLowerCase();
+
 interface AudienceBillsModalProps {
-  group: typeof audienceGroups[0] | null;
+  group: AudienceGroup | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   bills: Bill[];
@@ -64,7 +61,6 @@ interface AudienceBillsModalProps {
 }
 
 const AudienceBillsModal = ({ group, open, onOpenChange, bills, loading }: AudienceBillsModalProps) => {
-  const navigate = useNavigate();
   if (!group) return null;
 
   // Filter bills relevant to this group
@@ -75,78 +71,62 @@ const AudienceBillsModal = ({ group, open, onOpenChange, bills, loading }: Audie
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle className="text-xl font-medium flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-lg ${group.iconBg} flex items-center justify-center`} aria-hidden="true">
-              <group.icon className="w-5 h-5 text-primary-foreground" />
-            </div>
-            Bills Affecting {group.title}
+          <DialogTitle className="flex items-center gap-3">
+            <IconTile icon={group.icon} size="sm" />
+            Bills affecting {groupNoun(group)}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 mt-4">
+        <div className="mt-4 space-y-4">
           {loading && (
-            <div className="space-y-3">
+            <div className="space-y-3" aria-busy="true">
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="p-4 border rounded-lg">
-                  <Skeleton className="h-5 w-3/4 mb-2" />
+                <Surface key={i} variant="inset" padding="sm">
+                  <Skeleton className="mb-2 h-5 w-3/4" />
                   <Skeleton className="h-4 w-full" />
-                </div>
+                </Surface>
               ))}
             </div>
           )}
 
           {!loading && relevantBills.length === 0 && (
-            <div className="text-center py-8">
-              <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">
-                No specific bills found for {group.title} in recent legislation.
-              </p>
-              <p className="text-sm text-muted-foreground mt-2 mb-4">
-                Browse all health bills on the News page for the latest updates.
-              </p>
-              <Button variant="outline" size="sm" onClick={() => { onOpenChange(false); navigate("/news"); }}>
-                Browse Health News
-                <ArrowRight className="w-4 h-4 ml-1" />
-              </Button>
-            </div>
+            <EmptyState
+              compact
+              title="No matching bills right now"
+              body="Browse all health bills on the News page for the latest updates."
+              action={
+                <Button asChild variant="outline">
+                  <Link to="/news" onClick={() => onOpenChange(false)}>Browse health bills</Link>
+                </Button>
+              }
+            />
           )}
 
           {!loading && relevantBills.map((bill) => (
-            <div
-              key={bill.id}
-              className="p-4 border rounded-lg hover:bg-secondary/50 transition-colors"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Badge variant="outline" className="text-xs">
-                      {bill.type.toUpperCase()}{bill.number}
-                    </Badge>
-                  </div>
-                  <h4 className="font-medium text-foreground line-clamp-2">
-                    {bill.title}
-                  </h4>
-                  {bill.latestAction && (
-                    <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
-                      <span className="font-medium">Latest: </span>
-                      {bill.latestAction.text}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
+            <Surface key={bill.id} variant="inset" padding="sm">
+              <Chip>{bill.type.toUpperCase()}{bill.number}</Chip>
+              <h4 className="mt-2 line-clamp-2 text-foreground">{bill.title}</h4>
+              {bill.latestAction && (
+                <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
+                  <span className="text-foreground">Latest: </span>
+                  {bill.latestAction.text}
+                </p>
+              )}
+            </Surface>
           ))}
 
           {!loading && (
-            <Button
-              variant="outline"
-              className="w-full mt-4"
-              onClick={() => window.open('https://congress.gov/search?q=%7B%22source%22%3A%22legislation%22%7D', '_blank')}
-            >
-              <ExternalLink className="w-4 h-4 mr-2" />
-              Search All Bills on Congress.gov
+            <Button asChild variant="outline" className="mt-4 w-full">
+              <a
+                href="https://congress.gov/search?q=%7B%22source%22%3A%22legislation%22%7D"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <ExternalLink className="h-4 w-4" aria-hidden="true" />
+                Search all bills on Congress.gov
+              </a>
             </Button>
           )}
         </div>
@@ -157,95 +137,72 @@ const AudienceBillsModal = ({ group, open, onOpenChange, bills, loading }: Audie
 
 const AffectedSection = () => {
   const { bills, loading } = useHealthBills(50);
-  const [selectedGroup, setSelectedGroup] = useState<typeof audienceGroups[0] | null>(null);
+  const [selectedGroup, setSelectedGroup] = useState<AudienceGroup | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const handleViewUpdates = (group: typeof audienceGroups[0]) => {
+  const handleViewUpdates = (group: AudienceGroup) => {
     setSelectedGroup(group);
     setModalOpen(true);
   };
 
   return (
-    <section id="affected" className="px-6 py-6 md:px-10 md:py-8 bg-background">
-      <div className="mx-auto max-w-6xl">
-
-        {/* Audience Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto" data-stagger>
-          {audienceGroups.map((group) => (
-            <Card
-              key={group.id}
-              role="button"
-              tabIndex={0}
-              aria-label={`View bills for ${group.title}`}
-              className="group cursor-pointer rounded-lg border border-border bg-card shadow-none transition-colors hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              onClick={() => handleViewUpdates(group)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  handleViewUpdates(group);
-                }
-              }}
-            >
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  {/* Icon */}
-                  <div className={`w-12 h-12 rounded-lg ${group.iconBg} flex items-center justify-center flex-shrink-0`} aria-hidden="true">
-                    <group.icon className="w-7 h-7 text-primary-foreground" />
-                  </div>
-
-                  {/* Content */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-lg font-medium text-foreground group-hover:text-primary transition-colors">
-                        {group.title}
-                      </h3>
-                      <span className="text-xs text-muted-foreground">
-                        {group.ageRange}
-                      </span>
-                    </div>
-                    <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                      {group.description}
-                    </p>
-
-                    {/* Key Topics */}
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {group.keyTopics.map((topic) => (
-                        <span
-                          key={topic}
-                          className={`text-xs px-2 py-0.5 rounded border ${group.color}`}
-                        >
-                          {topic}
-                        </span>
-                      ))}
-                    </div>
-
-                    {/* CTA */}
-                    <span className="inline-flex items-center gap-1.5 text-sm font-medium text-primary" aria-hidden="true">
-                      View bills for {group.title.split(' ')[0].toLowerCase()}
-                      <ArrowRight className="w-4 h-4" />
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Bottom CTA */}
-        <div className="text-center mt-12">
-          <p className="text-muted-foreground mb-4">Want to explore all current health legislation?</p>
-          <Button 
-            variant="outline" 
-            size="lg"
-            onClick={() => window.open('https://congress.gov/search?q=%7B%22source%22%3A%22legislation%22%2C%22subject%22%3A%22Health%22%7D', '_blank')}
+    <>
+      <div className="grid gap-4 md:grid-cols-2" data-stagger>
+        {audienceGroups.map((group) => (
+          <Surface
+            key={group.id}
+            variant="interactive"
+            padding="lg"
+            role="button"
+            tabIndex={0}
+            aria-label={`See bills for ${groupNoun(group)}`}
+            onClick={() => handleViewUpdates(group)}
+            onKeyDown={(e: React.KeyboardEvent) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                handleViewUpdates(group);
+              }
+            }}
           >
-            <ExternalLink className="w-4 h-4 mr-2" />
-            Browse All Health Bills
-          </Button>
-        </div>
+            <div className="flex items-start gap-4">
+              <IconTile icon={group.icon} size="md" />
+              <div className="min-w-0 flex-1">
+                <div className="mb-1 flex flex-wrap items-center gap-2">
+                  <h3 className="text-lg text-foreground">{group.title}</h3>
+                  <Chip>{group.ageRange}</Chip>
+                </div>
+                <p className="mb-4 text-sm leading-relaxed text-muted-foreground">{group.description}</p>
+
+                <div className="mb-4 flex flex-wrap gap-2">
+                  {group.keyTopics.map((topic) => (
+                    <Chip key={topic}>{topic}</Chip>
+                  ))}
+                </div>
+
+                <span className="inline-flex items-center gap-1.5 text-sm text-accent" aria-hidden="true">
+                  See bills for {groupNoun(group)}
+                  <ArrowRight className="h-4 w-4" />
+                </span>
+              </div>
+            </div>
+          </Surface>
+        ))}
       </div>
 
-      {/* Audience Bills Modal */}
+      <div className="mt-12 text-center">
+        <p className="mb-4 text-base text-muted-foreground">Want to explore all current health legislation?</p>
+        <Button asChild variant="outline">
+          <a
+            href="https://congress.gov/search?q=%7B%22source%22%3A%22legislation%22%2C%22subject%22%3A%22Health%22%7D"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <ExternalLink className="h-4 w-4" aria-hidden="true" />
+            Browse all health bills on Congress.gov
+          </a>
+        </Button>
+      </div>
+
       <AudienceBillsModal
         group={selectedGroup}
         open={modalOpen}
@@ -253,7 +210,7 @@ const AffectedSection = () => {
         bills={bills}
         loading={loading}
       />
-    </section>
+    </>
   );
 };
 

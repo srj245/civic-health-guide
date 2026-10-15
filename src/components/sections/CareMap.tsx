@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import { CareResult } from "@/hooks/useCareFinder";
 import { escapeHtml } from "@/lib/format";
 
@@ -13,6 +13,25 @@ interface CareMapProps {
 
 // Minimal subset of the Google Maps JS API used here (@types/google.maps is not installed).
 interface LatLngLiteral { lat: number; lng: number }
+interface GMapStyle {
+  featureType?: string;
+  elementType?: string;
+  stylers: Record<string, string | number>[];
+}
+interface GMapOptions {
+  center: LatLngLiteral;
+  zoom: number;
+  disableDefaultUI?: boolean;
+  zoomControl?: boolean;
+  streetViewControl?: boolean;
+  mapTypeControl?: boolean;
+  fullscreenControl?: boolean;
+  clickableIcons?: boolean;
+  /** Needs Maps JS >= 3.57; older loaders ignore it, so `styles` is kept as a fallback. */
+  colorScheme?: "LIGHT" | "DARK" | "FOLLOW_SYSTEM";
+  backgroundColor?: string;
+  styles?: GMapStyle[];
+}
 interface GMap {
   setCenter(c: LatLngLiteral): void;
   setZoom(z: number): void;
@@ -25,7 +44,7 @@ interface GMarker {
 }
 interface GInfoWindow { open(map: GMap | null, anchor: GMarker): void }
 interface GMapsNamespace {
-  Map: new (el: HTMLElement, opts: Record<string, unknown>) => GMap;
+  Map: new (el: HTMLElement, opts: GMapOptions) => GMap;
   LatLngBounds: new () => GLatLngBounds;
   Marker: new (opts: Record<string, unknown>) => GMarker;
   InfoWindow: new (opts: { content: string }) => GInfoWindow;
@@ -34,6 +53,24 @@ type MapsWindow = Window & {
   __civicCareInitMap?: () => void;
   google?: { maps: GMapsNamespace };
 };
+
+// Fallback styling for loaders that predate `colorScheme`. Matches the site's sky (#01061a).
+const MAP_DARK_STYLES: GMapStyle[] = [
+  { elementType: "geometry", stylers: [{ color: "#0b1230" }] },
+  { elementType: "labels.text.fill", stylers: [{ color: "#9fb0d8" }] },
+  { elementType: "labels.text.stroke", stylers: [{ color: "#01061a" }] },
+  { featureType: "water", elementType: "geometry", stylers: [{ color: "#050a1f" }] },
+  { featureType: "road", elementType: "geometry", stylers: [{ color: "#1a2347" }] },
+  { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#1a2347" }] },
+  { featureType: "poi", stylers: [{ visibility: "off" }] },
+];
+
+const DARK_BG = "#01061a";
+const LIGHT_BG = "#fbfcff";
+
+function isLightTheme() {
+  return document.documentElement.classList.contains("light");
+}
 
 let mapsScriptLoaded = false;
 let mapsScriptLoading = false;
@@ -62,6 +99,22 @@ export default function CareMap({ results, selectedId, onSelect }: CareMapProps)
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<GMap | null>(null);
   const markersRef = useRef<GMarker[]>([]);
+  const [light, setLight] = useState(() => (typeof document !== "undefined" ? isLightTheme() : false));
+
+  // Rebuild the map when the theme toggle flips html.class.
+  useEffect(() => {
+    const observer = new MutationObserver(() => setLight(isLightTheme()));
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
+
+  // Drop the current map so the next init builds one with the new scheme.
+  useEffect(() => {
+    markersRef.current.forEach((m) => m.setMap(null));
+    markersRef.current = [];
+    mapInstance.current = null;
+    if (mapRef.current) mapRef.current.innerHTML = "";
+  }, [light]);
 
   const initMap = useCallback(async () => {
     await loadGoogleMaps();
@@ -83,6 +136,9 @@ export default function CareMap({ results, selectedId, onSelect }: CareMapProps)
         mapTypeControl: false,
         fullscreenControl: true,
         clickableIcons: false,
+        colorScheme: light ? "LIGHT" : "DARK",
+        backgroundColor: light ? LIGHT_BG : DARK_BG,
+        styles: light ? undefined : MAP_DARK_STYLES,
       });
     } else {
       mapInstance.current.setCenter(center);
@@ -104,7 +160,7 @@ export default function CareMap({ results, selectedId, onSelect }: CareMapProps)
       });
 
       const infoWindow = new gmaps.InfoWindow({
-        content: `<div style="max-width:200px;font-family:system-ui"><strong>${escapeHtml(result.name)}</strong><br/><span style="font-size:12px;color:#666">${escapeHtml(result.address)}</span>${result.rating ? `<br/><span style="font-size:12px">Rating ${escapeHtml(result.rating)} / 5</span>` : ""}</div>`,
+        content: `<div style="max-width:200px;font-family:system-ui;color:#111"><strong style="color:#111">${escapeHtml(result.name)}</strong><br/><span style="font-size:12px;color:#111">${escapeHtml(result.address)}</span>${result.rating ? `<br/><span style="font-size:12px;color:#111">Rating ${escapeHtml(result.rating)} / 5</span>` : ""}</div>`,
       });
 
       marker.addListener("click", () => {
@@ -119,7 +175,7 @@ export default function CareMap({ results, selectedId, onSelect }: CareMapProps)
     if (results.length > 1) {
       mapInstance.current.fitBounds(bounds, 50);
     }
-  }, [results, selectedId, onSelect]);
+  }, [results, selectedId, onSelect, light]);
 
   useEffect(() => {
     initMap();
@@ -128,7 +184,8 @@ export default function CareMap({ results, selectedId, onSelect }: CareMapProps)
   return (
     <div
       ref={mapRef}
-      className="w-full h-[350px] rounded-lg border border-border overflow-hidden"
+      className="h-[320px] w-full overflow-hidden rounded-md border border-border sm:h-[380px]"
+      style={{ backgroundColor: light ? LIGHT_BG : DARK_BG }}
       role="region"
       aria-label="Map of care results"
     />

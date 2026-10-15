@@ -5,6 +5,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import Reveal from "@/components/motion/Reveal";
+import Section from "@/components/layout/Section";
+import { SectionHeading } from "@/components/ui/primitives";
 
 const faqs = [
   {
@@ -31,10 +33,10 @@ const faqs = [
 
 const FaqSection = () => {
   return (
-    <section id="faq" className="border-t border-border px-6 py-14 md:px-10 md:py-20" aria-labelledby="faq-heading">
-      <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-[1fr_2fr]">
-        <Reveal as="h2" id="faq-heading" className="text-2xl font-medium tracking-tight text-foreground md:text-3xl">
-          Common questions
+    <Section rule id="faq" aria-labelledby="faq-heading">
+      <div className="grid gap-10 md:grid-cols-[1fr_2fr]">
+        <Reveal>
+          <SectionHeading id="faq-heading" title="Common questions" />
         </Reveal>
         <Reveal stagger delay={100}>
         <Accordion type="single" collapsible className="divide-y divide-border border-y border-border">
@@ -51,7 +53,7 @@ const FaqSection = () => {
         </Accordion>
         </Reveal>
       </div>
-    </section>
+    </Section>
   );
 };
 

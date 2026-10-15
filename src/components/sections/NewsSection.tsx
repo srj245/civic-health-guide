@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import Section from "@/components/layout/Section";
+import { Chip, IconInput, Surface } from "@/components/ui/primitives";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Clock, ArrowRight, FileText, Bookmark, Search, RefreshCw } from "lucide-react";
 import { timeAgo } from "@/lib/time";
-import { Input } from "@/components/ui/input";
 import { useHealthBills, type Bill } from "@/hooks/useCongressApi";
 import { useTrackedBills } from "@/hooks/useTrackedBills";
 import { useAuth } from "@/hooks/useAuth";
@@ -60,152 +61,144 @@ const NewsSection = () => {
     }
     try {
       const tracked = await toggleTrack(bill);
-      toast({ title: tracked ? "Bill tracked!" : "Bill untracked", description: bill.title });
+      toast({ title: tracked ? "Bill tracked" : "Bill untracked", description: bill.title });
     } catch {
       toast({ title: "Error", description: "Failed to update tracking.", variant: "destructive" });
     }
   };
 
-
   return (
-    <section id="news" className="py-6 md:py-8 bg-background">
-      <div className="container mx-auto px-4">
-        <div className="max-w-5xl mx-auto mb-6">
-          <label htmlFor="bill-search" className="sr-only">Search bills</label>
-          <div className="relative max-w-md">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
-            <Input
-              id="bill-search"
-              type="search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by keyword, topic, or bill number"
-              className="pl-9"
-            />
-          </div>
-          {!loading && !error && (
-            <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground" aria-live="polite">
-              <span>{q ? `${bills.length} of ${allBills.length} bills match` : `${total} health bills from the 1,000 most recently updated in Congress`}</span>
-              {updatedAt && <span>· Updated {timeAgo(updatedAt)}</span>}
-              <button type="button" onClick={() => refetch()} disabled={refreshing} className="inline-flex items-center gap-1 text-accent hover:text-foreground disabled:opacity-60" aria-label="Refresh bills">
-                <RefreshCw className={`h-3 w-3 ${refreshing ? "animate-spin" : ""}`} aria-hidden="true" />
-                {refreshing ? "Refreshing" : "Refresh"}
-              </button>
-            </p>
-          )}
+    <Section first id="news">
+      <div className="mb-6">
+        <label htmlFor="bill-search" className="sr-only">Search bills</label>
+        <div className="max-w-md">
+          <IconInput
+            icon={Search}
+            id="bill-search"
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search by keyword, topic, or bill number"
+          />
         </div>
-
-        {/* Loading State */}
-        {loading && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
-            {[...Array(4)].map((_, i) => (
-              <Card key={i} className="border-border bg-card">
-                <CardHeader className="pb-3">
-                  <Skeleton className="h-5 w-24 mb-3" />
-                  <Skeleton className="h-6 w-full" />
-                </CardHeader>
-                <CardContent>
-                  <Skeleton className="h-4 w-full mb-2" />
-                  <Skeleton className="h-4 w-3/4" />
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-
-        {/* Error State */}
-        {error && (
-          <div className="max-w-2xl mx-auto text-center py-12">
-            <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground">Unable to load bills from Congress. Please try again later.</p>
-          </div>
-        )}
-
-        {!loading && !error && q && bills.length === 0 && (
-          <p className="max-w-5xl mx-auto text-sm text-muted-foreground">No bills match "{query}".</p>
-        )}
-
-        {/* Bills Grid */}
         {!loading && !error && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto" data-stagger>
-            {bills.map((bill, index) => (
-              <Card
-                key={bill.id}
-                role="button"
-                tabIndex={0}
-                className="group lift cursor-pointer border-border bg-card"
-                onClick={() => handleReadMore(bill)}
-                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleReadMore(bill); } }}
-              >
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between mb-3">
-                    <Badge variant="outline" className="text-xs font-medium">
-                      {getBillCategory(bill.title)}
-                    </Badge>
-                    <span className="text-xs text-muted-foreground font-mono">
-                      {bill.type.toUpperCase()}{bill.number}
-                    </span>
-                  </div>
-                  <h3 className="text-lg font-medium text-foreground group-hover:text-primary transition-colors leading-snug line-clamp-2">
-                    {bill.title}
-                  </h3>
-                </CardHeader>
-                <CardContent>
-                  {bill.latestAction && (
-                    <p className="text-muted-foreground text-sm leading-relaxed mb-4 line-clamp-2">
-                      {bill.latestAction.text}
-                    </p>
-                  )}
-
-                  {/* Footer */}
-                  <div className="flex items-center justify-between pt-3 border-t border-border">
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Clock className="w-3.5 h-3.5" />
-                      <span>
-                        Latest action: {formatActionDate(bill.latestAction?.actionDate || bill.updateDate) ?? "—"}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-medium text-primary flex items-center gap-1">
-                        View details
-                        <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-                      </span>
-                      <button
-                        onClick={(e) => handleTrack(e, bill)}
-                        className="p-1 rounded-md hover:bg-secondary transition-colors"
-                        aria-label={isTracked(bill.id) ? "Untrack bill" : "Track bill"}
-                      >
-                        <Bookmark className={`w-4 h-4 ${isTracked(bill.id) ? "fill-primary text-primary" : "text-muted-foreground"}`} />
-                      </button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground" aria-live="polite">
+            <span>{q ? `${bills.length} of ${allBills.length} bills match` : `${total} health bills from the 1,000 most recently updated in Congress`}</span>
+            {updatedAt && <span>· Updated {timeAgo(updatedAt)}</span>}
+            <Button type="button" variant="ghost" size="sm" onClick={() => refetch()} disabled={refreshing} aria-label="Refresh bills">
+              <RefreshCw className={refreshing ? "animate-spin" : ""} aria-hidden="true" />
+              {refreshing ? "Refreshing" : "Refresh"}
+            </Button>
+          </p>
         )}
-
-        {/* View All Link */}
-        <div className="text-center mt-10">
-          <a
-            href="https://www.congress.gov/search?q=%7B%22congress%22%3A%22119%22%2C%22source%22%3A%22legislation%22%2C%22subject%22%3A%22Health%22%7D"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-primary font-medium hover:gap-3 transition-all duration-300 animate-underline"
-          >
-            View all health legislation on Congress.gov
-            <ArrowRight className="w-4 h-4" />
-          </a>
-        </div>
       </div>
 
-      {/* Bill Detail Modal */}
+      {/* Loading state */}
+      {loading && (
+        <div className="grid gap-4 md:grid-cols-2">
+          {[...Array(4)].map((_, i) => (
+            <Surface key={i} padding="md">
+              <Skeleton className="mb-3 h-5 w-24" />
+              <Skeleton className="mb-4 h-6 w-full" />
+              <Skeleton className="mb-2 h-4 w-full" />
+              <Skeleton className="h-4 w-3/4" />
+            </Surface>
+          ))}
+        </div>
+      )}
+
+      {/* Error state */}
+      {error && (
+        <EmptyState
+          variant="error"
+          icon={FileText}
+          title="Couldn't reach Congress.gov"
+          body="Try again in a moment."
+          action={<Button variant="outline" onClick={() => refetch()}>Retry</Button>}
+        />
+      )}
+
+      {!loading && !error && q && bills.length === 0 && (
+        <EmptyState compact title="No bills match" body={`Nothing matches "${query}". Try a different keyword or bill number.`} />
+      )}
+
+      {/* Bills grid */}
+      {!loading && !error && bills.length > 0 && (
+        <div className="grid gap-4 md:grid-cols-2" data-stagger>
+          {bills.map((bill) => (
+            <Surface
+              key={bill.id}
+              variant="interactive"
+              padding="md"
+              role="button"
+              tabIndex={0}
+              className="group flex flex-col"
+              onClick={() => handleReadMore(bill)}
+              onKeyDown={(e: React.KeyboardEvent) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleReadMore(bill); } }}
+            >
+              <div className="mb-3 flex items-center justify-between gap-2">
+                <Chip>{getBillCategory(bill.title)}</Chip>
+                <span className="font-mono text-xs text-muted-foreground">
+                  {bill.type.toUpperCase()}{bill.number}
+                </span>
+              </div>
+              <h3 className="line-clamp-2 text-lg font-medium leading-snug text-foreground transition-colors group-hover:text-accent">
+                {bill.title}
+              </h3>
+              {bill.latestAction && (
+                <p className="mb-4 mt-2 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
+                  {bill.latestAction.text}
+                </p>
+              )}
+
+              {/* Footer */}
+              <div className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-border pt-3">
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <Clock className="h-3.5 w-3.5" aria-hidden="true" />
+                  <span>
+                    Latest action: {formatActionDate(bill.latestAction?.actionDate || bill.updateDate) ?? "—"}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="flex items-center gap-1 text-xs text-accent">
+                    View details
+                    <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+                  </span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={(e) => handleTrack(e, bill)}
+                    aria-label={isTracked(bill.id) ? "Untrack bill" : "Track bill"}
+                  >
+                    <Bookmark className={isTracked(bill.id) ? "fill-current text-foreground" : ""} aria-hidden="true" />
+                  </Button>
+                </div>
+              </div>
+            </Surface>
+          ))}
+        </div>
+      )}
+
+      {/* View all link */}
+      <div className="mt-10 text-center">
+        <a
+          href="https://www.congress.gov/search?q=%7B%22congress%22%3A%22119%22%2C%22source%22%3A%22legislation%22%2C%22subject%22%3A%22Health%22%7D"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 text-accent transition-colors hover:text-foreground"
+        >
+          View all health legislation on Congress.gov
+          <ArrowRight className="h-4 w-4" aria-hidden="true" />
+        </a>
+      </div>
+
       <BillDetailModal
         bill={selectedBill}
         open={modalOpen}
         onOpenChange={setModalOpen}
       />
-    </section>
+    </Section>
   );
 };
 

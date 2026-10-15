@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { RefreshCw } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import Reveal from "@/components/motion/Reveal";
+import Section from "@/components/layout/Section";
+import { Button } from "@/components/ui/button";
 import { useHealthBills } from "@/hooks/useCongressApi";
 import { timeAgo } from "@/lib/time";
 
@@ -26,8 +28,8 @@ const LiveBillsSection = () => {
   useTick();
 
   return (
-    <section className="border-t border-border px-6 py-14 md:px-10 md:py-20" aria-labelledby="live-heading">
-      <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-[1fr_2fr]">
+    <Section rule aria-labelledby="live-heading">
+      <div className="grid gap-10 md:grid-cols-[1fr_2fr]">
         <Reveal>
           <p className="text-sm uppercase tracking-wide text-muted-foreground">Live from Congress.gov</p>
           <h2 id="live-heading" className="mt-2 text-2xl tracking-tight text-foreground md:text-3xl">
@@ -40,16 +42,10 @@ const LiveBillsSection = () => {
           </p>
           <div className="mt-4 flex items-center gap-3 text-xs text-muted-foreground">
             {updatedAt && <span aria-live="polite">Updated {timeAgo(updatedAt)}</span>}
-            <button
-              type="button"
-              onClick={() => refetch()}
-              disabled={refreshing}
-              className="inline-flex items-center gap-1 text-accent hover:text-foreground disabled:opacity-60"
-              aria-label="Refresh bills"
-            >
+            <Button type="button" variant="ghost" size="sm" onClick={() => refetch()} disabled={refreshing} aria-label="Refresh bills" className="h-7 px-2 text-xs">
               <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`} aria-hidden="true" />
               {refreshing ? "Refreshing" : "Refresh"}
-            </button>
+            </Button>
           </div>
           <Link to="/news" className="mt-4 inline-block text-sm text-accent hover:text-foreground">
             See all health bills
@@ -80,7 +76,7 @@ const LiveBillsSection = () => {
           )}
         </ol>
       </div>
-    </section>
+    </Section>
   );
 };
 

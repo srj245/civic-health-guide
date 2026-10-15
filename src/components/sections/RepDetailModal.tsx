@@ -5,7 +5,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
+import { Chip, Stat, Surface } from "@/components/ui/primitives";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -66,11 +67,13 @@ const RepDetailModal = ({ repName, repUrl, open, onOpenChange }: Props) => {
       .finally(() => setLoading(false));
   }, [open, repUrl]);
 
+  const totalBills = data ? data.sponsoredHealthBills + data.cosponsoredHealthBills : 0;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle className="text-xl font-medium">{repName}</DialogTitle>
+          <DialogTitle>{repName}</DialogTitle>
         </DialogHeader>
 
         {loading && (
@@ -82,22 +85,16 @@ const RepDetailModal = ({ repName, repUrl, open, onOpenChange }: Props) => {
           </div>
         )}
 
-        {error && <p className="text-destructive text-sm py-4">{error}</p>}
+        {error && <p className="py-4 text-sm text-destructive" role="alert">{error}</p>}
 
         {!loading && !error && data && (
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
-              <div className="rounded-xl border border-border p-4 text-center">
-                <p className="text-2xl font-medium text-foreground">{data.sponsoredHealthBills}</p>
-                <p className="text-xs text-muted-foreground">Health bills sponsored this Congress</p>
-              </div>
-              <div className="rounded-xl border border-border p-4 text-center">
-                <p className="text-2xl font-medium text-foreground">{data.cosponsoredHealthBills}</p>
-                <p className="text-xs text-muted-foreground">Cosponsored</p>
-              </div>
+              <Stat value={data.sponsoredHealthBills} label="Health bills sponsored" />
+              <Stat value={data.cosponsoredHealthBills} label="Cosponsored" />
             </div>
 
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm leading-relaxed text-muted-foreground">
               Counts bills introduced in the {data.congress}th Congress whose titles are about health,
               from Congress.gov. Sponsoring a bill is not the same as voting on it.
               {data.truncated ? " This member has many bills, so counts may be a lower bound." : ""}
@@ -105,38 +102,35 @@ const RepDetailModal = ({ repName, repUrl, open, onOpenChange }: Props) => {
 
             {data.sample.length > 0 ? (
               <div>
-                <h3 className="font-medium flex items-center gap-2 mb-3">
-                  <FileText className="w-4 h-4" />
+                <h3 className="mb-3 flex items-center gap-2 text-lg text-foreground">
+                  <FileText className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
                   Health bills ({data.sample.length}
-                  {data.sponsoredHealthBills + data.cosponsoredHealthBills > data.sample.length
-                    ? ` of ${data.sponsoredHealthBills + data.cosponsoredHealthBills}`
-                    : ""}
-                  )
+                  {totalBills > data.sample.length ? ` of ${totalBills}` : ""})
                 </h3>
-                <div className="space-y-2 max-h-60 overflow-y-auto">
+                <div className="max-h-60 space-y-2 overflow-y-auto">
                   {data.sample.map((bill, i) => (
-                    <div key={i} className="p-3 rounded-lg bg-secondary/50 border border-border">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Badge variant="outline" className="text-xs">
-                          {bill.type.toUpperCase()}{bill.number}
-                        </Badge>
-                        <Badge variant="secondary" className="text-xs capitalize">{bill.role}</Badge>
+                    <Surface key={i} variant="inset" padding="sm">
+                      <div className="mb-1.5 flex flex-wrap items-center gap-2">
+                        <Chip>{bill.type.toUpperCase()}{bill.number}</Chip>
+                        <Chip className="capitalize">{bill.role}</Chip>
                       </div>
-                      <p className="text-sm text-foreground line-clamp-2">{bill.title}</p>
+                      <p className="line-clamp-2 text-sm text-foreground">{bill.title}</p>
                       {bill.latestAction && (
-                        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                        <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
                           Latest action: {bill.latestAction}
                         </p>
                       )}
-                    </div>
+                    </Surface>
                   ))}
                 </div>
               </div>
             ) : (
-              <div className="text-center py-4 text-muted-foreground">
-                <FileText className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">No health-related bills sponsored or cosponsored this Congress.</p>
-              </div>
+              <EmptyState
+                compact
+                icon={FileText}
+                title="No health bills yet"
+                body="No health-related bills sponsored or cosponsored this Congress."
+              />
             )}
           </div>
         )}

@@ -1,14 +1,17 @@
-import { Shield, Check, Eye, Keyboard, Monitor, Volume2 } from "lucide-react";
+import { Check, Eye, Keyboard, Monitor, Volume2 } from "lucide-react";
 import PageHero from "@/components/sections/PageHero";
+import Section from "@/components/layout/Section";
+import Reveal from "@/components/motion/Reveal";
+import { SectionHeading, Surface } from "@/components/ui/primitives";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
-const LAST_UPDATED = "October 14, 2026";
+const LAST_UPDATED = "October 15, 2026";
 
 const features = [
   {
     icon: Keyboard,
     title: "Keyboard navigation",
-    desc: "Clickable cards, buttons and links are reachable with Tab and activated with Enter or Space. A skip-to-content link is the first focusable element on every page.",
+    desc: "Clickable cards, buttons, and links are reachable with Tab and activated with Enter or Space. A skip-to-content link is the first focusable element on every page.",
   },
   {
     icon: Eye,
@@ -23,7 +26,7 @@ const features = [
   {
     icon: Monitor,
     title: "Responsive and themed",
-    desc: "The layout works from phone widths to large monitors, and a dark theme is available from the header toggle or your system setting.",
+    desc: "The layout works from phone widths to large monitors. Dark is the default and a light theme is one click away in the header.",
   },
 ];
 
@@ -36,78 +39,78 @@ const checklist = [
   "Form inputs have a visible label or aria-label",
   "Keyboard-operable cards (Enter and Space)",
   "Streamed chat replies announced via aria-live",
-  "Dark mode available",
+  "Body and small text checked for WCAG AA contrast in both themes",
+  "Light and dark themes",
 ];
 
 const notYet = [
-  "We have not completed a formal WCAG 2.1 AA audit. Colour contrast has been checked by eye, not by a tool, in both themes.",
-  "Some tap targets, such as comment vote arrows, are smaller than the 44x44px recommendation.",
-  "Images from third parties (for example maps) depend on those providers' accessibility.",
+  "We have not completed a formal WCAG 2.1 AA audit. Text contrast was checked with a tool for the common surfaces; decorative elements were not.",
+  "Third-party content, such as the map, depends on those providers' accessibility.",
 ];
 
 const Accessibility = () => {
   usePageTitle("Accessibility", "What CivicCare does today for accessibility, and what is still missing.");
   return (
-    <div className="bg-background">
+    <div>
       <PageHero
-        icon={Shield}
         badge="Commitment"
-        title="Accessibility Statement"
-        subtitle="What CivicCare does today for people using keyboards, screen readers and reduced-motion settings, and what still needs work."
+        title="Accessibility statement"
+        subtitle="What CivicCare does today for people using keyboards, screen readers, and reduced-motion settings, and what still needs work."
       />
 
-      <section className="px-6 py-14 md:px-10">
-        <div className="mx-auto max-w-6xl space-y-12">
-          <div className="max-w-3xl space-y-4">
-            <p className="text-sm font-medium uppercase tracking-wide text-primary">Our approach</p>
-            <h2 className="text-2xl font-medium tracking-tight text-foreground">Honest, not aspirational</h2>
-            <p className="text-lg leading-relaxed text-muted-foreground">
-              We aim for the Web Content Accessibility Guidelines (WCAG) 2.1 Level AA. This page lists only what the
-              current code actually does, so you know what to expect.
-            </p>
-          </div>
+      <Section first width="narrow" className="space-y-16">
+        <Reveal>
+          <SectionHeading
+            eyebrow="Our approach"
+            title="Honest, not aspirational"
+            lede="We aim for the Web Content Accessibility Guidelines (WCAG) 2.1 Level AA. This page lists only what the current code actually does, so you know what to expect."
+          />
+        </Reveal>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            {features.map((f) => (
-              <div key={f.title} className="rounded-lg border border-border bg-card p-5">
-                <f.icon className="mb-3 h-5 w-5 text-primary" aria-hidden="true" />
-                <h3 className="mb-1 font-medium text-foreground">{f.title}</h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">{f.desc}</p>
-              </div>
+        <Reveal stagger className="grid gap-4 sm:grid-cols-2">
+          {features.map((f) => (
+            <Surface key={f.title} padding="md">
+              <f.icon className="mb-3 h-5 w-5 text-muted-foreground" aria-hidden="true" />
+              <h3 className="text-lg text-foreground">{f.title}</h3>
+              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{f.desc}</p>
+            </Surface>
+          ))}
+        </Reveal>
+
+        <Reveal>
+          <SectionHeading title="What is in place" />
+          <ul className="mt-6 grid gap-3 sm:grid-cols-2">
+            {checklist.map((item) => (
+              <li key={item} className="flex items-start gap-3 rounded-md border border-border p-3">
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-success" aria-hidden="true" />
+                <span className="text-sm text-foreground">{item}</span>
+              </li>
             ))}
-          </div>
+          </ul>
+        </Reveal>
 
-          <div className="space-y-4">
-            <h2 className="text-2xl font-medium tracking-tight text-foreground">What is in place</h2>
-            <ul className="grid gap-3 sm:grid-cols-2">
-              {checklist.map((item) => (
-                <li key={item} className="flex items-start gap-3 rounded-lg border border-border bg-card p-3">
-                  <Check className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
-                  <span className="text-sm text-foreground">{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+        <Reveal>
+          <SectionHeading title="Known gaps" />
+          <ul className="mt-4 list-disc space-y-2 pl-5 text-base text-muted-foreground">
+            {notYet.map((item) => (
+              <li key={item} className="leading-relaxed">
+                {item}
+              </li>
+            ))}
+          </ul>
+        </Reveal>
 
-          <div className="space-y-4">
-            <h2 className="text-2xl font-medium tracking-tight text-foreground">Known gaps</h2>
-            <ul className="max-w-3xl list-disc space-y-2 pl-5 text-muted-foreground">
-              {notYet.map((item) => (
-                <li key={item} className="leading-relaxed">{item}</li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="max-w-3xl space-y-3 rounded-lg border border-border bg-card p-6">
-            <h2 className="text-xl font-medium tracking-tight text-foreground">Found a barrier?</h2>
-            <p className="leading-relaxed text-muted-foreground">
-              If something on CivicCare is hard to use with assistive technology, please open an issue on the project
-              repository or contact the team. We would rather hear about it than guess.
+        <Reveal>
+          <Surface padding="lg">
+            <h2 className="text-2xl tracking-tight text-foreground">Found a barrier?</h2>
+            <p className="mt-3 text-base leading-relaxed text-muted-foreground">
+              If something on CivicCare is hard to use with assistive technology, open an issue on the project repository or
+              contact the team. We would rather hear about it than guess.
             </p>
-            <p className="text-sm text-muted-foreground">Last updated {LAST_UPDATED}.</p>
-          </div>
-        </div>
-      </section>
+            <p className="mt-3 text-sm text-muted-foreground">Last updated {LAST_UPDATED}.</p>
+          </Surface>
+        </Reveal>
+      </Section>
     </div>
   );
 };

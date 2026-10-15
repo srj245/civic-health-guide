@@ -3,6 +3,7 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import ImpactForm from "@/components/sections/ImpactForm";
 import ImpactResults from "@/components/sections/ImpactResults";
 import PageHero from "@/components/sections/PageHero";
+import Section from "@/components/layout/Section";
 import { Calculator } from "lucide-react";
 
 export interface ImpactProfile {
@@ -72,25 +73,23 @@ const Impact = () => {
       <PageHero
         icon={Calculator}
         badge="Personalized"
-        title="Impact Calculator"
+        title="Impact calculator"
         subtitle="Enter your situation and see which current health bills affect you most."
       />
-      <section className="px-6 py-8 md:px-10">
-        <div className="max-w-3xl mx-auto">
-          {!profile ? (
-            <ImpactForm onSubmit={handleSubmit} />
-          ) : (
-            <ImpactResults
-              profile={profile}
-              results={results}
-              sources={sources}
-              loading={loading}
-              error={error}
-              onReset={handleReset}
-            />
-          )}
-        </div>
-      </section>
+      <Section first width="narrow">
+        {!profile ? (
+          <ImpactForm onSubmit={handleSubmit} />
+        ) : (
+          <ImpactResults
+            profile={profile}
+            results={results}
+            sources={sources}
+            loading={loading}
+            error={error}
+            onReset={handleReset}
+          />
+        )}
+      </Section>
     </div>
   );
 };

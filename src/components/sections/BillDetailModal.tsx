@@ -4,7 +4,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
+import { Chip, Eyebrow, Surface } from "@/components/ui/primitives";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useBillDetails, type Bill } from "@/hooks/useCongressApi";
 import { useBillSummary } from "@/hooks/useBillSummary";
@@ -94,17 +94,17 @@ const BillDetailModal = ({ bill, open, onOpenChange }: BillDetailModalProps) => 
       }
     } else {
       await navigator.clipboard.writeText(`${text}\n${url}`);
-      toast({ title: "Copied to clipboard!", description: "Share link copied." });
+      toast({ title: "Copied to clipboard", description: "Share link copied." });
     }
   };
 
+  const tracked = bill ? isTracked(bill.id) : false;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle className="text-xl font-medium pr-8">
-            {bill?.title || "Bill Details"}
-          </DialogTitle>
+          <DialogTitle>{bill?.title || "Bill details"}</DialogTitle>
         </DialogHeader>
 
         {loading && (
@@ -117,33 +117,27 @@ const BillDetailModal = ({ bill, open, onOpenChange }: BillDetailModalProps) => 
         )}
 
         {error && (
-          <div className="text-destructive text-sm py-4">
+          <p className="py-4 text-sm text-destructive" role="alert">
             Failed to load bill details: {error}
-          </div>
+          </p>
         )}
 
         {!loading && !error && details && (
           <div className="space-y-6">
-            {/* Bill ID and Status */}
+            {/* Bill ID and status */}
             <div className="flex flex-wrap gap-2">
-              <Badge variant="outline" className="text-sm">
-                {details.type?.toUpperCase()}{details.number}
-              </Badge>
-              <Badge variant="secondary" className="text-sm">
-                {details.congress}th Congress
-              </Badge>
+              <Chip>{details.type?.toUpperCase()}{details.number}</Chip>
+              <Chip>{ordinal(details.congress)} Congress</Chip>
               {details.policyArea?.name && (
-                <Badge className="text-sm bg-primary/10 text-primary">
-                  {details.policyArea.name}
-                </Badge>
+                <Chip tone="info" dot>{details.policyArea.name}</Chip>
               )}
             </div>
 
-            {/* AI Plain English Summary */}
-            <div className="space-y-2 rounded-xl border border-primary/20 bg-primary/5 p-4">
-              <h3 className="font-medium flex items-center gap-2 text-primary">
-                <Sparkles className="w-4 h-4" />
-                Plain English Summary
+            {/* AI plain English summary */}
+            <Surface variant="inset" padding="md" className="space-y-2">
+              <h3 className="flex items-center gap-2 text-lg text-foreground">
+                <Sparkles className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                Plain English summary
               </h3>
               {aiLoading && (
                 <div className="space-y-2">
@@ -156,18 +150,18 @@ const BillDetailModal = ({ bill, open, onOpenChange }: BillDetailModalProps) => 
               )}
               {aiSummary && (
                 <>
-                  <p className="text-sm text-foreground leading-relaxed">{aiSummary.plainEnglish}</p>
-                  <div className="mt-3 pt-3 border-t border-primary/10">
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">How does this affect you?</p>
-                    <p className="text-sm text-foreground leading-relaxed">{aiSummary.impact}</p>
+                  <p className="text-sm leading-relaxed text-foreground">{aiSummary.plainEnglish}</p>
+                  <div className="mt-3 border-t border-border pt-3">
+                    <Eyebrow className="mb-1">How does this affect you?</Eyebrow>
+                    <p className="text-sm leading-relaxed text-foreground">{aiSummary.impact}</p>
                   </div>
-                  <p className="mt-3 text-xs text-muted-foreground italic">
+                  <p className="mt-3 text-xs text-muted-foreground">
                     AI-generated summary — check the{" "}
                     <a
                       href={congressUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="underline text-primary not-italic"
+                      className="text-accent underline-offset-4 hover:underline"
                     >
                       official bill text on Congress.gov
                     </a>
@@ -175,54 +169,51 @@ const BillDetailModal = ({ bill, open, onOpenChange }: BillDetailModalProps) => 
                   </p>
                 </>
               )}
-            </div>
+            </Surface>
 
-            {/* Official Summary */}
+            {/* Official summary */}
             {details.summary && (
               <div className="space-y-2">
-                <h3 className="font-medium flex items-center gap-2">
-                  <FileText className="w-4 h-4" />
-                  Official Summary
+                <h3 className="flex items-center gap-2 text-lg text-foreground">
+                  <FileText className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                  Official summary
                 </h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">
+                <p className="text-sm leading-relaxed text-muted-foreground">
                   {stripHtml(details.summary)}
                 </p>
               </div>
             )}
 
-            {/* Latest Action */}
+            {/* Latest action */}
             {details.latestAction && (
               <div className="space-y-2">
-                <h3 className="font-medium flex items-center gap-2">
-                  <Calendar className="w-4 h-4" />
-                  Latest Action
+                <h3 className="flex items-center gap-2 text-lg text-foreground">
+                  <Calendar className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                  Latest action
                 </h3>
-                <div className="bg-secondary/50 rounded-lg p-4">
-                  <p className="text-sm font-medium">
+                <Surface variant="inset" padding="sm">
+                  <p className="text-sm text-foreground">
                     {details.latestAction.actionDate}
                   </p>
-                  <p className="text-muted-foreground text-sm">
+                  <p className="text-sm text-muted-foreground">
                     {details.latestAction.text}
                   </p>
-                </div>
+                </Surface>
               </div>
             )}
 
             {/* Sponsors */}
             {details.sponsors && details.sponsors.length > 0 && (
               <div className="space-y-2">
-                <h3 className="font-medium flex items-center gap-2">
-                  <Users className="w-4 h-4" />
+                <h3 className="flex items-center gap-2 text-lg text-foreground">
+                  <Users className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
                   Sponsors
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {details.sponsors.map((sponsor, idx) => (
-                    <span
-                      key={idx}
-                      className="text-xs px-2.5 py-1 rounded border border-border bg-card text-foreground"
-                    >
+                    <Chip key={idx}>
                       {sponsor.firstName} {sponsor.lastName} ({sponsor.party}-{sponsor.state})
-                    </span>
+                    </Chip>
                   ))}
                 </div>
                 {details.cosponsors && details.cosponsors > 0 && (
@@ -234,46 +225,45 @@ const BillDetailModal = ({ bill, open, onOpenChange }: BillDetailModalProps) => 
             )}
 
             {/* Actions */}
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {bill && (
                 <Button
-                  variant={isTracked(bill.id) ? "default" : "outline"}
-                  className="flex-1"
+                  variant={tracked ? "default" : "outline"}
+                  className="w-full min-w-[10rem] sm:w-auto sm:flex-1"
                   onClick={async () => {
                     if (!user) {
                       toast({ title: "Sign in required", description: "Create an account to track bills." });
                       return;
                     }
                     try {
-                      const tracked = await toggleTrack(bill);
-                      toast({ title: tracked ? "Bill tracked!" : "Bill untracked" });
+                      const nowTracked = await toggleTrack(bill);
+                      toast({ title: nowTracked ? "Bill tracked" : "Bill untracked" });
                     } catch {
                       toast({ title: "Error", variant: "destructive" });
                     }
                   }}
                 >
-                  <Bookmark className={`w-4 h-4 mr-2 ${isTracked(bill.id) ? "fill-current" : ""}`} />
-                  {isTracked(bill.id) ? "Tracking" : "Track Bill"}
+                  <Bookmark className={tracked ? "fill-current" : ""} aria-hidden="true" />
+                  {tracked ? "Tracked" : "Track bill"}
                 </Button>
               )}
-              <Button
-                variant="outline"
-                onClick={() => window.open(congressUrl, '_blank')}
-              >
-                <ExternalLink className="w-4 h-4 mr-2" />
-                Congress.gov
+              <Button asChild variant="outline">
+                <a href={congressUrl} target="_blank" rel="noopener noreferrer">
+                  <ExternalLink aria-hidden="true" />
+                  Congress.gov
+                </a>
               </Button>
               <Button variant="outline" onClick={handleShare}>
-                <Share2 className="w-4 h-4 mr-2" />
+                <Share2 aria-hidden="true" />
                 Share
               </Button>
-              <Button variant="outline" onClick={handlePrint} aria-label="Print summary">
-                <Printer className="w-4 h-4" aria-hidden="true" />
+              <Button variant="ghost" size="icon" onClick={handlePrint} aria-label="Print summary">
+                <Printer aria-hidden="true" />
               </Button>
             </div>
 
-            {/* Community Discussion */}
-            <div className="pt-2 border-t border-border">
+            {/* Community discussion */}
+            <div className="border-t border-border pt-4">
               <BillDiscussion billId={bill?.id || null} />
             </div>
           </div>

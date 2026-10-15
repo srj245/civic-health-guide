@@ -1,90 +1,103 @@
-import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
+import { useState, type KeyboardEvent } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { MapPin, Stethoscope, Brain, Pill, Heart, DollarSign, Phone, ExternalLink, Star, Navigation, AlertCircle, Map, List, Bookmark } from "lucide-react";
+import { MapPin, Stethoscope, Brain, Pill, Heart, DollarSign, Phone, ArrowRight, Star, Navigation, AlertCircle, Map, List, Bookmark } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useCareFinder, CareResult } from "@/hooks/useCareFinder";
 import { useFavorites, type FavoriteFacility } from "@/hooks/useFavorites";
 import { useAuth } from "@/hooks/useAuth";
 import CareMap from "@/components/sections/CareMap";
+import Section from "@/components/layout/Section";
+import { Surface, Chip, IconTile, FieldLabel, IconInput } from "@/components/ui/primitives";
+import { SegmentedControl } from "@/components/ui/segmented-control";
+import { EmptyState } from "@/components/ui/empty-state";
 
 const careCategories = [
-  { id: "primary", icon: Stethoscope, title: "Primary Care", description: "Community health centers and clinics for checkups and general care", color: "bg-primary" },
-  { id: "mental", icon: Brain, title: "Mental Health", description: "Counseling, therapy, and crisis support services", color: "bg-info" },
-  { id: "pharmacy", icon: Pill, title: "Low-Cost Rx", description: "Discount prescription programs and pharmacy assistance", color: "bg-success" },
-  { id: "specialty", icon: Heart, title: "Specialty Care", description: "Specialists with sliding-scale fees and charity programs", color: "bg-accent" },
+  { id: "primary", icon: Stethoscope, title: "Primary care", description: "Community health centers and clinics for checkups and general care" },
+  { id: "mental", icon: Brain, title: "Mental health", description: "Counseling, therapy, and crisis support services" },
+  { id: "pharmacy", icon: Pill, title: "Low-cost prescriptions", description: "Discount prescription programs and pharmacy assistance" },
+  { id: "specialty", icon: Heart, title: "Specialty care", description: "Specialists with sliding-scale fees and charity programs" },
 ];
 
-function ResultCard({ result, isFavorite, onToggleFavorite }: { result: CareResult; isFavorite: boolean; onToggleFavorite: () => void }) {
-  const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(result.address)}`;
+type ViewMode = "list" | "map";
 
+const viewOptions: { value: ViewMode; label: string; icon: typeof List }[] = [
+  { value: "list", label: "List", icon: List },
+  { value: "map", label: "Map", icon: Map },
+];
+
+function directionsHref(address: string) {
+  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`;
+}
+
+function ResultCard({ result, isFavorite, onToggleFavorite }: { result: CareResult; isFavorite: boolean; onToggleFavorite: () => void }) {
   return (
-    <Card className="lift border-border bg-card shadow-none">
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <h4 className="font-medium text-foreground truncate">{result.name}</h4>
-              <button type="button" onClick={onToggleFavorite} className="shrink-0 p-1 rounded hover:bg-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-pressed={isFavorite} aria-label={isFavorite ? `Remove ${result.name} from favorites` : `Save ${result.name} to favorites`}>
-                <Heart className={`w-4 h-4 transition-colors ${isFavorite ? "fill-destructive text-destructive" : "text-muted-foreground hover:text-destructive"}`} />
-              </button>
-            </div>
-            <p className="text-sm text-muted-foreground mt-1">
-              {result.distanceKm != null && (
-                <span className="text-foreground">{(result.distanceKm * 0.621371).toFixed(1)} mi · </span>
-              )}
-              {result.address}
-            </p>
-            <div className="flex items-center gap-3 mt-2 flex-wrap">
-              {result.rating && (
-                <span className="flex items-center gap-1 text-sm text-muted-foreground">
-                  <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                  {result.rating} ({result.totalRatings})
-                </span>
-              )}
-              {result.isOpen !== null && (
-                <Badge variant={result.isOpen ? "default" : "secondary"} className="text-xs">
-                  {result.isOpen ? "Open Now" : "Closed"}
-                </Badge>
-              )}
-            </div>
+    <Surface padding="md">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <h4 className="min-w-0 flex-1 truncate text-lg font-medium text-foreground">{result.name}</h4>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              onClick={onToggleFavorite}
+              aria-pressed={isFavorite}
+              aria-label={isFavorite ? `Remove ${result.name} from favorites` : `Save ${result.name} to favorites`}
+            >
+              <Heart className={`h-4 w-4 ${isFavorite ? "fill-destructive text-destructive" : "text-muted-foreground"}`} aria-hidden="true" />
+            </Button>
           </div>
-          <Button asChild variant="outline" size="sm" className="shrink-0 gap-1.5">
-            <a href={directionsUrl} target="_blank" rel="noopener noreferrer" aria-label={`Directions to ${result.name} (opens Google Maps)`}>
-              <Navigation className="w-3.5 h-3.5" aria-hidden="true" /> Directions
-            </a>
-          </Button>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {result.distanceKm != null && (
+              <span className="text-foreground">{(result.distanceKm * 0.621371).toFixed(1)} mi · </span>
+            )}
+            {result.address}
+          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-3">
+            {result.rating && (
+              <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                <Star className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                <span className="text-foreground">{result.rating}</span> ({result.totalRatings})
+              </span>
+            )}
+            {result.isOpen !== null && (
+              <Chip tone={result.isOpen ? "success" : "neutral"} dot>
+                {result.isOpen ? "Open now" : "Closed"}
+              </Chip>
+            )}
+          </div>
         </div>
-      </CardContent>
-    </Card>
+        <Button asChild variant="outline" size="sm" className="w-full gap-1.5 sm:w-auto sm:shrink-0">
+          <a href={directionsHref(result.address)} target="_blank" rel="noopener noreferrer" aria-label={`Directions to ${result.name} (opens Google Maps)`}>
+            <Navigation className="h-3.5 w-3.5" aria-hidden="true" /> Directions
+          </a>
+        </Button>
+      </div>
+    </Surface>
   );
 }
 
 function FavoriteCard({ fav, onRemove }: { fav: FavoriteFacility; onRemove: () => void }) {
-  const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(fav.address)}`;
   return (
-    <Card className="border-border bg-card shadow-none">
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <h4 className="font-medium text-foreground truncate text-sm">{fav.name}</h4>
-              <button type="button" onClick={onRemove} className="shrink-0 p-1 rounded hover:bg-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={`Remove ${fav.name} from favorites`}>
-                <Heart className="w-3.5 h-3.5 fill-destructive text-destructive" />
-              </button>
-            </div>
-            <p className="text-xs text-muted-foreground mt-0.5 truncate">{fav.address}</p>
+    <Surface padding="sm">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <h4 className="min-w-0 flex-1 truncate text-sm text-foreground">{fav.name}</h4>
+            <Button type="button" variant="ghost" size="icon-sm" onClick={onRemove} aria-label={`Remove ${fav.name} from favorites`}>
+              <Heart className="h-3.5 w-3.5 fill-destructive text-destructive" aria-hidden="true" />
+            </Button>
           </div>
-          <Button asChild variant="ghost" size="sm" className="shrink-0 h-7 px-2 text-xs gap-1">
-            <a href={directionsUrl} target="_blank" rel="noopener noreferrer" aria-label={`Directions to ${fav.name} (opens Google Maps)`}>
-              <Navigation className="w-3 h-3" aria-hidden="true" /> Go
-            </a>
-          </Button>
+          <p className="mt-0.5 truncate text-xs text-muted-foreground">{fav.address}</p>
         </div>
-      </CardContent>
-    </Card>
+        <Button asChild variant="ghost" size="sm" className="shrink-0 gap-1">
+          <a href={directionsHref(fav.address)} target="_blank" rel="noopener noreferrer" aria-label={`Directions to ${fav.name} (opens Google Maps)`}>
+            <Navigation className="h-3.5 w-3.5" aria-hidden="true" /> Directions
+          </a>
+        </Button>
+      </div>
+    </Surface>
   );
 }
 
@@ -92,13 +105,11 @@ function ResultsSkeleton() {
   return (
     <div className="space-y-3">
       {[1, 2, 3].map((i) => (
-        <Card key={i} className="border-border shadow-none">
-          <CardContent className="p-4">
-            <Skeleton className="h-5 w-2/3 mb-2" />
-            <Skeleton className="h-4 w-full mb-2" />
-            <Skeleton className="h-4 w-1/3" />
-          </CardContent>
-        </Card>
+        <Surface key={i} padding="md">
+          <Skeleton className="mb-2 h-5 w-2/3" />
+          <Skeleton className="mb-2 h-4 w-full" />
+          <Skeleton className="h-4 w-1/3" />
+        </Surface>
       ))}
     </div>
   );
@@ -109,7 +120,7 @@ const FindCareSection = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [lowCostOnly, setLowCostOnly] = useState(false);
   const [includeTelehealth, setIncludeTelehealth] = useState(false);
-  const [viewMode, setViewMode] = useState<"list" | "map">("list");
+  const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [selectedResultId, setSelectedResultId] = useState<string | null>(null);
   const { toast } = useToast();
   const { results, loading, error, searched, search, location } = useCareFinder();
@@ -129,204 +140,162 @@ const FindCareSection = () => {
   };
 
   return (
-    <section id="care" className="px-6 py-6 md:px-10 md:py-8 bg-background">
-      <div className="mx-auto max-w-6xl">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid lg:grid-cols-5 gap-8 items-start">
-            {/* Search Card */}
-            <div className="lg:col-span-2 space-y-4">
-              <Card className="border-border bg-card shadow-none">
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-medium text-foreground mb-4">Find resources near you</h3>
-                  <label htmlFor="care-location" className="text-sm font-medium text-foreground mb-2 block">Zip code or city</label>
-                  <div className="relative mb-4">
-                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" aria-hidden="true" />
-                    <input
-                      id="care-location"
-                      type="text"
-                      autoComplete="postal-code"
-                      value={zipCode}
-                      onChange={(e) => setZipCode(e.target.value)}
-                      onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                      placeholder="Enter your zip code or city"
-                      className="w-full pl-10 pr-4 py-3 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                    />
-                  </div>
-                  <div className="mb-6">
-                    <p id="care-type-label" className="text-sm font-medium text-foreground mb-2 block">What type of care do you need?</p>
-                    <div className="grid grid-cols-2 gap-2" role="group" aria-labelledby="care-type-label">
-                      {careCategories.map((cat) => (
-                        <button
-                          key={cat.id}
-                          type="button"
-                          aria-pressed={selectedCategory === cat.id}
-                          onClick={() => handleCategoryClick(cat.id)}
-                          className={`flex items-center gap-2 p-3 rounded-lg border transition-colors text-left group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-                            selectedCategory === cat.id
-                              ? "border-primary bg-primary/10"
-                              : "border-border bg-background hover:bg-secondary hover:border-primary/30"
-                          }`}
-                        >
-                          <div className={`w-8 h-8 rounded-lg ${cat.color} flex items-center justify-center flex-shrink-0`} aria-hidden="true">
-                            <cat.icon className="w-4 h-4 text-primary-foreground" />
-                          </div>
-                          <span className={`text-sm font-medium transition-colors ${
-                            selectedCategory === cat.id ? "text-primary" : "text-foreground group-hover:text-primary"
-                          }`}>{cat.title}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="space-y-3 mb-6">
-                    <label className="flex items-center gap-3 cursor-pointer">
-                      <input type="checkbox" checked={lowCostOnly} onChange={(e) => setLowCostOnly(e.target.checked)} className="w-4 h-4 rounded border-input accent-primary" />
-                      <span className="text-sm text-muted-foreground"><DollarSign className="w-4 h-4 inline mr-1" />Show only free/low-cost options</span>
-                    </label>
-                    <label className="flex items-center gap-3 cursor-pointer">
-                      <input type="checkbox" checked={includeTelehealth} onChange={(e) => setIncludeTelehealth(e.target.checked)} className="w-4 h-4 rounded border-input accent-primary" />
-                      <span className="text-sm text-muted-foreground"><Phone className="w-4 h-4 inline mr-1" />Include telehealth options</span>
-                    </label>
-                  </div>
-                  <Button variant="default" className="w-full" size="lg" onClick={handleSearch} disabled={loading}>
-                    {loading ? "Searching..." : "Search for Care"}
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* Saved Favorites */}
-              {user && favorites.length > 0 && (
-                <Card className="border-border bg-card shadow-none">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Bookmark className="w-4 h-4 text-primary" />
-                      <h4 className="text-sm font-medium text-foreground">Saved Facilities ({favorites.length})</h4>
-                    </div>
-                    <div className="space-y-2 max-h-[300px] overflow-y-auto">
-                      {favorites.map((fav) => (
-                        <FavoriteCard
-                          key={fav.id}
-                          fav={fav}
-                          onRemove={() => toggleFavorite({ id: fav.place_id, name: fav.name, address: fav.address, rating: fav.rating, totalRatings: 0, isOpen: null, lat: fav.lat ?? 0, lng: fav.lng ?? 0, types: [] })}
-                        />
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
+    <Section first id="care">
+      <div className="grid items-start gap-6 lg:grid-cols-5">
+        {/* Search */}
+        <div className="space-y-4 lg:col-span-2">
+          <Surface padding="lg">
+            <h3 className="mb-4 text-lg text-foreground">Find resources near you</h3>
+            {/* FieldLabel's prop type omits htmlFor; spread keeps the association until primitives.tsx widens it. */}
+            <FieldLabel htmlFor="care-location">Zip code or city</FieldLabel>
+            <div className="mb-4">
+              <IconInput
+                icon={MapPin}
+                id="care-location"
+                type="text"
+                autoComplete="postal-code"
+                value={zipCode}
+                onChange={(e) => setZipCode(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                placeholder="Enter your zip code or city"
+              />
             </div>
+            <div className="mb-6">
+              <p id="care-type-label" className="mb-2 block text-sm text-foreground">What type of care do you need?</p>
+              <div className="grid grid-cols-2 gap-2" role="group" aria-labelledby="care-type-label">
+                {careCategories.map((cat) => {
+                  const selected = selectedCategory === cat.id;
+                  return (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      aria-pressed={selected}
+                      onClick={() => handleCategoryClick(cat.id)}
+                      className={`flex min-h-11 items-center gap-2 rounded-md border p-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                        selected ? "border-foreground bg-secondary" : "border-border hover:bg-secondary"
+                      }`}
+                    >
+                      <IconTile icon={cat.icon} size="sm" />
+                      <span className="text-sm text-foreground">{cat.title}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <div className="mb-6 space-y-3">
+              <label className="flex cursor-pointer items-center gap-3">
+                <input type="checkbox" checked={lowCostOnly} onChange={(e) => setLowCostOnly(e.target.checked)} className="h-4 w-4 accent-foreground" />
+                <span className="text-sm text-muted-foreground"><DollarSign className="mr-1 inline h-4 w-4" aria-hidden="true" />Show only free or low-cost options</span>
+              </label>
+              <label className="flex cursor-pointer items-center gap-3">
+                <input type="checkbox" checked={includeTelehealth} onChange={(e) => setIncludeTelehealth(e.target.checked)} className="h-4 w-4 accent-foreground" />
+                <span className="text-sm text-muted-foreground"><Phone className="mr-1 inline h-4 w-4" aria-hidden="true" />Include telehealth options</span>
+              </label>
+            </div>
+            <Button size="lg" className="w-full" onClick={handleSearch} disabled={loading}>
+              {loading ? "Searching..." : "Search for care"}
+            </Button>
+          </Surface>
 
-            {/* Results / Categories */}
-            <div className="lg:col-span-3 space-y-4">
-              {loading && <ResultsSkeleton />}
+          {/* Saved facilities */}
+          {user && favorites.length > 0 && (
+            <Surface padding="sm">
+              <div className="mb-3 flex items-center gap-2">
+                <Bookmark className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                <h4 className="text-sm text-foreground">Saved facilities ({favorites.length})</h4>
+              </div>
+              <div className="max-h-[300px] space-y-2 overflow-y-auto">
+                {favorites.map((fav) => (
+                  <FavoriteCard
+                    key={fav.id}
+                    fav={fav}
+                    onRemove={() => toggleFavorite({ id: fav.place_id, name: fav.name, address: fav.address, rating: fav.rating, totalRatings: 0, isOpen: null, lat: fav.lat ?? 0, lng: fav.lng ?? 0, types: [] })}
+                  />
+                ))}
+              </div>
+            </Surface>
+          )}
+        </div>
 
-              {!loading && searched && error && (
-                <Card className="border-destructive/30 bg-destructive/5 shadow-none" role="alert">
-                  <CardContent className="p-5 flex items-center gap-3">
-                    <AlertCircle className="w-5 h-5 text-destructive shrink-0" />
-                    <p className="text-sm text-foreground">{error}</p>
-                  </CardContent>
-                </Card>
+        {/* Results / categories */}
+        <div className="space-y-4 lg:col-span-3">
+          {loading && <ResultsSkeleton />}
+
+          {!loading && searched && error && (
+            <EmptyState variant="error" icon={AlertCircle} title="Something went wrong" body={error} />
+          )}
+
+          {!loading && searched && !error && results.length === 0 && (
+            <EmptyState icon={MapPin} title="No results found" body="Try a different zip code or broaden your search category." />
+          )}
+
+          {!loading && results.length > 0 && (
+            <div className="space-y-3" data-stagger>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-sm text-muted-foreground" aria-live="polite">{results.length} results{location ? ` near ${location.label}` : ""}</p>
+                <SegmentedControl<ViewMode> value={viewMode} onChange={setViewMode} options={viewOptions} label="Results view" />
+              </div>
+
+              {viewMode === "map" && (
+                <CareMap results={results} selectedId={selectedResultId} onSelect={setSelectedResultId} />
               )}
 
-              {!loading && searched && !error && results.length === 0 && (
-                <Card className="border-border bg-card shadow-none">
-                  <CardContent className="p-8 text-center">
-                    <MapPin className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-                    <h4 className="font-medium text-foreground mb-1">No results found</h4>
-                    <p className="text-sm text-muted-foreground">Try a different zip code or broaden your search category.</p>
-                  </CardContent>
-                </Card>
-              )}
-
-              {!loading && results.length > 0 && (
-                <div className="space-y-3" data-stagger>
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm text-muted-foreground" aria-live="polite">{results.length} results{location ? ` near ${location.label}` : ""}</p>
-                    <div className="flex items-center gap-1 bg-secondary rounded-lg p-1" role="group" aria-label="Results view">
-                      <button
-                        type="button"
-                        aria-pressed={viewMode === "list"}
-                        onClick={() => setViewMode("list")}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${viewMode === "list" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
-                      >
-                        <List className="w-4 h-4" aria-hidden="true" /> List
-                      </button>
-                      <button
-                        type="button"
-                        aria-pressed={viewMode === "map"}
-                        onClick={() => setViewMode("map")}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${viewMode === "map" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
-                      >
-                        <Map className="w-4 h-4" aria-hidden="true" /> Map
-                      </button>
-                    </div>
-                  </div>
-
-                  {viewMode === "map" && (
-                    <CareMap results={results} selectedId={selectedResultId} onSelect={setSelectedResultId} />
-                  )}
-
-                  {results.map((result) => (
-                    <ResultCard key={result.id} result={result} isFavorite={isFavorite(result.id)} onToggleFavorite={() => toggleFavorite(result)} />
-                  ))}
-                </div>
-              )}
-
-              {!searched && !loading && careCategories.map((category) => (
-                <Card
-                  key={category.id}
-                  role="button"
-                  tabIndex={0}
-                  aria-pressed={selectedCategory === category.id}
-                  aria-label={`${selectedCategory === category.id ? "Deselect" : "Select"} ${category.title}`}
-                  onClick={() => handleCategoryClick(category.id)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      handleCategoryClick(category.id);
-                    }
-                  }}
-                  className={`border-border bg-card shadow-none transition-colors cursor-pointer group hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
-                    selectedCategory === category.id ? "border-primary" : ""
-                  }`}
-                >
-                  <CardContent className="p-5">
-                    <div className="flex items-center gap-4">
-                      <div className={`w-12 h-12 rounded-lg ${category.color} flex items-center justify-center flex-shrink-0`} aria-hidden="true">
-                        <category.icon className="w-6 h-6 text-primary-foreground" />
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="font-medium text-foreground group-hover:text-primary transition-colors">{category.title}</h4>
-                        <p className="text-sm text-muted-foreground">{category.description}</p>
-                      </div>
-                      <ExternalLink className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" aria-hidden="true" />
-                    </div>
-                  </CardContent>
-                </Card>
+              {results.map((result) => (
+                <ResultCard key={result.id} result={result} isFavorite={isFavorite(result.id)} onToggleFavorite={() => toggleFavorite(result)} />
               ))}
+            </div>
+          )}
 
-              {/* Emergency Callout */}
-              <div className="p-5 rounded-lg bg-destructive/10 border border-destructive/20">
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-destructive flex items-center justify-center flex-shrink-0" aria-hidden="true">
-                    <Phone className="w-5 h-5 text-destructive-foreground" />
+          {!searched && !loading && careCategories.map((category) => {
+            const selected = selectedCategory === category.id;
+            return (
+              <Surface
+                key={category.id}
+                variant="interactive"
+                padding="md"
+                role="button"
+                tabIndex={0}
+                aria-pressed={selected}
+                aria-label={`${selected ? "Deselect" : "Select"} ${category.title}`}
+                onClick={() => handleCategoryClick(category.id)}
+                onKeyDown={(e: KeyboardEvent<HTMLElement>) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleCategoryClick(category.id);
+                  }
+                }}
+                className={selected ? "border-foreground" : undefined}
+              >
+                <div className="flex items-center gap-4">
+                  <IconTile icon={category.icon} size="md" />
+                  <div className="min-w-0 flex-1">
+                    <h4 className="text-lg text-foreground">{category.title}</h4>
+                    <p className="text-sm text-muted-foreground">{category.description}</p>
                   </div>
-                  <div>
-                    <h4 className="font-medium text-foreground mb-1">Need immediate help?</h4>
-                    <p className="text-sm text-muted-foreground mb-2">If you're experiencing a medical or mental health emergency</p>
-                    <div className="flex flex-wrap gap-3 text-sm">
-                      <a href="tel:911" className="font-medium text-destructive hover:underline">Call 911</a>
-                      <span className="text-muted-foreground">•</span>
-                      <a href="tel:988" className="font-medium text-destructive hover:underline">988 Suicide & Crisis Lifeline</a>
-                    </div>
-                  </div>
+                  <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                </div>
+              </Surface>
+            );
+          })}
+
+          {/* Emergency */}
+          <Surface padding="md" className="border-destructive/40">
+            <div className="flex items-start gap-3">
+              <IconTile icon={Phone} className="text-destructive" />
+              <div>
+                <h4 className="mb-1 text-lg text-foreground">Need immediate help?</h4>
+                <p className="mb-2 text-sm text-muted-foreground">If you're experiencing a medical or mental health emergency</p>
+                <div className="flex flex-wrap gap-3 text-sm">
+                  <a href="tel:911" className="text-destructive hover:underline">Call 911</a>
+                  <span className="text-muted-foreground" aria-hidden="true">·</span>
+                  <a href="tel:988" className="text-destructive hover:underline">988 Suicide and Crisis Lifeline</a>
                 </div>
               </div>
             </div>
-          </div>
+          </Surface>
         </div>
       </div>
-    </section>
+    </Section>
   );
 };
 

@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import Reveal from "@/components/motion/Reveal";
+import Section from "@/components/layout/Section";
+import { SectionHeading } from "@/components/ui/primitives";
 import HeroSection from "@/components/sections/HeroSection";
 import LiveBillsSection from "@/components/sections/LiveBillsSection";
 import HowItWorksSection from "@/components/sections/HowItWorksSection";
@@ -22,10 +24,10 @@ const Index = () => {
       <HeroSection />
       <LiveBillsSection />
 
-      <section className="border-t border-border px-6 py-14 md:px-10 md:py-20" aria-labelledby="start-heading">
-        <div className="mx-auto max-w-6xl">
-          <Reveal as="h2" id="start-heading" className="text-2xl tracking-tight text-foreground md:text-3xl">
-            Start here
+      <Section rule aria-labelledby="start-heading">
+        <div>
+          <Reveal>
+            <SectionHeading id="start-heading" title="Start here" />
           </Reveal>
           <Reveal stagger delay={80} className="mt-8 grid gap-px overflow-hidden rounded-md border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
             {quickActions.map((action) => (
@@ -33,7 +35,7 @@ const Index = () => {
                 key={action.title}
                 to={action.href}
                
-                className="group nudge-down bg-background p-6 transition-colors duration-300 hover:bg-secondary"
+                className="group nudge-down bg-card p-6 transition-colors duration-300 hover:bg-secondary"
               >
                 <h3 className="text-lg text-foreground">{action.title}</h3>
                 <p className="mt-1 text-sm text-muted-foreground">{action.description}</p>
@@ -47,7 +49,7 @@ const Index = () => {
             ))}
           </Reveal>
         </div>
-      </section>
+      </Section>
 
       <HowItWorksSection />
       <ActionSection />

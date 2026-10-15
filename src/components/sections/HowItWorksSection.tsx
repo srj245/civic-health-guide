@@ -1,5 +1,7 @@
 import { Search, BookOpen, HeartHandshake } from "lucide-react";
 import Reveal from "@/components/motion/Reveal";
+import Section from "@/components/layout/Section";
+import { SectionHeading } from "@/components/ui/primitives";
 
 const steps = [
   {
@@ -21,10 +23,10 @@ const steps = [
 
 const HowItWorksSection = () => {
   return (
-    <section id="how-it-works" className="border-t border-border px-6 py-14 md:px-10 md:py-20" aria-labelledby="how-heading">
-      <div className="mx-auto max-w-6xl">
-        <Reveal as="h2" id="how-heading" className="text-2xl font-medium tracking-tight text-foreground md:text-3xl">
-          How CivicCare works
+    <Section rule id="how-it-works" aria-labelledby="how-heading">
+      <div>
+        <Reveal>
+          <SectionHeading id="how-heading" title="How CivicCare works" />
         </Reveal>
         <Reveal as="ol" stagger delay={100} className="mt-10 grid gap-10 md:grid-cols-3">
           {steps.map((s, i) => (
@@ -37,8 +39,8 @@ const HowItWorksSection = () => {
               </span>
               <div>
                 <div className="flex items-center gap-2">
-                  <s.icon className="h-4 w-4 text-primary" aria-hidden="true" />
-                  <h3 className="font-medium text-foreground">{s.title}</h3>
+                  <s.icon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                  <h3 className="text-lg text-foreground">{s.title}</h3>
                 </div>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.description}</p>
               </div>
@@ -46,7 +48,7 @@ const HowItWorksSection = () => {
           ))}
         </Reveal>
       </div>
-    </section>
+    </Section>
   );
 };
 
