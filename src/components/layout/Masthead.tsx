@@ -18,7 +18,7 @@ const Masthead = () => {
 
   return (
     <header className="masthead relative flex flex-col items-center" role="banner">
-      <div className="absolute right-4 top-3 flex items-center gap-1 sm:right-6">
+      <div className="masthead-tools flex items-center gap-1">
         {user ? (
           <button
             type="button"

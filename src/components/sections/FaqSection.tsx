@@ -33,7 +33,7 @@ const faqs = [
 
 const FaqSection = () => {
   return (
-    <Section rule id="faq" aria-labelledby="faq-heading">
+    <Section rule tint id="faq" aria-labelledby="faq-heading">
       <div className="grid gap-10 md:grid-cols-[1fr_2fr]">
         <Reveal>
           <SectionHeading id="faq-heading" title="Common questions" />

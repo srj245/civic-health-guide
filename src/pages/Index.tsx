@@ -24,7 +24,7 @@ const Index = () => {
       <HeroSection />
       <LiveBillsSection />
 
-      <Section rule aria-labelledby="start-heading">
+      <Section rule tint aria-labelledby="start-heading">
         <div>
           <Reveal>
             <SectionHeading id="start-heading" title="Start here" />

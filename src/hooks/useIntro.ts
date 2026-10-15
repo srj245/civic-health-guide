@@ -27,7 +27,9 @@ export function useIntro<T extends HTMLElement>() {
       "animate" in HTMLElement.prototype &&
       typeof window.matchMedia === "function";
     const reduced = canAnimate && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!canAnimate || reduced) {
+    // A hidden tab pauses animations; show the page immediately rather than hold it blank.
+    const hidden = typeof document !== "undefined" && document.visibilityState === "hidden";
+    if (!canAnimate || reduced || hidden) {
       document.documentElement.dataset.intro = "done";
       return;
     }
@@ -36,9 +38,14 @@ export function useIntro<T extends HTMLElement>() {
 
     let started = false;
     let cancelled = false;
+    // Hard stop: whatever state the animations are in, the page is visible by 3.5s.
+    let anims: Animation[] = [];
     const failsafe = window.setTimeout(() => {
-      if (!started) root.classList.remove("intro");
-    }, 4000);
+      if (document.documentElement.dataset.intro === "done") return;
+      anims.forEach((a) => a.cancel());
+      root.classList.remove("intro");
+      document.documentElement.dataset.intro = "done";
+    }, 3500);
 
     const q = (name: string) => Array.from(root.querySelectorAll<HTMLElement>(`[data-io="${name}"]`));
     const mark = q("mark")[0];
@@ -47,7 +54,7 @@ export function useIntro<T extends HTMLElement>() {
     const start = () => {
       if (cancelled || started) return;
       started = true;
-      const anims: Animation[] = [];
+      anims = [];
       const run = (el: HTMLElement | undefined, frames: Keyframe[], delay: number, duration: number, easing: string) => {
         if (!el) return;
         anims.push(el.animate(frames, { delay, duration, easing, fill: "both" }));
@@ -69,7 +76,8 @@ export function useIntro<T extends HTMLElement>() {
       run(q("arrow")[0], [{ transform: `translateY(${-5 * k}px)` }, { transform: "none" }], 1120, 820, EXPO);
 
       Promise.all(anims.map((a) => a.finished.catch(() => undefined))).then(() => {
-        if (cancelled) return;
+        if (cancelled || document.documentElement.dataset.intro === "done") return;
+        window.clearTimeout(failsafe);
         root.classList.remove("intro");
         anims.forEach((a) => a.cancel());
         if (!root.contains(document.activeElement)) {

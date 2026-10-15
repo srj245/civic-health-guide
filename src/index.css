@@ -123,7 +123,6 @@
   body {
     @apply text-foreground;
     background: var(--sky);
-    background-attachment: fixed;
     min-height: 100vh;
   }
 
@@ -156,6 +155,14 @@
 /* ===== Masthead ===== */
 .masthead {
   padding-top: calc(env(safe-area-inset-top, 0px) + 28 * var(--u));
+}
+.masthead-tools {
+  position: absolute;
+  right: 16px;
+  top: calc(env(safe-area-inset-top, 0px) + 28 * var(--u) - 8px);
+}
+@media (min-width: 640px) {
+  .masthead-tools { right: 24px; }
 }
 .masthead-mark {
   font-size: max(23.5 * var(--u), 17px);
@@ -192,12 +199,11 @@
 
 /* ===== Hero ===== */
 .hero {
-  min-height: calc(100vh - 150px);
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 0 24px calc(48 * var(--u));
+  padding: 0 24px calc(32 * var(--u));
 }
 @supports (height: 100dvh) {
   .hero {
@@ -205,8 +211,8 @@
   }
 }
 .hero-gap {
-  flex: 82.98 1 0;
-  min-height: calc(24 * var(--u));
+  flex: 0 0 auto;
+  height: calc(56 * var(--u));
 }
 .hero-h1 {
   font-weight: 400;
@@ -289,19 +295,6 @@
 .hero-link:hover svg {
   transform: translateY(0.12em);
 }
-.hero-field {
-  flex: 318.68 1 0;
-  min-height: calc(120 * var(--u));
-  width: 100%;
-  position: relative;
-  pointer-events: none;
-  background:
-    radial-gradient(60% 55% at 50% 100%, rgba(120, 170, 255, 0.16) 0%, rgba(120, 170, 255, 0.05) 45%, transparent 75%);
-  mask-image: linear-gradient(to bottom, transparent 0%, #000 12%);
-}
-.light .hero-field {
-  background: radial-gradient(60% 55% at 50% 100%, rgba(30, 80, 200, 0.12) 0%, transparent 70%);
-}
 
 /* Entrance: elements start hidden only while .intro is set. */
 .intro .io {
@@ -327,9 +320,6 @@
   :root {
     --u: min(calc(100vh / 800), 1px, max(calc(100vw / 1280), calc(100vh / 1190), 0.86px));
   }
-  .hero-field {
-    max-height: 48vh;
-  }
 }
 @media (max-width: 599.98px) {
   :root {
@@ -348,17 +338,10 @@
   .hero-gap {
     min-height: calc(40 * var(--u));
   }
-  .hero-field {
-    min-height: calc(90 * var(--u));
-    max-height: 32svh;
-  }
   .hero-sub {
     font-size: max(16px, min(21 * var(--u), 3.345vw));
     line-height: 1.25;
     overflow-wrap: break-word;
-  }
-  .hero-field {
-    max-height: 48svh;
   }
   .masthead-nav {
     font-size: 13px;
@@ -373,7 +356,6 @@
   .hero-btn { width: 150px; height: 34px; font-size: 12.5px; }
   .hero-link { font-size: 11px; }
   .hero-gap { min-height: calc(14 * var(--u)); }
-  .hero-field { min-height: calc(120 * var(--u)); }
 }
 @media (max-width: 359px) {
   .hero-h1 {
@@ -436,7 +418,7 @@
 
 /* Route change: the new page rises in. */
 html[data-js] .page-enter {
-  animation: rise 0.6s var(--ease-expo) both;
+  animation: rise 0.4s var(--ease-expo) both;
 }
 
 /* Scroll reveal (see useReveal). */
@@ -444,7 +426,7 @@ html[data-js] [data-reveal=""] {
   opacity: 0;
 }
 html[data-js] [data-reveal="in"] {
-  animation: rise 0.8s var(--ease-expo) both;
+  animation: rise 0.55s var(--ease-expo) both;
   animation-delay: var(--reveal-delay, 0ms);
 }
 html[data-js] [data-reveal=""][data-stagger] > * {
@@ -688,12 +670,13 @@ html[data-js] .chat-fab::before {
 .hero-input:hover { border-color: hsl(0 0% 100% / 0.38); }
 .light .hero-input:hover { border-color: hsl(215 25% 12% / 0.35); }
 .hero-field {
-  flex: 1 1 auto;
-  min-height: calc(60 * var(--u));
   width: 100%;
   max-width: 64rem;
-  margin-top: calc(40 * var(--u));
+  margin-top: calc(32 * var(--u));
   text-align: left;
+}
+.hero-field:empty {
+  margin-top: calc(16 * var(--u));
 }
 .hero-error { color: hsl(var(--destructive)); font-size: 14px; text-align: center; }
 .hero-results-wrap { animation: rise 0.7s var(--ease-expo) both; }

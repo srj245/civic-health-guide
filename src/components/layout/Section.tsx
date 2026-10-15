@@ -24,8 +24,8 @@ const widths = {
 const Section = ({ as: Tag = "section", width = "default", tint, rule, first, className, children, ...rest }: SectionProps) => (
   <Tag
     className={cn(
-      "px-6 py-14 md:px-10 md:py-20",
-      first && "pt-0 md:pt-0",
+      "px-6 py-12 md:px-10 md:py-16",
+      first && "pt-10 md:pt-12",
       rule && "border-t border-border",
       tint && "bg-secondary/40",
       className,

@@ -56,7 +56,7 @@ const ActionSection = () => {
   };
 
   return (
-    <Section rule tint id="action" aria-labelledby="action-heading">
+    <Section rule id="action" aria-labelledby="action-heading">
       <div>
         <Reveal>
           <SectionHeading id="action-heading" title="Take action" lede="Three things you can do in the next five minutes." />
