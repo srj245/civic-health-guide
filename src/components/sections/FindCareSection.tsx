@@ -21,7 +21,7 @@ function ResultCard({ result, isFavorite, onToggleFavorite }: { result: CareResu
   const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(result.address)}`;
 
   return (
-    <Card className="lift border-border bg-card shadow-none">
+    <Card data-spotlight className="lift border-border bg-card shadow-none">
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">

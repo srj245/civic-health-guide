@@ -127,7 +127,7 @@ const NewsSection = () => {
                 key={bill.id}
                 role="button"
                 tabIndex={0}
-                className="group lift cursor-pointer border-border bg-card"
+                data-spotlight className="bill-card group lift cursor-pointer border-border bg-card"
                 onClick={() => handleReadMore(bill)}
                 onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleReadMore(bill); } }}
               >
@@ -136,7 +136,7 @@ const NewsSection = () => {
                     <Badge variant="outline" className="text-xs font-medium">
                       {getBillCategory(bill.title)}
                     </Badge>
-                    <span className="text-xs text-muted-foreground font-mono">
+                    <span className="bill-id text-xs text-muted-foreground font-mono">
                       {bill.type.toUpperCase()}{bill.number}
                     </span>
                   </div>

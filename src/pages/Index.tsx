@@ -33,6 +33,7 @@ const Index = () => {
               <Link
                 key={action.title}
                 to={action.href}
+                data-spotlight
                 className="group nudge-down bg-background p-6 transition-colors duration-300 hover:bg-secondary"
               >
                 <h3 className="text-lg text-foreground">{action.title}</h3>

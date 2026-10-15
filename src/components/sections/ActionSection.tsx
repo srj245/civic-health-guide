@@ -65,7 +65,7 @@ const ActionSection = () => {
         <Reveal stagger delay={120} className="mt-8 grid gap-4 md:grid-cols-3">
           <Link
             to="/representatives"
-            className="group lift nudge rounded-lg border border-border bg-card p-5"
+            data-spotlight className="group lift nudge rounded-lg border border-border bg-card p-5"
           >
             <Mail className="h-5 w-5 text-primary" aria-hidden="true" />
             <h3 className="mt-4 font-medium text-foreground">Message your representative</h3>
@@ -82,7 +82,7 @@ const ActionSection = () => {
             href="https://www.vote.org/am-i-registered-to-vote/"
             target="_blank"
             rel="noopener noreferrer"
-            className="group lift nudge rounded-lg border border-border bg-card p-5"
+            data-spotlight className="group lift nudge rounded-lg border border-border bg-card p-5"
           >
             <Vote className="h-5 w-5 text-primary" aria-hidden="true" />
             <h3 className="mt-4 font-medium text-foreground">Check your voter registration</h3>
@@ -98,7 +98,7 @@ const ActionSection = () => {
           <button
             type="button"
             onClick={handleShare}
-            className="group lift nudge rounded-lg border border-border bg-card p-5 text-left"
+            data-spotlight className="group lift nudge rounded-lg border border-border bg-card p-5 text-left"
           >
             <Share2 className="h-5 w-5 text-primary" aria-hidden="true" />
             <h3 className="mt-4 font-medium text-foreground">Share CivicCare</h3>

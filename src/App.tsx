@@ -8,6 +8,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { TrackedBillsProvider } from "@/hooks/useTrackedBills";
 import AppLayout from "@/components/layout/AppLayout";
 import ScrollToTop from "@/components/ScrollToTop";
+import RouteProgress from "@/components/motion/RouteProgress";
 
 const Index = lazy(() => import("./pages/Index"));
 const News = lazy(() => import("./pages/News"));
@@ -25,11 +26,6 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
 
-const PageFallback = () => (
-  <div className="flex items-center justify-center min-h-[60vh]">
-    <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-  </div>
-);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -41,7 +37,7 @@ const App = () => (
         <BrowserRouter>
           <ScrollToTop />
           <AppLayout>
-            <Suspense fallback={<PageFallback />}>
+            <Suspense fallback={<RouteProgress />}>
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/news" element={<News />} />
