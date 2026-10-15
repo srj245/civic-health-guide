@@ -10,6 +10,7 @@ import CareMap from "@/components/sections/CareMap";
 import Section from "@/components/layout/Section";
 import { Surface, Chip, IconTile, FieldLabel, IconInput } from "@/components/ui/primitives";
 import { SegmentedControl } from "@/components/ui/segmented-control";
+import MinnesotaResources from "@/components/sections/MinnesotaResources";
 import { EmptyState } from "@/components/ui/empty-state";
 
 const careCategories = [
@@ -277,6 +278,8 @@ const FindCareSection = () => {
               </Surface>
             );
           })}
+
+          {!searched && !loading && <MinnesotaResources />}
 
           {/* Emergency */}
           <Surface padding="md" className="border-destructive/40">

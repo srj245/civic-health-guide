@@ -10,6 +10,7 @@ import { useTrackedBills } from "@/hooks/useTrackedBills";
 import { useAuth } from "@/hooks/useAuth";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { ordinal } from "@/lib/format";
+import BillTimeline from "@/components/sections/BillTimeline";
 
 const Dashboard = () => {
   usePageTitle("Your bills", "Track and follow health bills that matter to you.");
@@ -75,6 +76,7 @@ const Dashboard = () => {
                       <Chip>{ordinal(bill.congress)} Congress</Chip>
                     </div>
                     <h3 className="line-clamp-2 text-lg text-foreground">{bill.bill_title}</h3>
+                    <BillTimeline latestActionText={bill.latest_action_text} type={bill.bill_type} compact className="mt-2" />
                     {bill.latest_action_text && (
                       <p className="mt-2 flex items-start gap-2 text-sm text-muted-foreground">
                         <Calendar className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />

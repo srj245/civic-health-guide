@@ -7,6 +7,7 @@ import Section from "@/components/layout/Section";
 import { Button } from "@/components/ui/button";
 import { useHealthBills } from "@/hooks/useCongressApi";
 import { timeAgo } from "@/lib/time";
+import BillTimeline from "@/components/sections/BillTimeline";
 
 function formatDate(iso?: string) {
   if (!iso) return "";
@@ -68,6 +69,7 @@ const LiveBillsSection = () => {
                     {bill.latestAction?.actionDate && ` · ${formatDate(bill.latestAction.actionDate)}`}
                   </p>
                   <p className="mt-1 text-base leading-snug text-foreground group-hover:text-accent">{bill.title}</p>
+                  <BillTimeline latestActionText={bill.latestAction?.text} type={bill.type} compact className="mt-2" />
                 </Link>
               </li>
             ))}

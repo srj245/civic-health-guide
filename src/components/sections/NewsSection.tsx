@@ -11,6 +11,7 @@ import { useTrackedBills } from "@/hooks/useTrackedBills";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import BillDetailModal from "./BillDetailModal";
+import BillTimeline from "@/components/sections/BillTimeline";
 
 function formatActionDate(dateString?: string): string | null {
   if (!dateString) return null;
@@ -150,6 +151,8 @@ const NewsSection = () => {
                   {bill.latestAction.text}
                 </p>
               )}
+
+              <BillTimeline latestActionText={bill.latestAction?.text} type={bill.type} compact className="mb-3" />
 
               {/* Footer */}
               <div className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-border pt-3">

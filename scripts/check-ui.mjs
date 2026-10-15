@@ -7,6 +7,7 @@ const ROOT = new URL("../src", import.meta.url).pathname.replace(/^\/([A-Za-z]:)
 const ALLOW = new Set([
   "components/ui/button.tsx",
   "components/ui/primitives.tsx",
+  "components/sections/BillTimeline.tsx",
   "components/layout/AppLayout.tsx",
   "components/sections/HeroSection.tsx",
   "index.css",

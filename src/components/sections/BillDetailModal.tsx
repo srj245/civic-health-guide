@@ -4,6 +4,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import BillTimeline from "@/components/sections/BillTimeline";
 import { Chip, Eyebrow, Surface } from "@/components/ui/primitives";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useBillDetails, type Bill } from "@/hooks/useCongressApi";
@@ -191,6 +192,7 @@ const BillDetailModal = ({ bill, open, onOpenChange }: BillDetailModalProps) => 
                   <Calendar className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
                   Latest action
                 </h3>
+                <BillTimeline latestActionText={details.latestAction.text} type={details.type} className="pb-1" />
                 <Surface variant="inset" padding="sm">
                   <p className="text-sm text-foreground">
                     {details.latestAction.actionDate}
