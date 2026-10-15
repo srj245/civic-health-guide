@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { lovable } from "@/integrations/lovable/index";
-import "@lovable.dev/cloud-auth-js/styles.css";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,13 +16,13 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [oauthLoading, setOauthLoading] = useState<"lovable" | "google" | null>(null);
+  const [oauthLoading, setOauthLoading] = useState<"google" | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleSocialSignIn = async (provider: "lovable" | "google") => {
+  const handleSocialSignIn = async (provider: "google") => {
     setOauthLoading(provider);
     setFormError(null);
     const result = await lovable.auth.signInWithOAuth(provider, {
@@ -68,14 +67,6 @@ const Auth = () => {
         </p>
 
         <div className="mt-6 space-y-3">
-          <button
-            type="button"
-            className="lovable-auth-button w-full"
-            onClick={() => handleSocialSignIn("lovable")}
-            disabled={oauthLoading !== null || loading}
-          >
-            {oauthLoading === "lovable" ? "Connecting…" : "Continue with Lovable"}
-          </button>
           <Button
             type="button"
             variant="outline"
