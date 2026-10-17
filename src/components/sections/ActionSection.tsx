@@ -39,7 +39,7 @@ const ActionSection = () => {
             <IconTile icon={Mail} />
             <h3 className="mt-4 text-lg text-foreground">Message your representative</h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              Look up your reps, copy a ready-to-paste message, and send it through their contact page.
+              Look up your reps, copy a ready-to-paste message, and send it through the contact form on their official site.
             </p>
             <span className="mt-4 inline-flex items-center gap-1 text-sm text-accent">
               Find your rep

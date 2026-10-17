@@ -49,6 +49,8 @@ interface Member {
   chamber: string;
   url: string;
   depiction: string | null;
+  /** The member's official house.gov / senate.gov site, where the contact form lives. */
+  website: string | null;
 }
 
 interface Location {
@@ -121,7 +123,28 @@ async function membersForState(state: string, apiKey: string): Promise<Member[]>
     chamber: m.terms?.item?.[0]?.chamber || (m.district ? 'House of Representatives' : 'Senate'),
     url: m.url,
     depiction: m.depiction?.imageUrl || null,
+    website: null,
   }));
+}
+
+const websiteCache = new Map<string, string | null>();
+
+/** Fills `website` from the member detail endpoint (the list endpoint omits it). */
+async function withWebsites(members: Member[], apiKey: string): Promise<Member[]> {
+  return Promise.all(
+    members.map(async (m) => {
+      if (!m.bioguideId) return m;
+      if (websiteCache.has(m.bioguideId)) return { ...m, website: websiteCache.get(m.bioguideId) ?? null };
+      try {
+        const data = await fetchJson(`${CONGRESS_API_BASE}/member/${m.bioguideId}?api_key=${apiKey}&format=json`, 5000);
+        const site: string | null = data?.member?.officialWebsiteUrl ?? null;
+        websiteCache.set(m.bioguideId, site);
+        return { ...m, website: site };
+      } catch {
+        return m;
+      }
+    }),
+  );
 }
 
 serve(async (req) => {
@@ -179,7 +202,7 @@ serve(async (req) => {
 
       return json({
         location,
-        members: [...houseForDistrict, ...senators],
+        members: await withWebsites([...houseForDistrict, ...senators], apiKey),
         // Only set when we could not pin the district and the state has several.
         districtUnresolved: district === null && house.length > 1,
       });

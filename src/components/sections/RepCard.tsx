@@ -4,10 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Chip, Surface } from "@/components/ui/primitives";
 import { useToast } from "@/hooks/use-toast";
 import {
+  contactUrl,
   draftMessage,
   partyShort,
   partyTone,
-  publicProfileUrl,
   repTitle,
   type Representative,
 } from "@/lib/reps";
@@ -33,7 +33,7 @@ const RepCard = ({ rep, onShowBills }: RepCardProps) => {
       setCopied(true);
       toast({
         title: "Draft copied",
-        description: "Paste it into the contact form on their official page.",
+        description: "Paste it into the contact form on their official site.",
       });
       setTimeout(() => setCopied(false), 2500);
     } catch {
@@ -73,8 +73,8 @@ const RepCard = ({ rep, onShowBills }: RepCardProps) => {
           {copied ? "Copied" : "Copy message"}
         </Button>
         <Button asChild size="sm" variant="outline">
-          <a href={publicProfileUrl(rep)} target="_blank" rel="noopener noreferrer">
-            Contact page
+          <a href={contactUrl(rep)} target="_blank" rel="noopener noreferrer">
+            {rep.website ? "Official site" : "Congress.gov"}
             <ExternalLink className="h-4 w-4" aria-hidden="true" />
           </a>
         </Button>

@@ -9,6 +9,8 @@ export interface Representative {
   chamber: string;
   url: string;
   depiction: string | null;
+  /** Official house.gov / senate.gov site, when known. */
+  website?: string | null;
 }
 
 export interface DistrictLocation {
@@ -64,6 +66,12 @@ export const repTitle = (rep: Representative) =>
     : rep.district
       ? `U.S. Representative, ${rep.state}-${rep.district}`
       : `U.S. Representative, ${rep.state} at large`;
+
+/**
+ * Where to send a message: the member's official site (every office has a
+ * contact form there), falling back to the Congress.gov profile.
+ */
+export const contactUrl = (rep: Representative) => rep.website || publicProfileUrl(rep);
 
 /** Public Congress.gov profile page for a member (the API url is not browsable). */
 export const publicProfileUrl = (rep: Representative) => {
