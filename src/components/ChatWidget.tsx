@@ -2,15 +2,11 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MessageCircle, X, Send, Sparkles } from "lucide-react";
+import { useI18n } from "@/i18n";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
-const STARTERS = [
-  "How does Medicare work?",
-  "What bills affect insulin costs?",
-  "Am I eligible for Medicaid?",
-  "What is the ACA?",
-];
+const STARTERS = ["chat.starter1", "chat.starter2", "chat.starter3"] as const;
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/health-chat`;
 
@@ -20,6 +16,7 @@ const ChatWidget = () => {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const { t, language } = useI18n();
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -44,16 +41,16 @@ const ChatWidget = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify({ messages: allMessages }),
+        body: JSON.stringify({ messages: allMessages, language }),
       });
 
       if (resp.status === 429) {
-        setMessages((prev) => [...prev, { role: "assistant", content: "I'm getting too many requests right now. Please try again in a moment." }]);
+        setMessages((prev) => [...prev, { role: "assistant", content: t("chat.tooMany") }]);
         setIsLoading(false);
         return;
       }
       if (resp.status === 402) {
-        setMessages((prev) => [...prev, { role: "assistant", content: "AI credits have been exhausted. Please try again later." }]);
+        setMessages((prev) => [...prev, { role: "assistant", content: t("chat.credits") }]);
         setIsLoading(false);
         return;
       }
@@ -103,7 +100,7 @@ const ChatWidget = () => {
     } catch (e) {
       console.error("Chat error:", e);
       if (!assistantSoFar) {
-        setMessages((prev) => [...prev, { role: "assistant", content: "Sorry, something went wrong. Please try again." }]);
+        setMessages((prev) => [...prev, { role: "assistant", content: t("chat.error") }]);
       }
     } finally {
       setIsLoading(false);
@@ -117,7 +114,7 @@ const ChatWidget = () => {
         <button
           onClick={() => setOpen(true)}
           className="chat-fab fixed bottom-4 right-4 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground transition-colors hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:bottom-6 sm:right-6"
-          aria-label="Open health policy chat"
+          aria-label={t("chat.open")}
         >
           <MessageCircle className="w-6 h-6" aria-hidden="true" />
         </button>
@@ -125,14 +122,14 @@ const ChatWidget = () => {
 
       {/* Chat panel */}
       {open && (
-        <div role="dialog" aria-label="Health policy chat" className="chat-panel fixed bottom-6 right-6 z-50 flex h-[500px] max-h-[calc(100vh-6rem)] w-[380px] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-md border border-border max-sm:inset-x-4 max-sm:bottom-4 max-sm:h-[70dvh] max-sm:w-auto max-sm:max-w-none">
+        <div role="dialog" aria-label={t("chat.title")} className="chat-panel fixed bottom-6 right-6 z-50 flex h-[500px] max-h-[calc(100vh-6rem)] w-[380px] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-md border border-border max-sm:inset-x-4 max-sm:bottom-4 max-sm:h-[70dvh] max-sm:w-auto max-sm:max-w-none">
           {/* Header */}
           <div className="flex items-center justify-between border-b border-border p-4">
             <div className="flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-              <span className="font-medium text-foreground">Health policy chat</span>
+              <span className="font-medium text-foreground">{t("chat.title")}</span>
             </div>
-            <button type="button" onClick={() => setOpen(false)} aria-label="Close chat" className="rounded p-1 text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            <button type="button" onClick={() => setOpen(false)} aria-label={t("chat.closeLabel")} className="rounded p-1 text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
               <X className="w-5 h-5" aria-hidden="true" />
             </button>
           </div>
@@ -142,16 +139,16 @@ const ChatWidget = () => {
             {messages.length === 0 && (
               <div className="text-center py-6">
                 <Sparkles className="mx-auto mb-3 h-6 w-6 text-muted-foreground" aria-hidden="true" />
-                <p className="mb-4 text-sm text-muted-foreground">Ask a question about US health policy.</p>
+                <p className="mb-4 text-sm text-muted-foreground">{t("chat.empty")}</p>
                 <div className="space-y-2">
                   {STARTERS.map((q) => (
                     <button
                       key={q}
                       type="button"
-                      onClick={() => sendMessage(q)}
+                      onClick={() => sendMessage(t(q))}
                       className="block w-full rounded-md border border-border px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     >
-                      {q}
+                      {t(q)}
                     </button>
                   ))}
                 </div>
@@ -171,7 +168,7 @@ const ChatWidget = () => {
             {isLoading && messages[messages.length - 1]?.role !== "assistant" && (
               <div className="flex justify-start">
                 <div className="rounded-md bg-secondary px-4 py-2 text-sm text-muted-foreground">
-                  <span>Thinking...</span>
+                  <span>{t("chat.thinking")}</span>
                 </div>
               </div>
             )}
@@ -183,16 +180,16 @@ const ChatWidget = () => {
               onSubmit={(e) => { e.preventDefault(); sendMessage(input); }}
               className="flex gap-2"
             >
-              <label htmlFor="chat-input" className="sr-only">Ask about health policy</label>
+              <label htmlFor="chat-input" className="sr-only">{t("chat.placeholder")}</label>
               <Input
                 id="chat-input"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask about health policy…"
+                placeholder={t("chat.placeholder")}
                 className="h-10 flex-1"
                 disabled={isLoading}
               />
-              <Button type="submit" size="icon" disabled={!input.trim() || isLoading} className="shrink-0" aria-label="Send message">
+              <Button type="submit" size="icon" disabled={!input.trim() || isLoading} className="shrink-0" aria-label={t("chat.send")}>
                 <Send className="w-4 h-4" aria-hidden="true" />
               </Button>
             </form>

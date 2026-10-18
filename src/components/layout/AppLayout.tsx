@@ -5,6 +5,7 @@ import Footer from "@/components/layout/Footer";
 import ChatWidget from "@/components/ChatWidget";
 import ScrollProgress from "@/components/motion/ScrollProgress";
 import { useIntro } from "@/hooks/useIntro";
+import { useT } from "@/i18n";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -13,6 +14,7 @@ interface AppLayoutProps {
 const AppLayout = ({ children }: AppLayoutProps) => {
   const { pathname } = useLocation();
   const root = useIntro<HTMLDivElement>();
+  const t = useT();
 
   // Motion CSS only hides or animates content once JavaScript is attached.
   useEffect(() => {
@@ -26,7 +28,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:rounded focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground"
       >
-        Skip to content
+        {t("nav.skip")}
       </a>
       <Masthead />
       <main id="main-content" className="flex flex-1 flex-col" role="main">

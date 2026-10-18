@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useI18n } from "@/i18n";
 
 interface BillSummary {
   plainEnglish: string;
   impact: string;
 }
 
+/** Generates the plain-language summary in the user's chosen content language. */
 export function useBillSummary() {
+  const { language } = useI18n();
   const [summary, setSummary] = useState<BillSummary | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -16,8 +19,8 @@ export function useBillSummary() {
     setError(null);
     setSummary(null);
     try {
-      const { data, error: fnError } = await supabase.functions.invoke('summarize-bill', {
-        body: { title, summary: officialSummary, latestAction },
+      const { data, error: fnError } = await supabase.functions.invoke("summarize-bill", {
+        body: { title, summary: officialSummary, latestAction, language },
       });
       if (fnError) throw fnError;
       if (data.error) throw new Error(data.error);
@@ -29,5 +32,5 @@ export function useBillSummary() {
     }
   };
 
-  return { summary, loading, error, summarize };
+  return { summary, loading, error, summarize, language };
 }

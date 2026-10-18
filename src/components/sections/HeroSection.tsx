@@ -5,6 +5,7 @@ import RepCard from "@/components/sections/RepCard";
 import RepDetailModal from "@/components/sections/RepDetailModal";
 import { savedZip, useRepLookup } from "@/hooks/useRepLookup";
 import { STATE_NAMES, type Representative } from "@/lib/reps";
+import { useT } from "@/i18n";
 
 const NBSP = " ";
 const sentence = (s: string) => s.split(" ").join(NBSP);
@@ -17,6 +18,7 @@ const HeroSection = () => {
   const [zip, setZip] = useState(savedZip);
   const [selectedRep, setSelectedRep] = useState<Representative | null>(null);
   const { members, location, unresolved, loading, error, searched, lookup, reset } = useRepLookup();
+  const t = useT();
 
   useEffect(() => {
     if (/^\d{5}$/.test(zip)) lookup({ zip });
@@ -34,18 +36,18 @@ const HeroSection = () => {
       <h1 id="hero-heading" className="hero-h1">
         <span className="l l1">
           <span className="li" data-io="line1">
-            Know what Congress is doing
+            {t("hero.line1")}
           </span>
         </span>
         <span className="l l2">
           <span className="li" data-io="line2">
-            to your health care.
+            {t("hero.line2")}
           </span>
         </span>
       </h1>
 
       <p className="hero-sub io" data-io="sub">
-        {sentence("Then do something about it.")} {sentence("Start with who represents you.")}
+        {sentence(t("hero.sub1"))} {sentence(t("hero.sub2"))}
       </p>
 
       <form
@@ -57,7 +59,7 @@ const HeroSection = () => {
         }}
       >
         <label htmlFor="hero-zip" className="sr-only">
-          ZIP code
+          {t("hero.zipLabel")}
         </label>
         <input
           id="hero-zip"
@@ -66,16 +68,16 @@ const HeroSection = () => {
           maxLength={5}
           value={zip}
           onChange={(e) => setZip(e.target.value.replace(/\D/g, ""))}
-          placeholder="Your ZIP code"
+          placeholder={t("hero.zipPlaceholder")}
           className="hero-input"
         />
         <button type="submit" className="hero-btn" disabled={loading || zip.length < 5}>
-          {loading ? "Looking up…" : "Find my representatives"}
+          {loading ? t("hero.lookingUp") : t("hero.findReps")}
         </button>
       </form>
 
       <Link to="/news" className="hero-link io" data-io="link">
-        Or browse health bills first
+        {t("hero.browseFirst")}
         <svg viewBox="0 0 11 12.6" fill="none" stroke="currentColor" strokeWidth="1.45" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" data-io="arrow">
           <path d="M5.5 .4V12M1 7.5L5.5 12L10 7.5" />
         </svg>
@@ -89,7 +91,7 @@ const HeroSection = () => {
         )}
 
         {loading && (
-          <div className="hero-results" aria-busy="true" aria-label="Loading representatives">
+          <div className="hero-results" aria-busy="true" aria-label={t("hero.loadingReps")}>
             {[0, 1, 2].map((i) => (
               <div key={i} className="rounded-lg border border-border p-4">
                 <Skeleton className="h-14 w-14 rounded-md" />
@@ -104,7 +106,7 @@ const HeroSection = () => {
           <div className="hero-results-wrap">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <p className="text-sm text-foreground">
-                <span className="font-medium">{unresolved ? placeLabel : `District ${location.districtLabel}`}</span>
+                <span className="font-medium">{unresolved ? placeLabel : t("hero.district", { label: location.districtLabel })}</span>
                 {!unresolved && <span className="text-muted-foreground"> · {placeLabel}</span>}
               </p>
               <button
@@ -115,12 +117,12 @@ const HeroSection = () => {
                 }}
                 className="text-xs text-muted-foreground hover:text-foreground"
               >
-                Change ZIP
+                {t("hero.changeZip")}
               </button>
             </div>
             {unresolved && (
               <p className="mt-1 text-left text-xs text-muted-foreground">
-                We found your state but couldn't pin the district for this ZIP. Showing your senators.
+                {t("hero.unresolved")}
               </p>
             )}
             {members.length > 0 ? (
@@ -130,10 +132,10 @@ const HeroSection = () => {
                 ))}
               </div>
             ) : (
-              <p className="mt-4 text-sm text-muted-foreground">No current members found for this ZIP.</p>
+              <p className="mt-4 text-sm text-muted-foreground">{t("hero.noMembers")}</p>
             )}
             <Link to="/news" className="hero-link mt-6">
-              Now see the health bills they are voting on
+              {t("hero.seeBills")}
               <svg viewBox="0 0 11 12.6" fill="none" stroke="currentColor" strokeWidth="1.45" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M5.5 .4V12M1 7.5L5.5 12L10 7.5" />
               </svg>

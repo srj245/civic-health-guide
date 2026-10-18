@@ -11,7 +11,8 @@ Built for the 2026 Congressional App Challenge. Live at https://civic-health-gui
 3. **Who a bill affects.** Groups bills by the people they touch: students, families, seniors, workers, veterans.
 4. **Find care.** Clinics, mental-health services, pharmacies, and low-cost care near a ZIP or city, via Google Places, with a map and saved favorites.
 5. **Impact calculator.** Answer four questions and get the current health bills most relevant to your situation, chosen by an AI model from a server-supplied list so it cannot invent legislation.
-6. **Discussion and tracking.** Signed-in users can track bills and discuss them in realtime threads.
+6. **Languages.** The interface is available in English and Spanish. Bill summaries, impact results, and the chat are generated in the user's chosen language from a list of eleven, led by the languages most spoken at home in Minnesota after English: Spanish, Somali, Hmong, Vietnamese, Chinese, Arabic, French, Russian, Amharic, and Karen. The picker is in the header; the choice is remembered.
+7. **Discussion and tracking.** Signed-in users can track bills and discuss them in realtime threads.
 
 ## How it is built
 

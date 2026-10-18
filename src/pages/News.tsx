@@ -1,13 +1,15 @@
 import PageHero from "@/components/sections/PageHero";
 import NewsSection from "@/components/sections/NewsSection";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { useT } from "@/i18n";
 
 const News = () => {
-  usePageTitle("Health bills", "Track real-time health-related bills from Congress, explained in plain English.");
+  const t = useT();
+  usePageTitle(t("bills.page.title"), t("bills.page.description"));
 
   return (
     <div className="bg-background">
-      <PageHero badge="Live from Congress.gov" title="Health bills" subtitle="Recent health-related bills from Congress, in plain English." />
+      <PageHero badge={t("bills.page.badge")} title={t("bills.page.title")} subtitle={t("bills.page.subtitle")} />
       <NewsSection />
     </div>
   );

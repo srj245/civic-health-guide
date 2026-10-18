@@ -5,6 +5,8 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { ArrowLeft, Share2, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { ImpactProfile, ImpactResult, ImpactSource } from "@/pages/Impact";
+import { useT } from "@/i18n";
+import type { MessageKey } from "@/i18n/messages";
 
 interface Props {
   profile: ImpactProfile;
@@ -15,24 +17,30 @@ interface Props {
   onReset: () => void;
 }
 
-const relevanceConfig: Record<ImpactResult["relevance"], { tone: Tone; label: string }> = {
-  high: { tone: "destructive", label: "High impact" },
-  medium: { tone: "warning", label: "Medium impact" },
-  low: { tone: "neutral", label: "Low impact" },
+const relevanceConfig: Record<ImpactResult["relevance"], { tone: Tone; label: MessageKey }> = {
+  high: { tone: "destructive", label: "impact.high" },
+  medium: { tone: "warning", label: "impact.medium" },
+  low: { tone: "neutral", label: "impact.low" },
 };
 
 const ImpactResults = ({ profile, results, sources = [], loading, error, onReset }: Props) => {
   const { toast } = useToast();
+  const t = useT();
   const sourceById = new Map(sources.map((s) => [s.id, s]));
+  const insuranceLabel = t(`impact.ins.${profile.insuranceType}` as MessageKey);
+  const profileLine = `${profile.ageRange} · ${insuranceLabel} · ${profile.state}`;
 
   const handleShare = async () => {
-    const text = results.map((r) => `• ${r.billTitle} (${r.relevance} impact): ${r.impact}`).join("\n");
-    const full = `My CivicCare Impact Report\n${profile.ageRange} · ${profile.insuranceType} · ${profile.state}\n\n${text}\n\nGenerated at civiccare.app`;
+    const text = results
+      .map((r) => t("impact.shareLine", { title: r.billTitle, level: t(relevanceConfig[r.relevance].label), impact: r.impact }))
+      .join("\n");
+    const title = t("impact.shareTitle");
+    const full = `${title}\n${profileLine}\n\n${text}\n\n${t("impact.shareFooter")}`;
     if (navigator.share) {
-      try { await navigator.share({ title: "My CivicCare Impact Report", text: full }); } catch { /* user dismissed the share sheet */ }
+      try { await navigator.share({ title, text: full }); } catch { /* user dismissed the share sheet */ }
     } else {
       await navigator.clipboard.writeText(full);
-      toast({ title: "Copied to clipboard", description: "Share your impact report with others." });
+      toast({ title: t("impact.copiedTitle"), description: t("impact.copiedBody") });
     }
   };
 
@@ -40,19 +48,17 @@ const ImpactResults = ({ profile, results, sources = [], loading, error, onReset
     <div>
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-2xl tracking-tight text-foreground">Your results</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {profile.ageRange} · {profile.insuranceType} · {profile.state}
-          </p>
+          <h2 className="text-2xl tracking-tight text-foreground">{t("impact.results")}</h2>
+          <p className="mt-1 text-sm text-muted-foreground">{profileLine}</p>
         </div>
         <div className="flex gap-2">
           {!loading && !error && results.length > 0 && (
             <Button variant="outline" size="sm" onClick={handleShare}>
-              <Share2 className="h-4 w-4" aria-hidden="true" /> Share
+              <Share2 className="h-4 w-4" aria-hidden="true" /> {t("common.share")}
             </Button>
           )}
           <Button variant="ghost" size="sm" onClick={onReset}>
-            <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Start over
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" /> {t("impact.startOver")}
           </Button>
         </div>
       </div>
@@ -73,7 +79,7 @@ const ImpactResults = ({ profile, results, sources = [], loading, error, onReset
         <EmptyState
           variant="error"
           title={error}
-          action={<Button variant="outline" onClick={onReset}>Try again</Button>}
+          action={<Button variant="outline" onClick={onReset}>{t("common.tryAgain")}</Button>}
         />
       )}
 
@@ -87,15 +93,15 @@ const ImpactResults = ({ profile, results, sources = [], loading, error, onReset
                 <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <h3 className="text-lg text-foreground">{result.billTitle}</h3>
                   <Chip tone={config.tone} dot className="shrink-0 self-start">
-                    {config.label}
+                    {t(config.label)}
                   </Chip>
                 </div>
                 <p className="text-sm leading-relaxed text-muted-foreground">{result.impact}</p>
                 {source && (
                   <div className="mt-4 space-y-1 border-t border-border pt-3 text-xs text-muted-foreground">
                     <p>
-                      <span className="text-foreground">Official record:</span>{" "}
-                      {source.type}{source.number}, {source.congress}th Congress
+                      <span className="text-foreground">{t("impact.officialRecord")}</span>{" "}
+                      {source.type}{source.number}, {t("impact.congressNth", { n: source.congress })}
                       {source.url && (
                         <a
                           href={source.url}
@@ -103,13 +109,13 @@ const ImpactResults = ({ profile, results, sources = [], loading, error, onReset
                           rel="noopener noreferrer"
                           className="ml-2 inline-flex items-center gap-1 text-accent underline underline-offset-2 hover:text-foreground"
                         >
-                          Congress.gov <ExternalLink className="h-3 w-3" aria-hidden="true" />
+                          {t("common.congressGov")} <ExternalLink className="h-3 w-3" aria-hidden="true" />
                         </a>
                       )}
                     </p>
                     {source.latestAction && (
                       <p>
-                        <span className="text-foreground">Latest action:</span>{" "}
+                        <span className="text-foreground">{t("impact.latestAction")}</span>{" "}
                         {source.latestAction}
                         {source.latestActionDate ? ` (${source.latestActionDate})` : ""}
                       </p>
@@ -124,9 +130,9 @@ const ImpactResults = ({ profile, results, sources = [], loading, error, onReset
 
       {!loading && !error && results.length === 0 && (
         <EmptyState
-          title="No matching bills found"
-          body="Try adjusting your selections."
-          action={<Button variant="outline" onClick={onReset}>Start over</Button>}
+          title={t("impact.noneTitle")}
+          body={t("impact.noneBody")}
+          action={<Button variant="outline" onClick={onReset}>{t("impact.startOver")}</Button>}
         />
       )}
     </div>

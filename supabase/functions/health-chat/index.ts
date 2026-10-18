@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { languageInstruction, parseLanguage } from "../_shared/validate.ts";
 import {
   badRequest,
   corsHeaders,
@@ -76,7 +77,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         model: "google/gemini-3-flash-preview",
-        messages: [{ role: "system", content: SYSTEM_PROMPT }, ...messages],
+        messages: [{ role: "system", content: SYSTEM_PROMPT + languageInstruction(parseLanguage(body.language)) }, ...messages],
         stream: true,
       }),
     });

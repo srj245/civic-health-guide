@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { Moon, Sun } from "lucide-react";
+import { useT } from "@/i18n";
 
 const STORAGE_KEY = "civiccare-theme";
 
 /** Dark is the default. The `light` class on <html> switches palettes. */
 const ThemeToggle = () => {
+  const t = useT();
   const [light, setLight] = useState(() => {
     try {
       return localStorage.getItem(STORAGE_KEY) === "light";
@@ -26,7 +28,7 @@ const ThemeToggle = () => {
     <button
       type="button"
       onClick={() => setLight((v) => !v)}
-      aria-label={light ? "Switch to dark mode" : "Switch to light mode"}
+      aria-label={light ? t("theme.toDark") : t("theme.toLight")}
       className="inline-flex h-9 w-9 items-center justify-center rounded text-muted-foreground hover:text-foreground"
     >
       {light ? <Moon className="h-4 w-4" aria-hidden="true" /> : <Sun className="h-4 w-4" aria-hidden="true" />}

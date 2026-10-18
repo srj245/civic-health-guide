@@ -11,9 +11,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { ordinal } from "@/lib/format";
 import BillTimeline from "@/components/sections/BillTimeline";
+import { useT } from "@/i18n";
 
 const Dashboard = () => {
-  usePageTitle("Your bills", "Track and follow health bills that matter to you.");
+  const t = useT();
+  usePageTitle(t("dash.pageTitle"), t("dash.pageDescription"));
   const { user } = useAuth();
   const { trackedBills, loading, toggleTrack } = useTrackedBills();
   const navigate = useNavigate();
@@ -24,9 +26,9 @@ const Dashboard = () => {
         <div className="mx-auto max-w-md">
           <EmptyState
             icon={LogIn}
-            title="Sign in to track bills"
-            body="Create an account to save and follow the health bills that matter to you."
-            action={<Button onClick={() => navigate("/auth")}>Sign in</Button>}
+            title={t("dash.signInTitle")}
+            body={t("dash.signInBody")}
+            action={<Button onClick={() => navigate("/auth")}>{t("nav.signIn")}</Button>}
           />
         </div>
       </Section>
@@ -35,7 +37,7 @@ const Dashboard = () => {
 
   return (
     <div>
-      <PageHero badge="Tracked" title="Your bills" subtitle={`Bills you are following · ${trackedBills.length} total`} />
+      <PageHero badge={t("dash.badge")} title={t("dash.pageTitle")} subtitle={t("dash.subtitle", { n: trackedBills.length })} />
 
       <Section first width="narrow">
         {loading && (
@@ -52,11 +54,11 @@ const Dashboard = () => {
         {!loading && trackedBills.length === 0 && (
           <EmptyState
             icon={Bookmark}
-            title="No tracked bills yet"
-            body="Open the bills page to find and track bills that interest you."
+            title={t("dash.noneTitle")}
+            body={t("dash.noneBody")}
             action={
               <Button asChild variant="outline">
-                <Link to="/news">Browse health bills</Link>
+                <Link to="/news">{t("dash.browseBills")}</Link>
               </Button>
             }
           />
@@ -73,7 +75,7 @@ const Dashboard = () => {
                         {bill.bill_type.toUpperCase()}
                         {bill.bill_number}
                       </Chip>
-                      <Chip>{ordinal(bill.congress)} Congress</Chip>
+                      <Chip>{t("dash.congress", { n: ordinal(bill.congress) })}</Chip>
                     </div>
                     <h3 className="line-clamp-2 text-lg text-foreground">{bill.bill_title}</h3>
                     <BillTimeline latestActionText={bill.latest_action_text} type={bill.bill_type} compact className="mt-2" />
@@ -90,7 +92,7 @@ const Dashboard = () => {
                   <Button
                     variant="ghost"
                     size="icon-sm"
-                    aria-label="Untrack bill"
+                    aria-label={t("dash.untrack")}
                     className="shrink-0 text-foreground"
                     onClick={() =>
                       toggleTrack({

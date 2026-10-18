@@ -60,12 +60,33 @@ export const partyShort = (party: string) => {
   return party;
 };
 
-export const repTitle = (rep: Representative) =>
+/**
+ * Minimal translator shape so these helpers can be localized from a component
+ * (pass `useI18n().t`) while staying usable without React. English by default.
+ */
+export type RepTranslate = (key: string, vars?: Record<string, string | number>) => string;
+
+const EN: Record<string, string> = {
+  "reps.title.senator": "U.S. Senator, {state}",
+  "reps.title.rep": "U.S. Representative, {state}-{district}",
+  "reps.title.atLarge": "U.S. Representative, {state} at large",
+  "reps.draft.senator": "Senator",
+  "reps.draft.representative": "Representative",
+  "reps.draft.aboutTopic": "about {topic}",
+  "reps.draft.aboutDefault": "about health care in our community",
+  "reps.draft.body":
+    "Dear {honorific} {lastName},\n\nI am your constituent, and I am writing {subject}.\n\nAccess to affordable care matters to my family. I would like to know where you stand on current health legislation, and I urge you to support measures that protect health coverage, expand mental health services, and lower prescription drug costs.\n\nThank you for your time and for representing us.\n\nSincerely,\n[Your name]\n[Your city, {state}]",
+};
+
+const englishT: RepTranslate = (key, vars) =>
+  (EN[key] ?? key).replace(/\{(\w+)\}/g, (_, k) => (vars && k in vars ? String(vars[k]) : `{${k}}`));
+
+export const repTitle = (rep: Representative, t: RepTranslate = englishT) =>
   isSenator(rep)
-    ? `U.S. Senator, ${STATE_NAMES[rep.state] ?? rep.state}`
+    ? t("reps.title.senator", { state: STATE_NAMES[rep.state] ?? rep.state })
     : rep.district
-      ? `U.S. Representative, ${rep.state}-${rep.district}`
-      : `U.S. Representative, ${rep.state} at large`;
+      ? t("reps.title.rep", { state: rep.state, district: rep.district })
+      : t("reps.title.atLarge", { state: rep.state });
 
 /**
  * Where to send a message: the member's official site (every office has a
@@ -86,19 +107,9 @@ export const publicProfileUrl = (rep: Representative) => {
  * Members of Congress do not publish email addresses; every office uses a web form,
  * which is why the UI copies the text instead of opening a blank mailto.
  */
-export const draftMessage = (rep: Representative, topic?: string) => {
-  const honorific = isSenator(rep) ? "Senator" : "Representative";
+export const draftMessage = (rep: Representative, topic?: string, t: RepTranslate = englishT) => {
+  const honorific = isSenator(rep) ? t("reps.draft.senator") : t("reps.draft.representative");
   const lastName = rep.name.split(",")[0]?.trim() || rep.name;
-  const subject = topic ? `about ${topic}` : "about health care in our community";
-  return `Dear ${honorific} ${lastName},
-
-I am your constituent, and I am writing ${subject}.
-
-Access to affordable care matters to my family. I would like to know where you stand on current health legislation, and I urge you to support measures that protect health coverage, expand mental health services, and lower prescription drug costs.
-
-Thank you for your time and for representing us.
-
-Sincerely,
-[Your name]
-[Your city, ${rep.state}]`;
+  const subject = topic ? t("reps.draft.aboutTopic", { topic }) : t("reps.draft.aboutDefault");
+  return t("reps.draft.body", { honorific, lastName, subject, state: rep.state });
 };

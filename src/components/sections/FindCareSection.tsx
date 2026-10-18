@@ -13,26 +13,23 @@ import { Surface, Chip, IconTile, FieldLabel, IconInput } from "@/components/ui/
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import MinnesotaResources from "@/components/sections/MinnesotaResources";
 import { EmptyState } from "@/components/ui/empty-state";
+import { useT } from "@/i18n";
 
 const careCategories = [
-  { id: "primary", icon: Stethoscope, title: "Primary care", description: "Community health centers and clinics for checkups and general care" },
-  { id: "mental", icon: Brain, title: "Mental health", description: "Counseling, therapy, and crisis support services" },
-  { id: "pharmacy", icon: Pill, title: "Low-cost prescriptions", description: "Discount prescription programs and pharmacy assistance" },
-  { id: "specialty", icon: Heart, title: "Specialty care", description: "Specialists with sliding-scale fees and charity programs" },
-];
+  { id: "primary", icon: Stethoscope },
+  { id: "mental", icon: Brain },
+  { id: "pharmacy", icon: Pill },
+  { id: "specialty", icon: Heart },
+] as const;
 
 type ViewMode = "list" | "map";
-
-const viewOptions: { value: ViewMode; label: string; icon: typeof List }[] = [
-  { value: "list", label: "List", icon: List },
-  { value: "map", label: "Map", icon: Map },
-];
 
 function directionsHref(address: string) {
   return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`;
 }
 
 function ResultCard({ result, isFavorite, onToggleFavorite }: { result: CareResult; isFavorite: boolean; onToggleFavorite: () => void }) {
+  const t = useT();
   return (
     <Surface padding="md">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -45,7 +42,7 @@ function ResultCard({ result, isFavorite, onToggleFavorite }: { result: CareResu
               size="icon-sm"
               onClick={onToggleFavorite}
               aria-pressed={isFavorite}
-              aria-label={isFavorite ? `Remove ${result.name} from favorites` : `Save ${result.name} to favorites`}
+              aria-label={isFavorite ? t("care.removeFavorite", { name: result.name }) : t("care.saveFavorite", { name: result.name })}
             >
               <Heart className={`h-4 w-4 ${isFavorite ? "fill-destructive text-destructive" : "text-muted-foreground"}`} aria-hidden="true" />
             </Button>
@@ -65,14 +62,14 @@ function ResultCard({ result, isFavorite, onToggleFavorite }: { result: CareResu
             )}
             {result.isOpen !== null && (
               <Chip tone={result.isOpen ? "success" : "neutral"} dot>
-                {result.isOpen ? "Open now" : "Closed"}
+                {result.isOpen ? t("care.openNow") : t("care.closed")}
               </Chip>
             )}
           </div>
         </div>
         <Button asChild variant="outline" size="sm" className="w-full gap-1.5 sm:w-auto sm:shrink-0">
-          <a href={directionsHref(result.address)} target="_blank" rel="noopener noreferrer" aria-label={`Directions to ${result.name} (opens Google Maps)`}>
-            <Navigation className="h-3.5 w-3.5" aria-hidden="true" /> Directions
+          <a href={directionsHref(result.address)} target="_blank" rel="noopener noreferrer" aria-label={t("care.directionsTo", { name: result.name })}>
+            <Navigation className="h-3.5 w-3.5" aria-hidden="true" /> {t("care.directions")}
           </a>
         </Button>
       </div>
@@ -81,21 +78,22 @@ function ResultCard({ result, isFavorite, onToggleFavorite }: { result: CareResu
 }
 
 function FavoriteCard({ fav, onRemove }: { fav: FavoriteFacility; onRemove: () => void }) {
+  const t = useT();
   return (
     <Surface padding="sm">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <h4 className="min-w-0 flex-1 truncate text-sm text-foreground">{fav.name}</h4>
-            <Button type="button" variant="ghost" size="icon-sm" onClick={onRemove} aria-label={`Remove ${fav.name} from favorites`}>
+            <Button type="button" variant="ghost" size="icon-sm" onClick={onRemove} aria-label={t("care.removeFavorite", { name: fav.name })}>
               <Heart className="h-3.5 w-3.5 fill-destructive text-destructive" aria-hidden="true" />
             </Button>
           </div>
           <p className="mt-0.5 truncate text-xs text-muted-foreground">{fav.address}</p>
         </div>
         <Button asChild variant="ghost" size="sm" className="shrink-0 gap-1">
-          <a href={directionsHref(fav.address)} target="_blank" rel="noopener noreferrer" aria-label={`Directions to ${fav.name} (opens Google Maps)`}>
-            <Navigation className="h-3.5 w-3.5" aria-hidden="true" /> Directions
+          <a href={directionsHref(fav.address)} target="_blank" rel="noopener noreferrer" aria-label={t("care.directionsTo", { name: fav.name })}>
+            <Navigation className="h-3.5 w-3.5" aria-hidden="true" /> {t("care.directions")}
           </a>
         </Button>
       </div>
@@ -125,13 +123,18 @@ const FindCareSection = () => {
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [selectedResultId, setSelectedResultId] = useState<string | null>(null);
   const { toast } = useToast();
+  const t = useT();
+  const viewOptions: { value: ViewMode; label: string; icon: typeof List }[] = [
+    { value: "list", label: t("care.view.list"), icon: List },
+    { value: "map", label: t("care.view.map"), icon: Map },
+  ];
   const { results, loading, error, searched, search, location } = useCareFinder();
   const { user } = useAuth();
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
 
   const handleSearch = () => {
     if (!zipCode.trim()) {
-      toast({ title: "Please enter a location", description: "Enter your zip code or city to find care near you.", variant: "destructive" });
+      toast({ title: t("care.enterLocationTitle"), description: t("care.enterLocationBody"), variant: "destructive" });
       return;
     }
     search({ zipCode: zipCode.trim(), category: selectedCategory, lowCostOnly, includeTelehealth });
@@ -147,9 +150,9 @@ const FindCareSection = () => {
         {/* Search */}
         <div className="space-y-4 lg:col-span-2">
           <Surface padding="lg">
-            <h3 className="mb-4 text-lg text-foreground">Find resources near you</h3>
+            <h3 className="mb-4 text-lg text-foreground">{t("care.findResources")}</h3>
             {/* FieldLabel's prop type omits htmlFor; spread keeps the association until primitives.tsx widens it. */}
-            <FieldLabel htmlFor="care-location">Zip code or city</FieldLabel>
+            <FieldLabel htmlFor="care-location">{t("care.locationLabel")}</FieldLabel>
             <div className="mb-4">
               <IconInput
                 icon={MapPin}
@@ -159,11 +162,11 @@ const FindCareSection = () => {
                 value={zipCode}
                 onChange={(e) => setZipCode(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                placeholder="Enter your zip code or city"
+                placeholder={t("care.locationPlaceholder")}
               />
             </div>
             <div className="mb-6">
-              <p id="care-type-label" className="mb-2 block text-sm text-foreground">What type of care do you need?</p>
+              <p id="care-type-label" className="mb-2 block text-sm text-foreground">{t("care.typeQuestion")}</p>
               <div className="grid grid-cols-2 gap-2" role="group" aria-labelledby="care-type-label">
                 {careCategories.map((cat) => {
                   const selected = selectedCategory === cat.id;
@@ -178,7 +181,7 @@ const FindCareSection = () => {
                       }`}
                     >
                       <IconTile icon={cat.icon} size="sm" />
-                      <span className="text-sm text-foreground">{cat.title}</span>
+                      <span className="text-sm text-foreground">{t(`care.cat.${cat.id}.title`)}</span>
                     </button>
                   );
                 })}
@@ -187,23 +190,23 @@ const FindCareSection = () => {
             <div className="mb-6 space-y-3">
               <label className="flex cursor-pointer items-center gap-3">
                 <input type="checkbox" checked={lowCostOnly} onChange={(e) => setLowCostOnly(e.target.checked)} className="h-4 w-4 accent-foreground" />
-                <span className="text-sm text-muted-foreground"><DollarSign className="mr-1 inline h-4 w-4" aria-hidden="true" />Show only free or low-cost options</span>
+                <span className="text-sm text-muted-foreground"><DollarSign className="mr-1 inline h-4 w-4" aria-hidden="true" />{t("care.lowCostOnly")}</span>
               </label>
               <label className="flex cursor-pointer items-center gap-3">
                 <input type="checkbox" checked={includeTelehealth} onChange={(e) => setIncludeTelehealth(e.target.checked)} className="h-4 w-4 accent-foreground" />
-                <span className="text-sm text-muted-foreground"><Phone className="mr-1 inline h-4 w-4" aria-hidden="true" />Include telehealth options</span>
+                <span className="text-sm text-muted-foreground"><Phone className="mr-1 inline h-4 w-4" aria-hidden="true" />{t("care.includeTelehealth")}</span>
               </label>
             </div>
             {!user && (
               <p className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-md border border-border bg-secondary/40 px-3 py-2 text-sm text-muted-foreground">
-                <span>Searching needs a free account, so the map service isn&apos;t an open proxy.</span>
+                <span>{t("care.signInNotice")}</span>
                 <Button asChild variant="outline" size="sm">
-                  <Link to="/auth">Sign in</Link>
+                  <Link to="/auth">{t("nav.signIn")}</Link>
                 </Button>
               </p>
             )}
             <Button size="lg" className="w-full" onClick={handleSearch} disabled={loading}>
-              {loading ? "Searching…" : "Search for care"}
+              {loading ? t("care.searching") : t("care.searchButton")}
             </Button>
           </Surface>
 
@@ -212,7 +215,7 @@ const FindCareSection = () => {
             <Surface padding="sm">
               <div className="mb-3 flex items-center gap-2">
                 <Bookmark className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                <h4 className="text-sm text-foreground">Saved facilities ({favorites.length})</h4>
+                <h4 className="text-sm text-foreground">{t("care.savedFacilities", { n: favorites.length })}</h4>
               </div>
               <div className="max-h-[300px] space-y-2 overflow-y-auto">
                 {favorites.map((fav) => (
@@ -232,18 +235,18 @@ const FindCareSection = () => {
           {loading && <ResultsSkeleton />}
 
           {!loading && searched && error && (
-            <EmptyState variant="error" icon={AlertCircle} title="Something went wrong" body={error} />
+            <EmptyState variant="error" icon={AlertCircle} title={t("care.errorTitle")} body={error} />
           )}
 
           {!loading && searched && !error && results.length === 0 && (
-            <EmptyState icon={MapPin} title="No results found" body="Try a different zip code or broaden your search category." />
+            <EmptyState icon={MapPin} title={t("care.noResultsTitle")} body={t("care.noResultsBody")} />
           )}
 
           {!loading && results.length > 0 && (
             <div className="space-y-3" data-stagger>
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-sm text-muted-foreground" aria-live="polite">{results.length} results{location ? ` near ${location.label}` : ""}</p>
-                <SegmentedControl<ViewMode> value={viewMode} onChange={setViewMode} options={viewOptions} label="Results view" />
+                <p className="text-sm text-muted-foreground" aria-live="polite">{location ? t("care.resultsNear", { n: results.length, place: location.label }) : t("care.resultsCount", { n: results.length })}</p>
+                <SegmentedControl<ViewMode> value={viewMode} onChange={setViewMode} options={viewOptions} label={t("care.resultsView")} />
               </div>
 
               {viewMode === "map" && (
@@ -266,7 +269,7 @@ const FindCareSection = () => {
                 role="button"
                 tabIndex={0}
                 aria-pressed={selected}
-                aria-label={`${selected ? "Deselect" : "Select"} ${category.title}`}
+                aria-label={t(selected ? "care.deselect" : "care.select", { name: t(`care.cat.${category.id}.title`) })}
                 onClick={() => handleCategoryClick(category.id)}
                 onKeyDown={(e: KeyboardEvent<HTMLElement>) => {
                   if (e.key === "Enter" || e.key === " ") {
@@ -279,8 +282,8 @@ const FindCareSection = () => {
                 <div className="flex items-center gap-4">
                   <IconTile icon={category.icon} size="md" />
                   <div className="min-w-0 flex-1">
-                    <h4 className="text-lg text-foreground">{category.title}</h4>
-                    <p className="text-sm text-muted-foreground">{category.description}</p>
+                    <h4 className="text-lg text-foreground">{t(`care.cat.${category.id}.title`)}</h4>
+                    <p className="text-sm text-muted-foreground">{t(`care.cat.${category.id}.description`)}</p>
                   </div>
                   <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
                 </div>
@@ -295,12 +298,12 @@ const FindCareSection = () => {
             <div className="flex items-start gap-3">
               <IconTile icon={Phone} className="text-destructive" />
               <div>
-                <h4 className="mb-1 text-lg text-foreground">Need immediate help?</h4>
-                <p className="mb-2 text-sm text-muted-foreground">If you're experiencing a medical or mental health emergency</p>
+                <h4 className="mb-1 text-lg text-foreground">{t("care.emergencyTitle")}</h4>
+                <p className="mb-2 text-sm text-muted-foreground">{t("care.emergencyBody")}</p>
                 <div className="flex flex-wrap gap-3 text-sm">
-                  <a href="tel:911" className="text-destructive hover:underline">Call 911</a>
+                  <a href="tel:911" className="text-destructive hover:underline">{t("care.call911")}</a>
                   <span className="text-muted-foreground" aria-hidden="true">·</span>
-                  <a href="tel:988" className="text-destructive hover:underline">988 Suicide and Crisis Lifeline</a>
+                  <a href="tel:988" className="text-destructive hover:underline">{t("care.lifeline988")}</a>
                 </div>
               </div>
             </div>

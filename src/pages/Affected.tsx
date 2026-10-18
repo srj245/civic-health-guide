@@ -2,13 +2,15 @@ import PageHero from "@/components/sections/PageHero";
 import AffectedSection from "@/components/sections/AffectedSection";
 import Section from "@/components/layout/Section";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { useT } from "@/i18n";
 
 const Affected = () => {
-  usePageTitle("Who's affected", "See how healthcare legislation impacts students, families, workers, and seniors.");
+  const t = useT();
+  usePageTitle(t("affected.pageTitle"), t("affected.pageDescription"));
 
   return (
     <div className="bg-background">
-      <PageHero badge="Who it touches" title="Who's affected" subtitle="How health legislation lands on students, families, seniors, workers, and veterans." />
+      <PageHero badge={t("affected.badge")} title={t("affected.pageTitle")} subtitle={t("affected.subtitle")} />
       <Section first id="affected">
         <AffectedSection />
       </Section>

@@ -15,11 +15,13 @@ import RepDetailModal from "@/components/sections/RepDetailModal";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { STATE_NAMES, US_STATES, isSenator, type Representative } from "@/lib/reps";
 import { useRepLookup } from "@/hooks/useRepLookup";
+import { useT } from "@/i18n";
 
 type Mode = "zip" | "state";
 
 const Representatives = () => {
-  usePageTitle("Your representatives", "Look up your congressional representatives and send them a message about health policy.");
+  const t = useT();
+  usePageTitle(t("reps.pageTitle"), t("reps.pageDescription"));
   const [params] = useSearchParams();
   const [mode, setMode] = useState<Mode>("zip");
   const [zip, setZip] = useState(() => params.get("zip") ?? "");
@@ -49,19 +51,19 @@ const Representatives = () => {
   return (
     <div className="bg-background">
       <PageHero
-        badge="Take action"
-        title="Your representatives"
-        subtitle="Find the senators and House member who vote on health legislation for you, and send them a message."
+        badge={t("reps.badge")}
+        title={t("reps.pageTitle")}
+        subtitle={t("reps.subtitle")}
       />
 
       <Section first>
         <SegmentedControl<Mode>
           value={mode}
           onChange={setMode}
-          label="Lookup method"
+          label={t("reps.lookupMethod")}
           options={[
-            { value: "zip", label: "By ZIP code" },
-            { value: "state", label: "By state" },
+            { value: "zip", label: t("reps.byZip") },
+            { value: "state", label: t("reps.byState") },
           ]}
         />
 
@@ -69,7 +71,7 @@ const Representatives = () => {
           {mode === "zip" ? (
             <div className="flex-1">
               <label htmlFor="rep-zip" className="sr-only">
-                ZIP code
+                {t("reps.zipLabel")}
               </label>
               <Input
                 id="rep-zip"
@@ -78,13 +80,13 @@ const Representatives = () => {
                 maxLength={5}
                 value={zip}
                 onChange={(e) => setZip(e.target.value.replace(/\D/g, ""))}
-                placeholder="ZIP code"
+                placeholder={t("reps.zipPlaceholder")}
               />
             </div>
           ) : (
             <Select value={state} onValueChange={setState}>
-              <SelectTrigger className="flex-1" aria-label="State">
-                <SelectValue placeholder="Choose a state" />
+              <SelectTrigger className="flex-1" aria-label={t("reps.stateLabel")}>
+                <SelectValue placeholder={t("reps.chooseState")} />
               </SelectTrigger>
               <SelectContent>
                 {US_STATES.map((s) => (
@@ -97,7 +99,7 @@ const Representatives = () => {
           )}
           <Button type="submit" disabled={loading || (mode === "zip" ? zip.length < 5 : !state)}>
             <Search className="h-4 w-4" aria-hidden="true" />
-            Find
+            {t("reps.find")}
           </Button>
         </form>
 
@@ -120,7 +122,7 @@ const Representatives = () => {
         )}
 
         {!loading && searched && !error && members.length === 0 && (
-          <EmptyState compact icon={Users} title="No current members found" body="Try another ZIP or state." className="mt-8" />
+          <EmptyState compact icon={Users} title={t("reps.noneTitle")} body={t("reps.noneBody")} className="mt-8" />
         )}
 
         {!loading && members.length > 0 && (
@@ -129,18 +131,18 @@ const Representatives = () => {
               <p className="text-sm text-muted-foreground">
                 {location.city ? `${location.city}, ` : ""}
                 {STATE_NAMES[location.state] ?? location.state}
-                {location.district ? ` · District ${location.districtLabel}` : ""}
+                {location.district ? ` · ${t("reps.district", { n: location.districtLabel })}` : ""}
               </p>
             )}
             {unresolved && (
               <p className="-mt-6 text-sm text-muted-foreground">
-                We found your state but couldn&apos;t pin the district for this ZIP. Showing your senators.
+                {t("reps.unresolved")}
               </p>
             )}
             {house.length > 0 && (
               <div>
                 <h2 className="text-2xl tracking-tight text-foreground">
-                  House of Representatives{house.length > 1 ? ` (${house.length})` : ""}
+                  {t("reps.house")}{house.length > 1 ? ` (${house.length})` : ""}
                 </h2>
                 <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3" data-stagger>
                   {house.map((rep) => (
@@ -151,7 +153,7 @@ const Representatives = () => {
             )}
             {senators.length > 0 && (
               <div>
-                <h2 className="text-2xl tracking-tight text-foreground">Senate</h2>
+                <h2 className="text-2xl tracking-tight text-foreground">{t("reps.senate")}</h2>
                 <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3" data-stagger>
                   {senators.map((rep) => (
                     <RepCard key={rep.bioguideId ?? rep.name} rep={rep} onShowBills={setSelectedRep} />

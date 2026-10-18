@@ -4,6 +4,34 @@
  * into a 400 with a short plain message.
  */
 
+/** Content languages the AI functions can write in. Keep in sync with src/i18n/languages.ts. */
+export const LANGUAGE_NAMES: Record<string, string> = {
+  en: "English",
+  es: "Spanish",
+  so: "Somali",
+  hmn: "Hmong",
+  vi: "Vietnamese",
+  zh: "Simplified Chinese",
+  ar: "Arabic",
+  fr: "French",
+  ru: "Russian",
+  am: "Amharic",
+  kar: "S'gaw Karen",
+};
+
+/** Returns a supported language code; anything else is English. */
+export function parseLanguage(v: unknown): string {
+  return typeof v === "string" && v in LANGUAGE_NAMES ? v : "en";
+}
+
+/** One sentence to append to a prompt so the model answers in the chosen language. */
+export function languageInstruction(code: string): string {
+  const name = LANGUAGE_NAMES[code] ?? "English";
+  return code === "en"
+    ? ""
+    : ` Write every sentence of your answer in ${name}, at a plain reading level, keeping bill numbers, program names like Medicare, and proper nouns as they are.`;
+}
+
 export const US_STATES = [
   "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL",
   "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT",

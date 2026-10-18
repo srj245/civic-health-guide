@@ -5,7 +5,8 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Clock, ArrowRight, FileText, Bookmark, Search, RefreshCw } from "lucide-react";
-import { timeAgo } from "@/lib/time";
+import { useI18n } from "@/i18n";
+import type { MessageKey } from "@/i18n/messages";
 import { useBillSearch, useHealthBills, type Bill } from "@/hooks/useCongressApi";
 import { useTrackedBills } from "@/hooks/useTrackedBills";
 import { useAuth } from "@/hooks/useAuth";
@@ -13,25 +14,41 @@ import { useToast } from "@/hooks/use-toast";
 import BillDetailModal from "./BillDetailModal";
 import BillTimeline from "@/components/sections/BillTimeline";
 
-function formatActionDate(dateString?: string): string | null {
+function formatActionDate(dateString: string | undefined, locale: string): string | null {
   if (!dateString) return null;
   const d = new Date(`${dateString.slice(0, 10)}T12:00:00`);
   if (isNaN(d.getTime())) return null;
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  return d.toLocaleDateString(locale, { month: "short", day: "numeric", year: "numeric" });
 }
 
-function getBillCategory(title: string): string {
+/** Message key for the topic chip on a bill card, derived from its title. */
+function getBillCategory(title: string): MessageKey {
   const titleLower = title.toLowerCase();
-  if (titleLower.includes('medicare')) return 'Medicare';
-  if (titleLower.includes('medicaid')) return 'Medicaid';
-  if (titleLower.includes('mental health')) return 'Mental Health';
-  if (titleLower.includes('prescription') || titleLower.includes('drug pricing') || titleLower.includes('insulin')) return 'Prescription Drugs';
-  if (titleLower.includes('health insurance') || titleLower.includes('health coverage')) return 'Health Insurance';
-  if (titleLower.includes('veteran')) return 'Veterans Health';
-  return 'Health Policy';
+  if (titleLower.includes("medicare")) return "bills.category.medicare";
+  if (titleLower.includes("medicaid")) return "bills.category.medicaid";
+  if (titleLower.includes("mental health")) return "bills.category.mentalHealth";
+  if (titleLower.includes("prescription") || titleLower.includes("drug pricing") || titleLower.includes("insulin")) return "bills.category.prescriptionDrugs";
+  if (titleLower.includes("health insurance") || titleLower.includes("health coverage")) return "bills.category.healthInsurance";
+  if (titleLower.includes("veteran")) return "bills.category.veteransHealth";
+  return "bills.category.healthPolicy";
+}
+
+type T = ReturnType<typeof useI18n>["t"];
+
+/** Localized "just now" / "4 min ago" for a timestamp in ms. */
+function timeAgoLocalized(ms: number, t: T): string {
+  const s = Math.max(0, Math.round((Date.now() - ms) / 1000));
+  if (s < 45) return t("time.justNow");
+  const m = Math.round(s / 60);
+  if (m < 60) return t("time.minAgo", { n: m });
+  const h = Math.round(m / 60);
+  if (h < 24) return t("time.hAgo", { n: h });
+  return t("time.dAgo", { n: Math.round(h / 24) });
 }
 
 const NewsSection = () => {
+  const { t, ui } = useI18n();
+  const locale = ui === "es" ? "es" : "en-US";
   const { bills: allBills, total, loading, refreshing, error, updatedAt, refetch } = useHealthBills(100);
   const [query, setQuery] = useState("");
   const q = query.trim().toLowerCase();
@@ -40,7 +57,7 @@ const NewsSection = () => {
         (b) =>
           b.title.toLowerCase().includes(q) ||
           `${b.type}${b.number}`.toLowerCase().includes(q.replace(/[\s.]/g, "")) ||
-          getBillCategory(b.title).toLowerCase().includes(q),
+          t(getBillCategory(b.title)).toLowerCase().includes(q),
       )
     : allBills;
   // When the health list has no match, search the full recent list on the server.
@@ -60,21 +77,21 @@ const NewsSection = () => {
   const handleTrack = async (e: React.MouseEvent, bill: Bill) => {
     e.stopPropagation();
     if (!user) {
-      toast({ title: "Sign in required", description: "Create an account to track bills." });
+      toast({ title: t("bills.toast.signIn"), description: t("bills.toast.signInBody") });
       return;
     }
     try {
       const tracked = await toggleTrack(bill);
-      toast({ title: tracked ? "Bill tracked" : "Bill untracked", description: bill.title });
+      toast({ title: tracked ? t("bills.toast.tracked") : t("bills.toast.untracked"), description: bill.title });
     } catch {
-      toast({ title: "Error", description: "Failed to update tracking.", variant: "destructive" });
+      toast({ title: t("bills.toast.error"), description: t("bills.toast.trackFailed"), variant: "destructive" });
     }
   };
 
   return (
     <Section first id="news">
       <div className="mb-6">
-        <label htmlFor="bill-search" className="sr-only">Search bills</label>
+        <label htmlFor="bill-search" className="sr-only">{t("bills.search.label")}</label>
         <div className="max-w-md">
           <IconInput
             icon={Search}
@@ -82,16 +99,16 @@ const NewsSection = () => {
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search by keyword, topic, or bill number"
+            placeholder={t("bills.search.placeholder")}
           />
         </div>
         {!loading && !error && (
           <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground" aria-live="polite">
-            <span>{q ? `${bills.length} of ${allBills.length} bills match` : `${total} health bills from the 2,000 most recently updated in Congress`}</span>
-            {updatedAt && <span>· Updated {timeAgo(updatedAt)}</span>}
-            <Button type="button" variant="ghost" size="sm" onClick={() => refetch()} disabled={refreshing} aria-label="Refresh bills">
+            <span>{q ? t("bills.meta.match", { shown: bills.length, all: allBills.length }) : t("bills.meta.total", { total })}</span>
+            {updatedAt && <span>{t("bills.meta.updated", { when: timeAgoLocalized(updatedAt, t) })}</span>}
+            <Button type="button" variant="ghost" size="sm" onClick={() => refetch()} disabled={refreshing} aria-label={t("bills.refreshLabel")}>
               <RefreshCw className={refreshing ? "animate-spin" : ""} aria-hidden="true" />
-              {refreshing ? "Refreshing" : "Refresh"}
+              {refreshing ? t("common.refreshing") : t("common.refresh")}
             </Button>
           </p>
         )}
@@ -116,37 +133,33 @@ const NewsSection = () => {
         <EmptyState
           variant="error"
           icon={FileText}
-          title="Couldn't reach Congress.gov"
-          body="Try again in a moment."
-          action={<Button variant="outline" onClick={() => refetch()}>Retry</Button>}
+          title={t("common.couldntReach")}
+          body={t("common.tryMoment")}
+          action={<Button variant="outline" onClick={() => refetch()}>{t("common.retry")}</Button>}
         />
       )}
 
       {!loading && !error && q && bills.length === 0 && search.loading && (
         <p className="text-sm text-muted-foreground" aria-live="polite">
-          Not in the health list. Searching all recent bills in Congress…
+          {t("bills.notInList.searching")}
         </p>
       )}
 
       {!loading && !error && q && bills.length === 0 && !search.loading && shown.length > 0 && (
         <p className="text-sm text-muted-foreground" aria-live="polite">
-          Not in the health list. {shown.length} of the 2,000 most recently updated bills mention &ldquo;{query}&rdquo;.
+          {t("bills.notInList.found", { n: shown.length, query })}
         </p>
       )}
 
       {!loading && !error && q && shown.length === 0 && !search.loading && (
         <EmptyState
           compact
-          title="No bills match"
-          body={
-            search.enabled
-              ? `Nothing in the 2,000 most recently updated bills mentions "${query}". It may be older, or filed under a different name.`
-              : `Nothing matches "${query}". Try a different keyword or bill number.`
-          }
+          title={t("bills.empty.title")}
+          body={search.enabled ? t("bills.empty.bodyAll", { query }) : t("bills.empty.bodyHealth", { query })}
           action={
             <Button asChild variant="outline">
               <a href={`https://www.congress.gov/search?q=${encodeURIComponent(JSON.stringify({ source: "legislation", search: query }))}`} target="_blank" rel="noopener noreferrer">
-                Search all of Congress.gov
+                {t("bills.searchAll")}
               </a>
             </Button>
           }
@@ -168,7 +181,7 @@ const NewsSection = () => {
               onKeyDown={(e: React.KeyboardEvent) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleReadMore(bill); } }}
             >
               <div className="mb-3 flex items-center justify-between gap-2">
-                <Chip>{getBillCategory(bill.title)}</Chip>
+                <Chip>{t(getBillCategory(bill.title))}</Chip>
                 <span className="font-mono text-xs text-muted-foreground">
                   {bill.type.toUpperCase()}{bill.number}
                 </span>
@@ -189,12 +202,12 @@ const NewsSection = () => {
                 <div className="flex items-center gap-1 text-xs text-muted-foreground">
                   <Clock className="h-3.5 w-3.5" aria-hidden="true" />
                   <span>
-                    Latest action: {formatActionDate(bill.latestAction?.actionDate || bill.updateDate) ?? "—"}
+                    {t("bills.latestActionDate", { date: formatActionDate(bill.latestAction?.actionDate || bill.updateDate, locale) ?? "—" })}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="flex items-center gap-1 text-xs text-accent">
-                    View details
+                    {t("bills.viewDetails")}
                     <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
                   </span>
                   <Button
@@ -202,7 +215,7 @@ const NewsSection = () => {
                     variant="ghost"
                     size="icon-sm"
                     onClick={(e) => handleTrack(e, bill)}
-                    aria-label={isTracked(bill.id) ? "Untrack bill" : "Track bill"}
+                    aria-label={isTracked(bill.id) ? t("bills.untrack") : t("bills.track")}
                   >
                     <Bookmark className={isTracked(bill.id) ? "fill-current text-foreground" : ""} aria-hidden="true" />
                   </Button>
@@ -221,7 +234,7 @@ const NewsSection = () => {
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 text-accent transition-colors hover:text-foreground"
         >
-          View all health legislation on Congress.gov
+          {t("bills.viewAll")}
           <ArrowRight className="h-4 w-4" aria-hidden="true" />
         </a>
       </div>

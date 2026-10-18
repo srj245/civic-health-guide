@@ -11,6 +11,8 @@ import {
   repTitle,
   type Representative,
 } from "@/lib/reps";
+import { useT } from "@/i18n";
+import type { MessageKey } from "@/i18n/messages";
 
 interface RepCardProps {
   rep: Representative;
@@ -25,19 +27,22 @@ interface RepCardProps {
  */
 const RepCard = ({ rep, onShowBills }: RepCardProps) => {
   const { toast } = useToast();
+  const t = useT();
+  // reps.ts helpers take a loosely typed translator; the keys they use all exist in the reps namespace.
+  const tr = (key: string, vars?: Record<string, string | number>) => t(key as MessageKey, vars);
   const [copied, setCopied] = useState(false);
 
   const copyDraft = async () => {
     try {
-      await navigator.clipboard.writeText(draftMessage(rep));
+      await navigator.clipboard.writeText(draftMessage(rep, undefined, tr));
       setCopied(true);
       toast({
-        title: "Draft copied",
-        description: "Paste it into the contact form on their official site.",
+        title: t("reps.draftCopiedTitle"),
+        description: t("reps.draftCopiedBody"),
       });
       setTimeout(() => setCopied(false), 2500);
     } catch {
-      toast({ title: "Couldn't copy", description: "Select the text manually.", variant: "destructive" });
+      toast({ title: t("reps.copyFailedTitle"), description: t("reps.copyFailedBody"), variant: "destructive" });
     }
   };
 
@@ -60,7 +65,7 @@ const RepCard = ({ rep, onShowBills }: RepCardProps) => {
         )}
         <div className="min-w-0 flex-1">
           <h3 className="truncate text-lg text-foreground">{rep.name}</h3>
-          <p className="text-sm text-muted-foreground">{repTitle(rep)}</p>
+          <p className="text-sm text-muted-foreground">{repTitle(rep, tr)}</p>
           <Chip tone={partyTone(rep.party)} dot className="mt-1.5">
             {partyShort(rep.party)} · {rep.party}
           </Chip>
@@ -70,18 +75,18 @@ const RepCard = ({ rep, onShowBills }: RepCardProps) => {
       <div className="mt-4 flex flex-wrap gap-2">
         <Button size="sm" onClick={copyDraft} aria-live="polite">
           {copied ? <Check className="h-4 w-4" aria-hidden="true" /> : <Copy className="h-4 w-4" aria-hidden="true" />}
-          {copied ? "Copied" : "Copy message"}
+          {copied ? t("reps.copied") : t("reps.copyMessage")}
         </Button>
         <Button asChild size="sm" variant="outline">
           <a href={contactUrl(rep)} target="_blank" rel="noopener noreferrer">
-            {rep.website ? "Official site" : "Congress.gov"}
+            {rep.website ? t("common.officialSite") : t("common.congressGov")}
             <ExternalLink className="h-4 w-4" aria-hidden="true" />
           </a>
         </Button>
         {onShowBills && (
           <Button size="sm" variant="ghost" onClick={() => onShowBills(rep)}>
             <FileText className="h-4 w-4" aria-hidden="true" />
-            Health bills
+            {t("reps.healthBills")}
           </Button>
         )}
       </div>

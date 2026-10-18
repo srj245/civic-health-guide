@@ -5,6 +5,7 @@ import ImpactResults from "@/components/sections/ImpactResults";
 import PageHero from "@/components/sections/PageHero";
 import Section from "@/components/layout/Section";
 import { Calculator } from "lucide-react";
+import { useI18n } from "@/i18n";
 
 export interface ImpactProfile {
   ageRange: string;
@@ -34,7 +35,8 @@ export interface ImpactSource {
 }
 
 const Impact = () => {
-  usePageTitle("Impact calculator", "See how current health bills affect you personally.");
+  const { t, language } = useI18n();
+  usePageTitle(t("impact.pageTitle"), t("impact.pageDescription"));
   const [profile, setProfile] = useState<ImpactProfile | null>(null);
   const [results, setResults] = useState<ImpactResult[]>([]);
   const [sources, setSources] = useState<ImpactSource[]>([]);
@@ -48,14 +50,14 @@ const Impact = () => {
     try {
       const { supabase } = await import("@/integrations/supabase/client");
       const { data, error: fnError } = await supabase.functions.invoke("impact-calculator", {
-        body: p,
+        body: { ...p, language },
       });
       if (fnError) throw fnError;
       if (data?.error) throw new Error(data.error);
       setResults(data?.results || []);
       setSources(data?.sources || []);
     } catch (e: unknown) {
-      setError((e instanceof Error && e.message) || "Failed to calculate impact");
+      setError((e instanceof Error && e.message) || t("impact.failed"));
     } finally {
       setLoading(false);
     }
@@ -72,9 +74,9 @@ const Impact = () => {
     <div className="bg-background">
       <PageHero
         icon={Calculator}
-        badge="Personalized"
-        title="Impact calculator"
-        subtitle="Enter your situation and see which current health bills affect you most."
+        badge={t("impact.badge")}
+        title={t("impact.pageTitle")}
+        subtitle={t("impact.subtitle")}
       />
       <Section first width="narrow">
         {!profile ? (

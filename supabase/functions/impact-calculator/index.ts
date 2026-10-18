@@ -9,7 +9,7 @@ import {
   rateLimit,
   readJsonObject,
 } from "../_shared/http.ts";
-import { DEFAULT_CONGRESS, parseEnum, parseState, parseText } from "../_shared/validate.ts";
+import { DEFAULT_CONGRESS, languageInstruction, parseEnum, parseLanguage, parseState, parseText } from "../_shared/validate.ts";
 
 /**
  * Grounded impact calculator.
@@ -164,7 +164,7 @@ Rules:
 - Return the exact id string for each bill you choose, copied from the list.
 - Pick at most ${MAX_RESULTS} bills that are genuinely relevant to this profile. If few or none are relevant, return fewer (an empty list is acceptable).
 - Base the impact explanation only on the title and latest action shown; if the title alone is not enough to be confident, say the impact is uncertain.
-- Be nonpartisan and factual.`;
+- Be nonpartisan and factual.${languageInstruction(parseLanguage(body.language))}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",

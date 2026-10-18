@@ -1,13 +1,15 @@
 import PageHero from "@/components/sections/PageHero";
 import FindCareSection from "@/components/sections/FindCareSection";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { useT } from "@/i18n";
 
 const Care = () => {
-  usePageTitle("Care near you", "Discover clinics, mental health services, and low-cost care options in your area.");
+  const t = useT();
+  usePageTitle(t("care.pageTitle"), t("care.pageDescription"));
 
   return (
     <div className="bg-background">
-      <PageHero badge="Find care" title="Care near you" subtitle="Clinics, mental health services, pharmacies, and low-cost care options." />
+      <PageHero badge={t("care.badge")} title={t("care.pageTitle")} subtitle={t("care.subtitle")} />
       <FindCareSection />
     </div>
   );

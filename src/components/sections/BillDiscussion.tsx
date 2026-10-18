@@ -9,23 +9,26 @@ import { useAuth } from "@/hooks/useAuth";
 import { useBillComments, type BillComment } from "@/hooks/useBillComments";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { useI18n } from "@/i18n";
+
+type T = ReturnType<typeof useI18n>["t"];
 
 function getInitials(email: string) {
   return email.split("@")[0].slice(0, 2).toUpperCase();
 }
 
-function formatDate(dateString: string) {
+function formatDate(dateString: string, t: T, locale: string) {
   const d = new Date(dateString);
   const now = new Date();
   const diffMs = now.getTime() - d.getTime();
   const diffMin = Math.floor(diffMs / 60000);
-  if (diffMin < 1) return "Just now";
-  if (diffMin < 60) return `${diffMin}m ago`;
+  if (diffMin < 1) return t("bills.discussion.time.justNow");
+  if (diffMin < 60) return t("bills.discussion.time.m", { n: diffMin });
   const diffHrs = Math.floor(diffMin / 60);
-  if (diffHrs < 24) return `${diffHrs}h ago`;
+  if (diffHrs < 24) return t("bills.discussion.time.h", { n: diffHrs });
   const diffDays = Math.floor(diffHrs / 24);
-  if (diffDays < 7) return `${diffDays}d ago`;
-  return d.toLocaleDateString();
+  if (diffDays < 7) return t("bills.discussion.time.d", { n: diffDays });
+  return d.toLocaleDateString(locale);
 }
 
 interface Props {
@@ -50,6 +53,8 @@ const CommentNode = ({
   comment, depth, user, replyingTo, setReplyingTo, replyText, setReplyText,
   onReplySubmit, onDelete, onVote, submitting,
 }: CommentNodeProps) => {
+  const { t, ui } = useI18n();
+  const locale = ui === "es" ? "es" : "en-US";
   const maxDepth = 3;
   const handle = comment.user_email.split("@")[0];
 
@@ -65,12 +70,12 @@ const CommentNode = ({
             aria-pressed={comment.userVote === 1}
             onClick={() => onVote(comment.id, 1)}
             className={comment.userVote === 1 ? "text-foreground" : "text-muted-foreground"}
-            aria-label="Upvote"
+            aria-label={t("bills.discussion.upvote")}
           >
             <ChevronUp aria-hidden="true" />
           </Button>
           <span
-            aria-label={`Score ${comment.score}`}
+            aria-label={t("bills.discussion.score", { n: comment.score })}
             className={`text-sm tabular-nums leading-none ${comment.score < 0 ? "text-destructive" : "text-foreground"}`}
           >
             {comment.score}
@@ -82,7 +87,7 @@ const CommentNode = ({
             aria-pressed={comment.userVote === -1}
             onClick={() => onVote(comment.id, -1)}
             className={comment.userVote === -1 ? "text-destructive" : "text-muted-foreground"}
-            aria-label="Downvote"
+            aria-label={t("bills.discussion.downvote")}
           >
             <ChevronDown aria-hidden="true" />
           </Button>
@@ -98,7 +103,7 @@ const CommentNode = ({
           <div className="flex flex-wrap items-center gap-2">
             <span className="truncate text-xs font-medium text-foreground">{handle}</span>
             <span className="text-xs text-muted-foreground">
-              {formatDate(comment.created_at)}
+              {formatDate(comment.created_at, t, locale)}
             </span>
             {user && depth < maxDepth && (
               <button
@@ -107,7 +112,7 @@ const CommentNode = ({
                 onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
                 className="flex items-center gap-0.5 rounded-md text-xs text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
-                <Reply className="h-3 w-3" aria-hidden="true" /> Reply
+                <Reply className="h-3 w-3" aria-hidden="true" /> {t("bills.discussion.reply")}
               </button>
             )}
             {user?.id === comment.user_id && (
@@ -115,7 +120,7 @@ const CommentNode = ({
                 type="button"
                 onClick={() => onDelete(comment.id)}
                 className="rounded-md p-0.5 text-muted-foreground opacity-0 transition-opacity hover:text-destructive focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring group-hover:opacity-100 group-focus-within:opacity-100"
-                aria-label="Delete comment"
+                aria-label={t("bills.discussion.delete")}
               >
                 <Trash2 className="h-3 w-3" aria-hidden="true" />
               </button>
@@ -128,22 +133,22 @@ const CommentNode = ({
           {/* Reply input */}
           {replyingTo === comment.id && (
             <div className="mt-2 flex items-center gap-2">
-              <label htmlFor={`reply-${comment.id}`} className="sr-only">Reply to {handle}</label>
+              <label htmlFor={`reply-${comment.id}`} className="sr-only">{t("bills.discussion.replyTo", { name: handle })}</label>
               <Input
                 id={`reply-${comment.id}`}
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
-                placeholder={`Reply to ${handle}...`}
+                placeholder={t("bills.discussion.replyPlaceholder", { name: handle })}
                 className="h-9 flex-1"
                 maxLength={500}
                 disabled={submitting}
                 autoFocus
                 onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); onReplySubmit(comment.id); } }}
               />
-              <Button type="button" size="icon-sm" disabled={!replyText.trim() || submitting} onClick={() => onReplySubmit(comment.id)} aria-label="Post reply">
+              <Button type="button" size="icon-sm" disabled={!replyText.trim() || submitting} onClick={() => onReplySubmit(comment.id)} aria-label={t("bills.discussion.postReply")}>
                 <Send aria-hidden="true" />
               </Button>
-              <Button type="button" variant="ghost" size="icon-sm" onClick={() => setReplyingTo(null)} aria-label="Cancel reply">
+              <Button type="button" variant="ghost" size="icon-sm" onClick={() => setReplyingTo(null)} aria-label={t("bills.discussion.cancelReply")}>
                 <X aria-hidden="true" />
               </Button>
             </div>
@@ -184,6 +189,7 @@ const BillDiscussion = ({ billId }: Props) => {
   const [replyText, setReplyText] = useState("");
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { t } = useI18n();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -192,7 +198,7 @@ const BillDiscussion = ({ billId }: Props) => {
       await addComment(newComment);
       setNewComment("");
     } catch {
-      toast({ title: "Failed to post comment", variant: "destructive" });
+      toast({ title: t("bills.discussion.postFailed"), variant: "destructive" });
     }
   };
 
@@ -203,22 +209,22 @@ const BillDiscussion = ({ billId }: Props) => {
       setReplyText("");
       setReplyingTo(null);
     } catch {
-      toast({ title: "Failed to post reply", variant: "destructive" });
+      toast({ title: t("bills.discussion.replyFailed"), variant: "destructive" });
     }
   };
 
   const handleDelete = async (id: string) => {
     try {
       await deleteComment(id);
-      toast({ title: "Comment deleted" });
+      toast({ title: t("bills.discussion.deleted") });
     } catch {
-      toast({ title: "Failed to delete", variant: "destructive" });
+      toast({ title: t("bills.discussion.deleteFailed"), variant: "destructive" });
     }
   };
 
   const handleVote = (commentId: string, direction: 1 | -1) => {
     if (!user) {
-      toast({ title: "Sign in to vote" });
+      toast({ title: t("bills.discussion.signInVote") });
       return;
     }
     vote(commentId, direction);
@@ -228,7 +234,7 @@ const BillDiscussion = ({ billId }: Props) => {
     <div className="space-y-4">
       <h3 className="flex items-center gap-2 text-lg text-foreground">
         <MessageSquare className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-        Discussion
+        {t("bills.discussion.title")}
         {commentCount > 0 && (
           <span className="text-xs text-muted-foreground">
             ({commentCount})
@@ -242,24 +248,24 @@ const BillDiscussion = ({ billId }: Props) => {
           <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-secondary text-xs text-foreground" aria-hidden="true">
             {getInitials(user.email || "?")}
           </div>
-          <label htmlFor="new-comment" className="sr-only">Add a comment</label>
+          <label htmlFor="new-comment" className="sr-only">{t("bills.discussion.addLabel")}</label>
           <Input
             id="new-comment"
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
-            placeholder="Share your perspective on this bill..."
+            placeholder={t("bills.discussion.placeholder")}
             className="h-10 flex-1"
             maxLength={500}
             disabled={submitting}
           />
-          <Button type="submit" size="icon" disabled={!newComment.trim() || submitting} className="shrink-0" aria-label="Post comment">
+          <Button type="submit" size="icon" disabled={!newComment.trim() || submitting} className="shrink-0" aria-label={t("bills.discussion.post")}>
             <Send aria-hidden="true" />
           </Button>
         </form>
       ) : (
         <Button type="button" variant="outline" className="w-full" onClick={() => navigate("/auth")}>
           <LogIn aria-hidden="true" />
-          Sign in to join the discussion
+          {t("bills.discussion.signIn")}
         </Button>
       )}
 
@@ -302,7 +308,7 @@ const BillDiscussion = ({ billId }: Props) => {
 
       {/* Empty state */}
       {!loading && comments.length === 0 && (
-        <EmptyState compact title="No comments yet" body="Be the first to share your perspective." />
+        <EmptyState compact title={t("bills.discussion.empty.title")} body={t("bills.discussion.empty.body")} />
       )}
     </div>
   );

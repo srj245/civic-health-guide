@@ -3,9 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Eyebrow, Surface } from "@/components/ui/primitives";
 import { ArrowRight, ArrowLeft } from "lucide-react";
 import type { ImpactProfile } from "@/pages/Impact";
+import { useT } from "@/i18n";
 
 const AGE_RANGES = ["18–26", "27–44", "45–64", "65+"];
-const INSURANCE_TYPES = ["Employer", "Marketplace (ACA)", "Medicare", "Medicaid", "Uninsured", "Other"];
+// These VALUES are sent to the server, which whitelists them; only the labels are translated.
+const INSURANCE_TYPES = ["Employer", "Marketplace (ACA)", "Medicare", "Medicaid", "Uninsured", "Other"] as const;
 const CONCERNS = [
   "Prescription drug costs",
   "Mental health services",
@@ -15,7 +17,7 @@ const CONCERNS = [
   "Dental & vision",
   "Veterans health",
   "Rural access to care",
-];
+] as const;
 
 const US_STATES = [
   "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA",
@@ -35,6 +37,7 @@ interface Props {
 }
 
 const ImpactForm = ({ onSubmit }: Props) => {
+  const t = useT();
   const [step, setStep] = useState(0);
   const [ageRange, setAgeRange] = useState("");
   const [insuranceType, setInsuranceType] = useState("");
@@ -60,7 +63,7 @@ const ImpactForm = ({ onSubmit }: Props) => {
 
   const steps = [
     {
-      title: "What's your age range?",
+      title: t("impact.q.age"),
       content: (
         <div className="grid grid-cols-2 gap-3">
           {AGE_RANGES.map((a) => (
@@ -78,25 +81,25 @@ const ImpactForm = ({ onSubmit }: Props) => {
       ),
     },
     {
-      title: "What type of insurance do you have?",
+      title: t("impact.q.insurance"),
       content: (
         <div className="grid grid-cols-2 gap-3">
-          {INSURANCE_TYPES.map((t) => (
+          {INSURANCE_TYPES.map((v) => (
             <button
-              key={t}
+              key={v}
               type="button"
-              aria-pressed={insuranceType === t}
-              onClick={() => setInsuranceType(t)}
-              className={`${optionClass(insuranceType === t)} text-center`}
+              aria-pressed={insuranceType === v}
+              onClick={() => setInsuranceType(v)}
+              className={`${optionClass(insuranceType === v)} text-center`}
             >
-              {t}
+              {t(`impact.ins.${v}`)}
             </button>
           ))}
         </div>
       ),
     },
     {
-      title: "What health topics concern you most?",
+      title: t("impact.q.concerns"),
       content: (
         <div className="flex flex-wrap gap-2">
           {CONCERNS.map((c) => (
@@ -107,15 +110,15 @@ const ImpactForm = ({ onSubmit }: Props) => {
               onClick={() => toggleConcern(c)}
               className={`${optionClass(concerns.includes(c))} px-3 py-2`}
             >
-              {c}
+              {t(`impact.concern.${c}`)}
             </button>
           ))}
-          <p className="mt-1 w-full text-xs text-muted-foreground">Select all that apply</p>
+          <p className="mt-1 w-full text-xs text-muted-foreground">{t("impact.selectAll")}</p>
         </div>
       ),
     },
     {
-      title: "What state do you live in?",
+      title: t("impact.q.state"),
       content: (
         <div className="grid grid-cols-5 gap-2 sm:grid-cols-8 md:grid-cols-10">
           {US_STATES.map((s) => (
@@ -142,25 +145,23 @@ const ImpactForm = ({ onSubmit }: Props) => {
         aria-valuemin={1}
         aria-valuemax={steps.length}
         aria-valuenow={step + 1}
-        aria-label="Form progress"
+        aria-label={t("impact.progress")}
       >
         {steps.map((_, i) => (
           <div key={i} className={`bar-ease h-1.5 flex-1 rounded ${i <= step ? "bg-foreground" : "bg-border"}`} />
         ))}
       </div>
 
-      <Eyebrow className="mb-3">
-        Step {step + 1} of {steps.length}
-      </Eyebrow>
+      <Eyebrow className="mb-3">{t("impact.step", { n: step + 1, total: steps.length })}</Eyebrow>
       <h2 className="mb-6 text-2xl tracking-tight text-foreground">{steps[step].title}</h2>
       {steps[step].content}
 
       <div className="mt-8 flex justify-between max-sm:sticky max-sm:bottom-0 max-sm:-mx-6 max-sm:border-t max-sm:border-border max-sm:bg-card max-sm:px-6 max-sm:py-3">
         <Button variant="ghost" onClick={() => setStep(step - 1)} disabled={step === 0}>
-          <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Back
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" /> {t("common.back")}
         </Button>
         <Button onClick={handleNext} disabled={!canNext}>
-          {step === 3 ? "See my impact" : "Next"}
+          {step === 3 ? t("impact.seeMyImpact") : t("common.next")}
           <ArrowRight className="h-4 w-4" aria-hidden="true" />
         </Button>
       </div>

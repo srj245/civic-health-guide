@@ -8,7 +8,7 @@ import {
   rateLimit,
   readJsonObject,
 } from "../_shared/http.ts";
-import { parseBillId, parseCongress, parseText } from "../_shared/validate.ts";
+import { languageInstruction, parseBillId, parseCongress, parseLanguage, parseText } from "../_shared/validate.ts";
 
 const TITLE_MAX = 500;
 const SUMMARY_MAX = 6000;
@@ -45,7 +45,8 @@ serve(async (req) => {
     const latestAction = parseText(body.latestAction, { max: ACTION_MAX });
     if (summary === null || latestAction === null) return badRequest("summary and latestAction must be text.");
 
-    const prompt = `You are a civic education assistant. Summarize this congressional bill in 2-3 sentences that a high school student could understand. Focus on what the bill does and who it affects. Use only the information below; do not invent provisions.
+    const language = parseLanguage(body.language);
+    const prompt = `You are a civic education assistant. Summarize this congressional bill in 2-3 sentences that a high school student could understand. Focus on what the bill does and who it affects. Use only the information below; do not invent provisions.${languageInstruction(language)}
 
 ${billId ? `Bill: ${billId.toUpperCase()} (${congress}th Congress)\n` : ""}Bill Title: ${title}
 ${summary ? `Official Summary: ${summary}` : ""}

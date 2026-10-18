@@ -3,21 +3,23 @@ import PageHero from "@/components/sections/PageHero";
 import Section from "@/components/layout/Section";
 import { Button } from "@/components/ui/button";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { useT } from "@/i18n";
 
 const NotFound = () => {
   const location = useLocation();
-  usePageTitle("Page not found", "That page does not exist.");
+  const t = useT();
+  usePageTitle(t("notFound.title"), t("notFound.subtitle"));
 
   return (
     <div>
-      <PageHero badge="Error 404" title="Page not found" subtitle="The link may be out of date, or the page may have moved." />
+      <PageHero badge={t("notFound.badge")} title={t("notFound.title")} subtitle={t("notFound.subtitle")} />
       <Section first width="prose" className="text-center">
         <p className="text-sm text-muted-foreground">
-          There is nothing at{" "}
+          {t("notFound.nothingAt")}{" "}
           <code className="rounded-md border border-border bg-card px-1.5 py-0.5 text-foreground">{location.pathname}</code>.
         </p>
         <Button asChild className="mt-6">
-          <Link to="/">Return to home</Link>
+          <Link to="/">{t("notFound.home")}</Link>
         </Button>
       </Section>
     </div>
