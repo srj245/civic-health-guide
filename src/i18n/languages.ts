@@ -1,10 +1,12 @@
 /**
  * Languages CivicCare speaks.
  *
- * `ui` languages have a complete interface translation. Every language in the
- * list can be chosen for generated content (bill summaries, impact results,
- * chat), which the AI functions produce in that language. The list leads with
- * the languages most spoken at home in Minnesota after English.
+ * `ui` marks languages whose interface strings were written by people. For the
+ * others, the interface is machine-translated once by the translate-ui
+ * function and cached, with a note in the footer. Generated content (bill
+ * summaries, impact results, chat) is produced in the chosen language either
+ * way. The list leads with the languages most spoken at home in Minnesota
+ * after English.
  */
 export interface Language {
   code: string;

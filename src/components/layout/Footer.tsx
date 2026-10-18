@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useT } from "@/i18n";
+import { useI18n } from "@/i18n";
 
 const links = [
   { name: "nav.bills", href: "/news" },
@@ -14,7 +14,7 @@ const links = [
 ] as const;
 
 const Footer = () => {
-  const t = useT();
+  const { t, machineTranslated } = useI18n();
   return (
     <footer className="mt-auto border-t border-border px-6 py-10 md:px-10" role="contentinfo">
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 text-center">
@@ -26,6 +26,7 @@ const Footer = () => {
           ))}
         </nav>
         <p className="max-w-lg text-xs leading-relaxed text-muted-foreground">{t("footer.sources")}</p>
+        {machineTranslated && <p className="max-w-lg text-xs leading-relaxed text-muted-foreground">{t("common.machineTranslated")}</p>}
         <p className="text-xs text-muted-foreground">{t("footer.copyright", { year: new Date().getFullYear() })}</p>
       </div>
     </footer>
