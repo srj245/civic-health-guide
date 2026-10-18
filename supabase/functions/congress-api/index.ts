@@ -12,7 +12,7 @@ import {
 import { parseBillId, parseCongress, parseEnum, parseLimit } from "../_shared/validate.ts";
 
 const CONGRESS_API_BASE = "https://api.congress.gov/v3";
-const ACTIONS = ["recent-bills", "bill-details", "health-bills", "subjects"] as const;
+const ACTIONS = ["recent-bills", "bill-details", "health-bills", "search-bills", "subjects"] as const;
 
 interface CongressBill {
   type?: string;
@@ -41,6 +41,8 @@ function slimBill(bill: CongressBill) {
 const HEALTH_PAGES = 8; // 8 x 250 = the 2,000 most recently updated bills
 const HEALTH_TTL_MS = 15 * 60 * 1000;
 const healthCache = new Map<number, { at: number; bills: ReturnType<typeof slimBill>[] }>();
+// The full recent list (not just the health subset), for free-text search.
+const recentCache = new Map<number, { at: number; bills: ReturnType<typeof slimBill>[] }>();
 
 async function getHealthBills(congress: number, apiKey: string) {
   const cached = healthCache.get(congress);
@@ -56,18 +58,34 @@ async function getHealthBills(congress: number, apiKey: string) {
     ),
   );
   const seen = new Set<string>();
+  const all: ReturnType<typeof slimBill>[] = [];
   const health: ReturnType<typeof slimBill>[] = [];
   for (const page of pages) {
     for (const bill of (page.bills ?? []) as CongressBill[]) {
-      if (!isHealthBill(bill.title)) continue;
       const slim = slimBill(bill);
       if (seen.has(slim.id)) continue;
       seen.add(slim.id);
-      health.push(slim);
+      all.push(slim);
+      if (isHealthBill(bill.title)) health.push(slim);
     }
   }
+  if (all.length > 0) recentCache.set(congress, { at: Date.now(), bills: all });
   if (health.length > 0) healthCache.set(congress, { at: Date.now(), bills: health });
   return health;
+}
+
+/** Whole-word search over the 2,000 most recently updated bills. */
+async function searchBills(congress: number, apiKey: string, q: string) {
+  const cached = recentCache.get(congress);
+  if (!cached || Date.now() - cached.at >= HEALTH_TTL_MS) await getHealthBills(congress, apiKey);
+  const all = recentCache.get(congress)?.bills ?? [];
+  const words = q.split(/\s+/).filter(Boolean).map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  if (words.length === 0) return [];
+  const patterns = words.map((w) => new RegExp(`\\b${w}`, "i"));
+  const code = q.replace(/[\s.]/g, "").toLowerCase();
+  return all
+    .filter((b) => (b.title && patterns.every((p) => p.test(b.title!))) || (code.length >= 2 && b.id.toLowerCase() === code))
+    .slice(0, 30);
 }
 
 async function congressFetch(path: string, apiKey: string, params: Record<string, string> = {}) {
@@ -139,6 +157,13 @@ serve(async (req) => {
         // cache the filtered list per isolate for 15 minutes.
         const bills = await getHealthBills(congress, apiKey);
         return json({ bills: bills.slice(0, limit), total: bills.length, fetchedAt: healthCache.get(congress)?.at ?? Date.now() });
+      }
+
+      case "search-bills": {
+        const q = parseText(body.q, { max: 80, required: true });
+        if (!q) return badRequest("Enter at least one word to search.");
+        const bills = await searchBills(congress, apiKey, q);
+        return json({ bills, q });
       }
 
       case "subjects": {

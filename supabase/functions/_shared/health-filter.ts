@@ -15,6 +15,10 @@ export const HEALTH_TERMS = [
   'diabetes', 'clinical', 'nurse', 'substance use', 'substance abuse',
   'addiction', 'emergency medical', 'hospice', 'mental health', 'suicide',
   'drug pricing', 'insulin', 'dental', 'organ donation', 'alzheimer', 'autism',
+  // Nutrition and food programs are health policy for the families they reach.
+  'wic', 'nutrition', 'women, infants, and children', 'supplemental nutrition',
+  'school meals', 'food assistance', 'hunger', 'public health', 'behavioral health',
+  "children's health insurance", 'home health', 'long-term care', 'caregiver',
 ];
 
 export const EXCLUDE_TERMS = [

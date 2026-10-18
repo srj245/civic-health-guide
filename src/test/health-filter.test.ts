@@ -9,6 +9,12 @@ describe("isHealthBill", () => {
     expect(isHealthBill("Andrew Kearse Accountability for Denial of Medical Care Act")).toBe(true);
   });
 
+  it("treats nutrition programs as health policy", () => {
+    expect(isHealthBill("WIC Modernization Act of 2026")).toBe(true);
+    expect(isHealthBill("To reauthorize the Special Supplemental Nutrition Program for Women, Infants, and Children")).toBe(true);
+    expect(isHealthBill("Healthy School Meals for All Act")).toBe(true);
+  });
+
   it("matches plurals", () => {
     expect(isHealthBill("Protecting Patients and Hospitals Act")).toBe(true);
     expect(isHealthBill("Rural Physicians Workforce Act")).toBe(true);

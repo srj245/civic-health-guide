@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Clock, ArrowRight, FileText, Bookmark, Search, RefreshCw } from "lucide-react";
 import { timeAgo } from "@/lib/time";
-import { useHealthBills, type Bill } from "@/hooks/useCongressApi";
+import { useBillSearch, useHealthBills, type Bill } from "@/hooks/useCongressApi";
 import { useTrackedBills } from "@/hooks/useTrackedBills";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -43,6 +43,9 @@ const NewsSection = () => {
           getBillCategory(b.title).toLowerCase().includes(q),
       )
     : allBills;
+  // When the health list has no match, search the full recent list on the server.
+  const search = useBillSearch(q && bills.length === 0 ? query : "");
+  const shown = bills.length > 0 ? bills : search.results;
   const [selectedBill, setSelectedBill] = useState<Bill | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const { user } = useAuth();
@@ -119,14 +122,41 @@ const NewsSection = () => {
         />
       )}
 
-      {!loading && !error && q && bills.length === 0 && (
-        <EmptyState compact title="No bills match" body={`Nothing matches "${query}". Try a different keyword or bill number.`} />
+      {!loading && !error && q && bills.length === 0 && search.loading && (
+        <p className="text-sm text-muted-foreground" aria-live="polite">
+          Not in the health list. Searching all recent bills in Congress…
+        </p>
+      )}
+
+      {!loading && !error && q && bills.length === 0 && !search.loading && shown.length > 0 && (
+        <p className="text-sm text-muted-foreground" aria-live="polite">
+          Not in the health list. {shown.length} of the 2,000 most recently updated bills mention &ldquo;{query}&rdquo;.
+        </p>
+      )}
+
+      {!loading && !error && q && shown.length === 0 && !search.loading && (
+        <EmptyState
+          compact
+          title="No bills match"
+          body={
+            search.enabled
+              ? `Nothing in the 2,000 most recently updated bills mentions "${query}". It may be older, or filed under a different name.`
+              : `Nothing matches "${query}". Try a different keyword or bill number.`
+          }
+          action={
+            <Button asChild variant="outline">
+              <a href={`https://www.congress.gov/search?q=${encodeURIComponent(JSON.stringify({ source: "legislation", search: query }))}`} target="_blank" rel="noopener noreferrer">
+                Search all of Congress.gov
+              </a>
+            </Button>
+          }
+        />
       )}
 
       {/* Bills grid */}
-      {!loading && !error && bills.length > 0 && (
+      {!loading && !error && shown.length > 0 && (
         <div className="grid gap-4 md:grid-cols-2" data-stagger>
-          {bills.map((bill) => (
+          {shown.map((bill) => (
             <Surface
               key={bill.id}
               variant="interactive"

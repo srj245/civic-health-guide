@@ -79,6 +79,29 @@ export function useHealthBills(limit = 10) {
   };
 }
 
+/**
+ * Server-side search across the 2,000 most recently updated bills, used when the
+ * health list has no match. Enabled from three characters.
+ */
+export function useBillSearch(q: string) {
+  const term = q.trim();
+  const enabled = term.length >= 3;
+  const query = useQuery({
+    queryKey: ["bill-search", term.toLowerCase()],
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke<{ bills?: Bill[]; error?: string }>("congress-api", {
+        body: { action: "search-bills", q: term },
+      });
+      if (error) throw new Error("Search failed");
+      if (data?.error) throw new Error(data.error);
+      return data?.bills ?? [];
+    },
+    enabled,
+    staleTime: STALE_MS,
+  });
+  return { results: query.data ?? [], loading: enabled && query.isPending, error: query.error ? query.error.message : null, enabled };
+}
+
 export function useBillDetails(billId: string | null, congress = "119") {
   const [bill, setBill] = useState<BillDetail | null>(null);
   const [loading, setLoading] = useState(false);
