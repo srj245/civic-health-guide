@@ -9,7 +9,7 @@ import {
   rateLimit,
   readJsonObject,
 } from "../_shared/http.ts";
-import { parseBillId, parseCongress, parseEnum, parseLimit } from "../_shared/validate.ts";
+import { parseBillId, parseCongress, parseEnum, parseLimit, parseText } from "../_shared/validate.ts";
 
 const CONGRESS_API_BASE = "https://api.congress.gov/v3";
 const ACTIONS = ["recent-bills", "bill-details", "health-bills", "search-bills", "subjects"] as const;
